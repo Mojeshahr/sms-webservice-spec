@@ -46,6 +46,13 @@ def load(path):
         return yaml.safe_load(fh)
 
 
+def row_exists(row):
+    """آیا این کد در نسخهٔ جاری سرویس وجود دارد."""
+    if "exists" in row:
+        return bool(row["exists"])
+    return bool(row.get("in_api") or row.get("confirmed"))
+
+
 def dig(node, keys):
     for key in keys:
         if not isinstance(node, dict) or key not in node:
@@ -69,8 +76,9 @@ def check_codes(label, version_dir, schemas):
         table = load(table_path)
         rows = table.get("codes") or []
         in_spec = set(enum)
-        # هر کدی که سرویس اعلام می‌کند یا ما تأییدش کرده‌ایم، باید در enum باشد
-        expected = {r["code"] for r in rows if r.get("in_api") or r.get("confirmed")}
+        # enum باید دقیقاً کدهای موجود را داشته باشد. جدولی که هنوز ستون
+        # exists ندارد، «موجود» را از in_api یا confirmed می‌گیرد.
+        expected = {r["code"] for r in rows if row_exists(r)}
 
         for code in sorted(in_spec - expected):
             errors.append(f"{label}: {what} {code} در enum spec هست ولی در {filename} پشتوانه‌ای ندارد")
@@ -84,11 +92,11 @@ def check_codes(label, version_dir, schemas):
                 errors.append(f"{label}: {what} {code} در {filename} تکراری است")
             seen.add(code)
 
-            if row.get("in_docs") and not row.get("fa"):
-                errors.append(f"{label}: {what} {code} علامت in_docs دارد ولی متن fa ندارد")
-
-            if not row.get("confirmed"):
-                if not row.get("in_docs"):
+            if row_exists(row) and not row.get("fa"):
+                gaps.append((label, what, code, "موجود است ولی شرحی ندارد"))
+                warnings.append(f"{label}: {what} {code} موجود است ولی شرحی ندارد")
+            elif not row.get("confirmed"):
+                if not row.get("in_legacy_docs"):
                     reason = "سرویس اعلامش می‌کند ولی شرح رسمی ندارد"
                 elif not row.get("in_api"):
                     reason = "مستند شده ولی سرویس اعلامش نمی‌کند"
@@ -96,6 +104,11 @@ def check_codes(label, version_dir, schemas):
                     reason = "تأیید نشده"
                 gaps.append((label, what, code, reason))
                 warnings.append(f"{label}: {what} {code} تأیید نشده، {reason}")
+
+            # کدی که فهرست عمومیِ پیشین داشت و دیگر وجود ندارد. مرجع تازه
+            # نباید تکرارش کند، و این هشدار همان یادآوری است.
+            if row.get("exists") is False and row.get("in_legacy_docs"):
+                warnings.append(f"{label}: {what} {code} حذف شده، مرجع تازه نباید فهرستش کند")
 
 
 def check_operations(label, spec):

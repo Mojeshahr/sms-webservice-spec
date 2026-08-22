@@ -3,155 +3,275 @@
 # مقدار فیلد ErrorCode در پاکت پاسخ. فقط وقتی معنا دارد که Success برابر
 # false باشد.
 #
-# متن‌ها عیناً همان چیزی است که در فهرست رسمی منتشر شده، از جمله غلط‌های
-# نگارشی، تا با آنچه کاربر در فیلد Error می‌بیند یکی بماند.
+# منبع: تیم سرویس. فهرست بسته است؛ هر کد دیگری که دیدید مثل ۱۰۰ رفتار کنید.
 #
+# name      : نام عضو enum در بک‌اند، عیناً با همان املا
+# fa        : متنی که سرویس در فیلد Error برمی‌گرداند
+# cause     : چه چیزی این خطا را می‌سازد
+# action    : کاربر باید چه کند
+# retry     : never | backoff | limit-reset
+# exists    : در نسخهٔ ۳ امروز وجود دارد
 # in_api    : در enum منتشرشدهٔ swagger هست
-# in_docs   : در فهرست رسمی doc.sms-webservice.com هست
-# confirmed : کسی از تیم وجود و معنی‌اش را تأیید کرده است
+# in_legacy_docs : در فهرست عمومیِ بازنشسته بود. مرجع تازه docs.payam-resan.com است.
+# confirmed : تیم سرویس تأییدش کرده است
 #
-# هر کدی که confirmed نباشد یک شکاف واقعی در خود سرویس است، نه اشتباه این
-# فایل، و باید از سمت پنل پیگیری شود. اعتبارسنج فهرستشان را می‌دهد.
-#
-# enum در spec شامل کدهایی است که in_api یا confirmed باشند: یعنی یا سرویس
-# اعلامشان می‌کند، یا ما مستقلاً وجودشان را تأیید کرده‌ایم.
+# enum در spec شامل کدهایی است که exists باشند.
 
 version: 3
 sources:
   api: https://api.sms-webservice.com/swagger/docs/v3
-  docs: https://doc.sms-webservice.com/code-list.html
+  team: تیم سرویس
   captured: 2026-08-22
+  legacy_docs:
+    status: بازنشسته، بدون جانشین در همان نشانی
+    note: این صفحه از دور خارج می‌شود و نباید به آن لینک داد. ستون in_legacy_docs فقط ثبت می‌کند آن صفحه چه چیزی را پوشش می‌داد، تا مرجع تازه در docs.payam-resan.com همان کاستی‌ها را تکرار نکند.
+
+guidance:
+  - اول Success را بخوانید. تا false نباشد، ErrorCode معنا ندارد.
+  - متن Error گاهی جزئیات اضافه دارد، مثل سقف مجاز تعداد گیرنده در کد ۱۳.
+  - همیشه UserTraceId یکتا بفرستید. بعد از timeout یا کد ۱۰۰، تنها راه امن تشخیص اینکه پیامک ثبت شده یا نه، StatusByUserTraceId است.
+  - خطای retry never را دوباره نفرستید. تکرارش فقط سهمیهٔ نرخ را می‌سوزاند و در نهایت به کد ۲۰ می‌رسد.
+  - هر کد ناشناخته‌ای را مثل ۱۰۰ رفتار کنید.
+  - متدهای AccountInfo و TokenList از بررسی اعتبار معاف‌اند و حتی با اعتبار صفر هم پاسخ می‌دهند. در بک‌اند به TokenList گفته می‌شود OtpList.
 
 codes:
   - code: 1
+    name: InvalidApiKey
     fa: ApiKey نادرست است
+    cause: کلید در فهرست کلیدهای فعال پیدا نشد یا کاربرش نامعتبر است.
+    action: کلید را دوباره از پنل کپی کنید. کلید حذف‌شده برنمی‌گردد، کلید تازه بسازید.
+    retry: never
+    exists: true
     in_api: true
-    in_docs: true
+    in_legacy_docs: true
     confirmed: true
 
   - code: 2
-    fa: ارسال از وبسرویس برای این کاربر فعال نشده است.
+    name: ApiIsNotActive
+    fa: ارسال از وبسرویس برای این کاربر فعال نشده است
+    cause: روی حساب، وب‌سرویس فعال نیست.
+    action: از پنل یا پشتیبانی درخواست فعال‌سازی وب‌سرویس بدهید. تکرار درخواست بی‌فایده است.
+    retry: never
+    exists: true
     in_api: true
-    in_docs: true
+    in_legacy_docs: true
     confirmed: true
 
   - code: 3
+    name: UserIsNotActive
     fa: کاربر فعال نیست
+    cause: حساب کاربری قفل یا غیرفعال است.
+    action: با پشتیبانی تماس بگیرید.
+    retry: never
+    exists: true
+    returned_in_v3: false
     in_api: true
-    in_docs: true
+    in_legacy_docs: true
     confirmed: true
+    note: میراث نسخه‌های قبلی. در مسیر V3 فعلاً برگردانده نمی‌شود.
 
   - code: 4
-    fa: ارسال از طریق Api موقتا غیر فعال است.
+    name: ApiTemproryDeactive
+    fa: ارسال از طریق Api موقتا غیر فعال است
+    cause: خاموشی سراسری سرویس، حالت اضطراری یا خاموش بودن Api در تنظیمات.
+    action: موقتی است. با فاصلهٔ ۳۰ تا ۱۲۰ ثانیه دوباره تلاش کنید. کلید را عوض نکنید.
+    retry: backoff
+    exists: true
     in_api: true
-    in_docs: true
+    in_legacy_docs: true
     confirmed: true
+    note: املای نام عضو enum در بک‌اند همین است، Temprory.
 
   - code: 5
-    fa: ارسال از طریق این متد موقتا غیر فعال است.
+    name: MethodIsDeactive
+    fa: ارسال از طریق این متد موقتا غیر فعال است
+    cause: همان متد خاص سراسری خاموش شده است، نه کل سرویس.
+    action: از متد جایگزین استفاده کنید یا صبر کنید. سایر متدها احتمالاً کار می‌کنند.
+    retry: backoff
+    exists: true
     in_api: true
-    in_docs: true
+    in_legacy_docs: true
     confirmed: true
 
   - code: 6
-    fa: تلفن همراه ثبت شده روی این اکانت تائید نشده است
+    name: NoAuthntication
+    fa: احراز هویت حساب انجام نشده است
+    cause: سرویس محدودیت ارسال همهٔ خطوط را بست چون احراز هویت انجام نشده است.
+    action: احراز هویت را در پنل کامل کنید. تا آن زمان هیچ ارسالی باز نمی‌شود.
+    retry: never
+    exists: true
     in_api: true
-    in_docs: true
+    in_legacy_docs: true
     confirmed: true
+    note: فهرست عمومی متن کهنه‌ای نشان می‌دهد که از تأیید تلفن همراه می‌گوید، و باید اصلاح شود. املای نام عضو enum در بک‌اند بدون e است.
 
   - code: 7
-    fa: ایمیل ثبت شده روی این اکانت تائید نشده است
+    name: AccountEmailNotActived
+    fa: null
+    cause: null
+    action: null
+    retry: null
+    exists: false
     in_api: false
-    in_docs: true
-    confirmed: false
-    note: در فهرست رسمی هست ولی در enum منتشرشدهٔ swagger نیست.
+    in_legacy_docs: true
+    confirmed: true
+    note: حذف شده است و دیگر برگردانده نمی‌شود. فهرست عمومی هنوز شرحش را دربارهٔ تأیید ایمیل نشان می‌دهد و باید از آن صفحه برداشته شود.
 
   - code: 8
+    name: AccountInfoIsIncomplete
     fa: اطلاعات هویتی کاربر به صورت کامل درج نشده است
+    cause: فیلدهای هویتی پروفایل ناقص است.
+    action: پروفایل را کامل کنید.
+    retry: never
+    exists: true
+    returned_in_v3: false
     in_api: true
-    in_docs: true
+    in_legacy_docs: true
     confirmed: true
+    note: در مسیر V3 فعلاً برگردانده نمی‌شود.
 
   - code: 9
-    fa: مقادیر ورودی نادرست است.
+    name: InvalidParameters
+    fa: مقادیر ورودی نادرست است
+    cause: بدنهٔ درخواست خراب است. ApiKey برابر null، آرایهٔ گیرنده خالی یا دارای عضو null، متن خالی، فهرست شناسه خالی، یا پارامترهای OTP ناسازگار با قالب.
+    action: متن فیلد Error می‌گوید کدام فیلد. JSON را اصلاح کنید. تکرار بدون اصلاح بی‌فایده است.
+    retry: never
+    exists: true
     in_api: true
-    in_docs: true
+    in_legacy_docs: true
     confirmed: true
 
   - code: 10
+    name: IpIsNotValid
     fa: آی پی درخواست دهنده در لیست آی پی های معتبر نیست
+    cause: IP فراخوان در فهرست IPهای مجاز کاربر نیست.
+    action: IP سرور را در پنل اضافه کنید، یا فهرست را خالی کنید تا محدودیت برداشته شود. پشت CDN یا پروکسی، IP خروجی واقعی را اضافه کنید.
+    retry: never
+    exists: true
     in_api: true
-    in_docs: true
+    in_legacy_docs: true
     confirmed: true
 
   - code: 11
+    name: MalformattedApiKey
     fa: فرمت ورودی ApiKey نادرست است
+    cause: ساختار کلید غلط است. باید شش رقم شناسهٔ کاربری، خط تیره، و بخش کلید باشد و بخش اول عدد.
+    action: فرمت را اصلاح کنید. فاصله یا newline اضافه هم همین خطا را می‌دهد.
+    retry: never
+    exists: true
     in_api: true
-    in_docs: true
+    in_legacy_docs: true
     confirmed: true
 
   - code: 12
+    name: InvalidSender
     fa: شماره ارسال کننده نادرست است
+    cause: خط ارسال متعلق به کاربر نیست یا برای وب‌سرویس مجاز نیست. در OTP، خط باید از خطوط OTP باشد و برای همهٔ گیرنده‌ها یکسان.
+    action: خط را از فیلد AvailableSenders در پاسخ AccountInfo بگیرید. در OTP همهٔ رکوردها یک Sender داشته باشند.
+    retry: never
+    exists: true
     in_api: true
-    in_docs: true
+    in_legacy_docs: true
     confirmed: true
 
   - code: 13
-    fa: شماره شماره دریافت کننده باید با 9 یا 989 شروع شود
+    name: InvalidDestination
+    fa: شماره دریافت کننده باید با 9 یا 989 شروع شود
+    cause: گیرنده خالی است، شماره با 9 یا 989 شروع نمی‌شود، یا تعداد گیرنده از سقف بستهٔ ارسال بیشتر است.
+    action: شماره را به شکل 9xxxxxxxxx یا 989xxxxxxxxx نرمال کنید و 0 و +98 و 0098 را حذف کنید. بستهٔ بزرگ را تکه‌تکه بفرستید. سقف مجاز در متن Error می‌آید.
+    retry: never
+    exists: true
     in_api: true
-    in_docs: true
+    in_legacy_docs: true
     confirmed: true
+    note: فهرست عمومی فقط فرمت شماره را می‌گوید و به سقف تعداد گیرنده اشاره نمی‌کند. در متن آن صفحه هم یک کلمه تکرار شده است.
 
   - code: 14
+    name: UnauthorizedMethod
     fa: شما به این متد دسترسی ندارید
+    cause: دسترسی آن متد برای این حساب باز نیست، مثلاً OTP.
+    action: از پشتیبانی درخواست دسترسی بدهید.
+    retry: never
+    exists: true
     in_api: true
-    in_docs: true
+    in_legacy_docs: true
     confirmed: true
 
   - code: 15
+    name: DailyLimitReached
     fa: سقف ارسال روزانه به پایان رسید
+    cause: سقف روزانه پر شد و همهٔ خطوط بسته شدند.
+    action: تا ریست روز بعد صبر کنید یا افزایش سقف بگیرید.
+    retry: limit-reset
+    exists: true
     in_api: true
-    in_docs: true
+    in_legacy_docs: true
     confirmed: true
 
   - code: 16
-    fa: null
+    name: ApiLimitReached
+    fa: سقف ارسال Api به پایان رسید
+    cause: سقف مخصوص ارسال از Api پر شد.
+    action: تا ریست صبر کنید یا افزایش سقف بگیرید.
+    retry: limit-reset
+    exists: true
     in_api: true
-    in_docs: false
-    confirmed: false
-    note: در enum سرویس هست، شرح رسمی ندارد.
+    in_legacy_docs: false
+    confirmed: true
 
   - code: 17
-    fa: null
+    name: NightlyLimitReached
+    fa: سقف ارسال شبانه به پایان رسید
+    cause: سقف بازهٔ شبانه پر شد.
+    action: ارسال را به ساعات مجاز روز موکول کنید.
+    retry: limit-reset
+    exists: true
     in_api: true
-    in_docs: false
-    confirmed: false
-    note: در enum سرویس هست، شرح رسمی ندارد.
+    in_legacy_docs: false
+    confirmed: true
 
   - code: 18
-    fa: null
+    name: ShareLineLimitReached
+    fa: سقف ارسال خط اشتراکی به پایان رسید
+    cause: سقف خط اشتراکی پر شد.
+    action: از خط اختصاصی استفاده کنید یا صبر کنید.
+    retry: limit-reset
+    exists: true
     in_api: true
-    in_docs: false
-    confirmed: false
-    note: در enum سرویس هست، شرح رسمی ندارد.
+    in_legacy_docs: false
+    confirmed: true
 
   - code: 19
-    fa: null
+    name: CreditIsLow
+    fa: اعتبار حساب کافی نیست
+    cause: اعتبار کمتر از ۱ است. پیش از ارسال بررسی می‌شود.
+    action: حساب را شارژ کنید.
+    retry: never
+    exists: true
     in_api: true
-    in_docs: false
-    confirmed: false
-    note: در enum سرویس هست، شرح رسمی ندارد.
+    in_legacy_docs: false
+    confirmed: true
+    note: متدهای AccountInfo و TokenList از این بررسی معاف‌اند و همیشه پاسخ می‌دهند.
 
   - code: 20
-    fa: null
+    name: TooManyRequests
+    fa: تعداد درخواست بیش از حد مجاز است
+    cause: محدودکنندهٔ نرخ درخواست فعال شد. جزئیات در متن Error.
+    action: نرخ را پایین بیاورید و backoff نمایی بزنید.
+    retry: backoff
+    exists: true
     in_api: true
-    in_docs: false
-    confirmed: false
-    note: در enum سرویس هست، شرح رسمی ندارد.
+    in_legacy_docs: false
+    confirmed: true
+    note: این درخواست‌ها اصلاً لاگ نمی‌شوند.
 
   - code: 100
-    fa: null
+    name: InternalError
+    fa: خطا داخلی سیستم
+    cause: استثنای مدیریت‌نشده در سرور.
+    action: کورکورانه دوباره نفرستید. اول با UserTraceId وضعیت را از StatusByUserTraceId بگیرید. اگر ثبت نشده بود، دوباره بفرستید.
+    retry: backoff
+    exists: true
     in_api: true
-    in_docs: false
-    confirmed: false
-    note: در enum سرویس هست، شرح رسمی ندارد. عدد جداافتاده، احتمالاً خطای عمومی سرور.
+    in_legacy_docs: false
+    confirmed: true

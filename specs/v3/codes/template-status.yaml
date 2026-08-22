@@ -13,8 +13,10 @@
 version: 3
 sources:
   api: https://api.sms-webservice.com/swagger/docs/v3
-  docs: https://doc.sms-webservice.com/
   captured: 2026-08-22
+  legacy_docs:
+    status: بازنشسته، بدون جانشین در همان نشانی
+    note: این صفحه از دور خارج می‌شود و نباید به آن لینک داد. ستون in_legacy_docs فقط ثبت می‌کند آن صفحه چه چیزی را پوشش می‌داد، تا مرجع تازه در docs.payam-resan.com همان کاستی‌ها را تکرار نکند.
 
 codes:
   - code: 0
@@ -22,7 +24,7 @@ codes:
     description: قالب ثبت شده و منتظر بررسی ادمین است. تا تأیید نشود قابل ارسال نیست.
     sendable: false
     in_api: false
-    in_docs: true
+    in_legacy_docs: true
     confirmed: true
     note: در enum منتشرشدهٔ swagger نیست. وجودش از پنل تأیید شده.
 
@@ -31,7 +33,7 @@ codes:
     description: قالب تأیید شده و قابل ارسال است.
     sendable: true
     in_api: true
-    in_docs: true
+    in_legacy_docs: true
     confirmed: true
 
   - code: 2
@@ -39,7 +41,7 @@ codes:
     description: ادمین قالب را رد کرده است، اما کاربر می‌تواند ویرایشش کند و دوباره برای بررسی بفرستد.
     sendable: false
     in_api: true
-    in_docs: true
+    in_legacy_docs: true
     confirmed: true
 
   - code: 3
@@ -47,5 +49,5 @@ codes:
     description: ادمین قالب را رد و قفل کرده است. ویرایش ممکن نیست و باید قالب تازه‌ای ساخته شود.
     sendable: false
     in_api: true
-    in_docs: true
+    in_legacy_docs: true
     confirmed: true

@@ -8,7 +8,7 @@
 # متن‌ها عیناً همان چیزی است که در فهرست رسمی منتشر شده.
 #
 # in_api    : در enum منتشرشدهٔ swagger هست
-# in_docs   : در فهرست رسمی doc.sms-webservice.com هست
+# in_legacy_docs : در فهرست عمومیِ بازنشسته بود. مرجع تازه docs.payam-resan.com است.
 # confirmed : کسی از تیم وجود و معنی‌اش را تأیید کرده است
 #
 # هر کدی که confirmed نباشد باید از سمت پنل پیگیری شود.
@@ -16,8 +16,10 @@
 version: 3
 sources:
   api: https://api.sms-webservice.com/swagger/docs/v3
-  docs: https://doc.sms-webservice.com/sms-status.html
   captured: 2026-08-22
+  legacy_docs:
+    status: بازنشسته، بدون جانشین در همان نشانی
+    note: این صفحه از دور خارج می‌شود و نباید به آن لینک داد. ستون in_legacy_docs فقط ثبت می‌کند آن صفحه چه چیزی را پوشش می‌داد، تا مرجع تازه در docs.payam-resan.com همان کاستی‌ها را تکرار نکند.
 
 codes:
   - code: 0
@@ -25,7 +27,7 @@ codes:
     description: پیامک در صف ارسال سامانه است و هنوز از سامانه خارج نشده است.
     final: false
     in_api: true
-    in_docs: true
+    in_legacy_docs: true
     confirmed: true
 
   - code: 1
@@ -33,7 +35,7 @@ codes:
     description: پیامک از سامانه خارج شده و تحویل اپراتور شده، اما هنوز وضعیتی از اپراتور دریافت نشده است.
     final: false
     in_api: true
-    in_docs: true
+    in_legacy_docs: true
     confirmed: true
 
   - code: 2
@@ -41,7 +43,7 @@ codes:
     description: پیامک تحویل اپراتور داده شده، و در صف ارسال اپراتور ارسال کننده می باشد.
     final: false
     in_api: true
-    in_docs: true
+    in_legacy_docs: true
     confirmed: true
 
   - code: 3
@@ -49,7 +51,7 @@ codes:
     description: پیامک از اپراتور خارج شده، اما هنوز تاییده دریافت از گوشی دریافت نشده (ممکن است گوشی در دسترس نباشد).
     final: false
     in_api: true
-    in_docs: true
+    in_legacy_docs: true
     confirmed: true
 
   - code: 4
@@ -57,7 +59,7 @@ codes:
     description: پیامک به گوشی تحویل داده شده است.
     final: true
     in_api: true
-    in_docs: true
+    in_legacy_docs: true
     confirmed: true
 
   - code: 5
@@ -65,7 +67,7 @@ codes:
     description: پیامک از اپراتور ارسال شده است اما به دلایل مختلفی مانند خاموش بودن گوشی یا اختلالات مختلف پیامک توسط گوشی دریافت نشده است.
     final: true
     in_api: true
-    in_docs: true
+    in_legacy_docs: true
     confirmed: true
 
   - code: 6
@@ -73,7 +75,7 @@ codes:
     description: خطایی در روند ارسال رخ داده است.
     final: true
     in_api: true
-    in_docs: true
+    in_legacy_docs: true
     confirmed: true
 
   - code: 7
@@ -81,7 +83,7 @@ codes:
     description: گیرنده دریافت پیامک از خطوط تبلیغاتی را بر روی خط بسته است.
     final: true
     in_api: true
-    in_docs: true
+    in_legacy_docs: true
     confirmed: true
 
   - code: 8
@@ -89,7 +91,7 @@ codes:
     description: پیامی با شناسه ارسالی ثبت نشده است.
     final: true
     in_api: true
-    in_docs: true
+    in_legacy_docs: true
     confirmed: true
 
   - code: 9
@@ -97,7 +99,7 @@ codes:
     description: مدت زمان معتبر برای ارسال پیامک به دلایلی چون در دسترس نبودن اپراتور و ... به اتمام رسیده و پیامک از سامانه ارسال نشده است.
     final: true
     in_api: true
-    in_docs: true
+    in_legacy_docs: true
     confirmed: true
 
   - code: 10
@@ -105,7 +107,7 @@ codes:
     description: نامشخص
     final: false
     in_api: true
-    in_docs: true
+    in_legacy_docs: true
     confirmed: true
 
   - code: 11
@@ -113,7 +115,7 @@ codes:
     description: فرمت شماره ورودی اشتباه است.
     final: true
     in_api: true
-    in_docs: true
+    in_legacy_docs: true
     confirmed: true
 
   - code: 12
@@ -121,7 +123,7 @@ codes:
     description: شماره گیرنده قبلا در لیست سیاه پنل شما ثبت شده است.
     final: true
     in_api: true
-    in_docs: true
+    in_legacy_docs: true
     confirmed: true
 
   - code: 13
@@ -129,7 +131,7 @@ codes:
     description: شماره وارد شده برای اپراتور ارسال کننده نامعتبر است (برای مثال، امکان ارسال پیامک متنی برای گیرنده شماره تلفن ثابت وجود ندارد).
     final: true
     in_api: true
-    in_docs: true
+    in_legacy_docs: true
     confirmed: true
 
   - code: 14
@@ -137,7 +139,7 @@ codes:
     description: امکان ارسال متن وارد شده نمی باشد.
     final: true
     in_api: true
-    in_docs: true
+    in_legacy_docs: true
     confirmed: true
 
   - code: 15
@@ -145,7 +147,7 @@ codes:
     description: گیرنده قبلا با ارسال کلید لغو، دریافت پیامک از سرشماره مورد استفاده شما را لغو نموده است.
     final: true
     in_api: true
-    in_docs: true
+    in_legacy_docs: true
     confirmed: true
 
   - code: 16
@@ -153,7 +155,7 @@ codes:
     description: پیامک بلاک شده و امکان ارسال آن نمی باشد.
     final: true
     in_api: true
-    in_docs: true
+    in_legacy_docs: true
     confirmed: true
 
   - code: 17
@@ -161,7 +163,7 @@ codes:
     description: سقف تعداد ارسال پیامک api پنل شما به اتمام رسیده است.
     final: true
     in_api: true
-    in_docs: true
+    in_legacy_docs: true
     confirmed: true
 
   - code: 18
@@ -169,7 +171,7 @@ codes:
     description: null
     final: null
     in_api: true
-    in_docs: false
+    in_legacy_docs: false
     confirmed: false
     note: در enum سرویس هست، شرح رسمی ندارد.
 
@@ -178,7 +180,7 @@ codes:
     description: null
     final: null
     in_api: true
-    in_docs: false
+    in_legacy_docs: false
     confirmed: false
     note: در enum سرویس هست، شرح رسمی ندارد.
 
@@ -187,7 +189,7 @@ codes:
     description: null
     final: null
     in_api: true
-    in_docs: false
+    in_legacy_docs: false
     confirmed: false
     note: در enum سرویس هست، شرح رسمی ندارد.
 
@@ -196,6 +198,6 @@ codes:
     description: null
     final: null
     in_api: true
-    in_docs: false
+    in_legacy_docs: false
     confirmed: false
     note: در enum سرویس هست، شرح رسمی ندارد.
