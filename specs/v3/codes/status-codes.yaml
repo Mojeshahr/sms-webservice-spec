@@ -1,0 +1,201 @@
+# وضعیت پیامک ارسالی، نسخهٔ ۳.
+#
+# مقدار فیلد StatusCode در پاسخ StatusById و StatusByUserTraceId.
+#
+# وضعیت بلافاصله نهایی نیست: پیامک از ۰ شروع می‌شود و تا ۴ چند مرحله جلو
+# می‌رود. وضعیت‌های ۴، ۵، ۶، ۷، ۸، ۹ و ۱۱ تا ۱۷ پایانی‌اند.
+#
+# متن‌ها عیناً همان چیزی است که در فهرست رسمی منتشر شده.
+#
+# in_api    : در enum منتشرشدهٔ swagger هست
+# in_docs   : در فهرست رسمی doc.sms-webservice.com هست
+# confirmed : کسی از تیم وجود و معنی‌اش را تأیید کرده است
+#
+# هر کدی که confirmed نباشد باید از سمت پنل پیگیری شود.
+
+version: 3
+sources:
+  api: https://api.sms-webservice.com/swagger/docs/v3
+  docs: https://doc.sms-webservice.com/sms-status.html
+  captured: 2026-08-22
+
+codes:
+  - code: 0
+    fa: در صف سامانه
+    description: پیامک در صف ارسال سامانه است و هنوز از سامانه خارج نشده است.
+    final: false
+    in_api: true
+    in_docs: true
+    confirmed: true
+
+  - code: 1
+    fa: ارسال شده، بدون وضعیت
+    description: پیامک از سامانه خارج شده و تحویل اپراتور شده، اما هنوز وضعیتی از اپراتور دریافت نشده است.
+    final: false
+    in_api: true
+    in_docs: true
+    confirmed: true
+
+  - code: 2
+    fa: ارسال شده، در صف
+    description: پیامک تحویل اپراتور داده شده، و در صف ارسال اپراتور ارسال کننده می باشد.
+    final: false
+    in_api: true
+    in_docs: true
+    confirmed: true
+
+  - code: 3
+    fa: در انتظار تحویل گوشی
+    description: پیامک از اپراتور خارج شده، اما هنوز تاییده دریافت از گوشی دریافت نشده (ممکن است گوشی در دسترس نباشد).
+    final: false
+    in_api: true
+    in_docs: true
+    confirmed: true
+
+  - code: 4
+    fa: تحویل به گوشی
+    description: پیامک به گوشی تحویل داده شده است.
+    final: true
+    in_api: true
+    in_docs: true
+    confirmed: true
+
+  - code: 5
+    fa: نرسیده به گوشی
+    description: پیامک از اپراتور ارسال شده است اما به دلایل مختلفی مانند خاموش بودن گوشی یا اختلالات مختلف پیامک توسط گوشی دریافت نشده است.
+    final: true
+    in_api: true
+    in_docs: true
+    confirmed: true
+
+  - code: 6
+    fa: خطا در ارسال
+    description: خطایی در روند ارسال رخ داده است.
+    final: true
+    in_api: true
+    in_docs: true
+    confirmed: true
+
+  - code: 7
+    fa: گیرنده مسدود
+    description: گیرنده دریافت پیامک از خطوط تبلیغاتی را بر روی خط بسته است.
+    final: true
+    in_api: true
+    in_docs: true
+    confirmed: true
+
+  - code: 8
+    fa: شناسه پیدا نشد
+    description: پیامی با شناسه ارسالی ثبت نشده است.
+    final: true
+    in_api: true
+    in_docs: true
+    confirmed: true
+
+  - code: 9
+    fa: منقضی
+    description: مدت زمان معتبر برای ارسال پیامک به دلایلی چون در دسترس نبودن اپراتور و ... به اتمام رسیده و پیامک از سامانه ارسال نشده است.
+    final: true
+    in_api: true
+    in_docs: true
+    confirmed: true
+
+  - code: 10
+    fa: نامشخص
+    description: نامشخص
+    final: false
+    in_api: true
+    in_docs: true
+    confirmed: true
+
+  - code: 11
+    fa: دریافت کننده نامعتبر
+    description: فرمت شماره ورودی اشتباه است.
+    final: true
+    in_api: true
+    in_docs: true
+    confirmed: true
+
+  - code: 12
+    fa: گیرنده در لیست سیاه اکانت شماست
+    description: شماره گیرنده قبلا در لیست سیاه پنل شما ثبت شده است.
+    final: true
+    in_api: true
+    in_docs: true
+    confirmed: true
+
+  - code: 13
+    fa: گیرنده نامعتبر
+    description: شماره وارد شده برای اپراتور ارسال کننده نامعتبر است (برای مثال، امکان ارسال پیامک متنی برای گیرنده شماره تلفن ثابت وجود ندارد).
+    final: true
+    in_api: true
+    in_docs: true
+    confirmed: true
+
+  - code: 14
+    fa: متن بلاک
+    description: امکان ارسال متن وارد شده نمی باشد.
+    final: true
+    in_api: true
+    in_docs: true
+    confirmed: true
+
+  - code: 15
+    fa: لغو دریافت توسط گیرنده
+    description: گیرنده قبلا با ارسال کلید لغو، دریافت پیامک از سرشماره مورد استفاده شما را لغو نموده است.
+    final: true
+    in_api: true
+    in_docs: true
+    confirmed: true
+
+  - code: 16
+    fa: بلاک شده
+    description: پیامک بلاک شده و امکان ارسال آن نمی باشد.
+    final: true
+    in_api: true
+    in_docs: true
+    confirmed: true
+
+  - code: 17
+    fa: محدودیت روزانه
+    description: سقف تعداد ارسال پیامک api پنل شما به اتمام رسیده است.
+    final: true
+    in_api: true
+    in_docs: true
+    confirmed: true
+
+  - code: 18
+    fa: null
+    description: null
+    final: null
+    in_api: true
+    in_docs: false
+    confirmed: false
+    note: در enum سرویس هست، شرح رسمی ندارد.
+
+  - code: 19
+    fa: null
+    description: null
+    final: null
+    in_api: true
+    in_docs: false
+    confirmed: false
+    note: در enum سرویس هست، شرح رسمی ندارد.
+
+  - code: 20
+    fa: null
+    description: null
+    final: null
+    in_api: true
+    in_docs: false
+    confirmed: false
+    note: در enum سرویس هست، شرح رسمی ندارد.
+
+  - code: 21
+    fa: null
+    description: null
+    final: null
+    in_api: true
+    in_docs: false
+    confirmed: false
+    note: در enum سرویس هست، شرح رسمی ندارد.

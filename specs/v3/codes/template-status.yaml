@@ -1,0 +1,51 @@
+# وضعیت تأیید قالب، نسخهٔ ۳.
+#
+# مقدار فیلد Status در هر درایهٔ پاسخ TokenList. فقط قالب تأییدشده قابل
+# ارسال است.
+#
+# این همان چهار وضعیتی است که ادمین در پنل پیامکی برای قالب کاربر تعیین
+# می‌کند.
+#
+# ⚠ enum منتشرشدهٔ swagger فقط ۱، ۲ و ۳ را اعلام می‌کند و مقدار ۰ را جا
+# انداخته است. مقدار ۰ واقعی است و در پنل وجود دارد، پس در spec آمده.
+# اصلاحش سمت سرویس لازم است.
+
+version: 3
+sources:
+  api: https://api.sms-webservice.com/swagger/docs/v3
+  docs: https://doc.sms-webservice.com/
+  captured: 2026-08-22
+
+codes:
+  - code: 0
+    fa: در انتظار بررسی مقادیر
+    description: قالب ثبت شده و منتظر بررسی ادمین است. تا تأیید نشود قابل ارسال نیست.
+    sendable: false
+    in_api: false
+    in_docs: true
+    confirmed: true
+    note: در enum منتشرشدهٔ swagger نیست. وجودش از پنل تأیید شده.
+
+  - code: 1
+    fa: تأیید شده
+    description: قالب تأیید شده و قابل ارسال است.
+    sendable: true
+    in_api: true
+    in_docs: true
+    confirmed: true
+
+  - code: 2
+    fa: رد شده، قابل ویرایش
+    description: ادمین قالب را رد کرده است، اما کاربر می‌تواند ویرایشش کند و دوباره برای بررسی بفرستد.
+    sendable: false
+    in_api: true
+    in_docs: true
+    confirmed: true
+
+  - code: 3
+    fa: رد شده، غیر قابل ویرایش
+    description: ادمین قالب را رد و قفل کرده است. ویرایش ممکن نیست و باید قالب تازه‌ای ساخته شود.
+    sendable: false
+    in_api: true
+    in_docs: true
+    confirmed: true

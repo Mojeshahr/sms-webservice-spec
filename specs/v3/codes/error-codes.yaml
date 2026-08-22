@@ -1,0 +1,157 @@
+# کدهای خطای وب‌سرویس، نسخهٔ ۳.
+#
+# مقدار فیلد ErrorCode در پاکت پاسخ. فقط وقتی معنا دارد که Success برابر
+# false باشد.
+#
+# متن‌ها عیناً همان چیزی است که در فهرست رسمی منتشر شده، از جمله غلط‌های
+# نگارشی، تا با آنچه کاربر در فیلد Error می‌بیند یکی بماند.
+#
+# in_api    : در enum منتشرشدهٔ swagger هست
+# in_docs   : در فهرست رسمی doc.sms-webservice.com هست
+# confirmed : کسی از تیم وجود و معنی‌اش را تأیید کرده است
+#
+# هر کدی که confirmed نباشد یک شکاف واقعی در خود سرویس است، نه اشتباه این
+# فایل، و باید از سمت پنل پیگیری شود. اعتبارسنج فهرستشان را می‌دهد.
+#
+# enum در spec شامل کدهایی است که in_api یا confirmed باشند: یعنی یا سرویس
+# اعلامشان می‌کند، یا ما مستقلاً وجودشان را تأیید کرده‌ایم.
+
+version: 3
+sources:
+  api: https://api.sms-webservice.com/swagger/docs/v3
+  docs: https://doc.sms-webservice.com/code-list.html
+  captured: 2026-08-22
+
+codes:
+  - code: 1
+    fa: ApiKey نادرست است
+    in_api: true
+    in_docs: true
+    confirmed: true
+
+  - code: 2
+    fa: ارسال از وبسرویس برای این کاربر فعال نشده است.
+    in_api: true
+    in_docs: true
+    confirmed: true
+
+  - code: 3
+    fa: کاربر فعال نیست
+    in_api: true
+    in_docs: true
+    confirmed: true
+
+  - code: 4
+    fa: ارسال از طریق Api موقتا غیر فعال است.
+    in_api: true
+    in_docs: true
+    confirmed: true
+
+  - code: 5
+    fa: ارسال از طریق این متد موقتا غیر فعال است.
+    in_api: true
+    in_docs: true
+    confirmed: true
+
+  - code: 6
+    fa: تلفن همراه ثبت شده روی این اکانت تائید نشده است
+    in_api: true
+    in_docs: true
+    confirmed: true
+
+  - code: 7
+    fa: ایمیل ثبت شده روی این اکانت تائید نشده است
+    in_api: false
+    in_docs: true
+    confirmed: false
+    note: در فهرست رسمی هست ولی در enum منتشرشدهٔ swagger نیست.
+
+  - code: 8
+    fa: اطلاعات هویتی کاربر به صورت کامل درج نشده است
+    in_api: true
+    in_docs: true
+    confirmed: true
+
+  - code: 9
+    fa: مقادیر ورودی نادرست است.
+    in_api: true
+    in_docs: true
+    confirmed: true
+
+  - code: 10
+    fa: آی پی درخواست دهنده در لیست آی پی های معتبر نیست
+    in_api: true
+    in_docs: true
+    confirmed: true
+
+  - code: 11
+    fa: فرمت ورودی ApiKey نادرست است
+    in_api: true
+    in_docs: true
+    confirmed: true
+
+  - code: 12
+    fa: شماره ارسال کننده نادرست است
+    in_api: true
+    in_docs: true
+    confirmed: true
+
+  - code: 13
+    fa: شماره شماره دریافت کننده باید با 9 یا 989 شروع شود
+    in_api: true
+    in_docs: true
+    confirmed: true
+
+  - code: 14
+    fa: شما به این متد دسترسی ندارید
+    in_api: true
+    in_docs: true
+    confirmed: true
+
+  - code: 15
+    fa: سقف ارسال روزانه به پایان رسید
+    in_api: true
+    in_docs: true
+    confirmed: true
+
+  - code: 16
+    fa: null
+    in_api: true
+    in_docs: false
+    confirmed: false
+    note: در enum سرویس هست، شرح رسمی ندارد.
+
+  - code: 17
+    fa: null
+    in_api: true
+    in_docs: false
+    confirmed: false
+    note: در enum سرویس هست، شرح رسمی ندارد.
+
+  - code: 18
+    fa: null
+    in_api: true
+    in_docs: false
+    confirmed: false
+    note: در enum سرویس هست، شرح رسمی ندارد.
+
+  - code: 19
+    fa: null
+    in_api: true
+    in_docs: false
+    confirmed: false
+    note: در enum سرویس هست، شرح رسمی ندارد.
+
+  - code: 20
+    fa: null
+    in_api: true
+    in_docs: false
+    confirmed: false
+    note: در enum سرویس هست، شرح رسمی ندارد.
+
+  - code: 100
+    fa: null
+    in_api: true
+    in_docs: false
+    confirmed: false
+    note: در enum سرویس هست، شرح رسمی ندارد. عدد جداافتاده، احتمالاً خطای عمومی سرور.

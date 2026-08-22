@@ -1,0 +1,814 @@
+# مرجع رسمی وب‌سرویس پیامکی پیام‌رسان، نسخهٔ ۳.
+#
+# این فایل منبع حقیقت است. مستندات سایت، نمونه‌کدهای هر زبان و سرور MCP
+# همگی از همین‌جا مشتق می‌شوند؛ هیچ‌کدام نباید دستی با API هم‌گام شوند.
+#
+# پایه: swagger 2.0 منتشرشده روی https://api.sms-webservice.com/swagger/docs/v3
+# اختلاف‌های شناخته‌شده بین آن swagger و مستندات فعلی در README ثبت شده است.
+openapi: 3.1.0
+
+info:
+  title: وب‌سرویس پیامکی پیام‌رسان
+  summary: ارسال، دریافت و گزارش‌گیری پیامک
+  version: "3"
+  description: |
+    رابط برنامه‌نویسی سامانهٔ پیامکی [پیام‌رسان](https://payam-resan.com).
+
+    ## احراز هویت
+
+    هر درخواست به یک `ApiKey` نیاز دارد که از پنل کاربری گرفته می‌شود.
+    کلید بخشی از پارامترهای خود درخواست است، نه یک هدر:
+
+    - در متدهای `GET` به‌صورت پارامتر query
+    - در متدهای `POST` به‌صورت یک فیلد در بدنهٔ JSON
+
+    چون کلید در متدهای `GET` داخل نشانی می‌نشیند، در لاگ وب‌سرور، تاریخچهٔ
+    مرورگر و هدر `Referer` ثبت می‌شود. برای همین در محیط عملیاتی متدهای
+    `POST` ترجیح دارند و کلید هرگز نباید در کد سمت کاربر قرار بگیرد.
+
+    ## پاکت پاسخ
+
+    همهٔ متدها با کد وضعیت `200` پاسخ می‌دهند، حتی وقتی درخواست ناموفق است.
+    موفقیت را باید از فیلد `Success` خواند، نه از کد وضعیت HTTP:
+
+    - `Success` تنها نشانهٔ معتبر موفقیت است
+    - `ErrorCode` و `Error` علت شکست را می‌گویند و فقط وقتی معنا دارند که
+      `Success` برابر `false` باشد
+    - `Result` بار مفید پاسخ است و شکلش در هر متد فرق می‌کند
+
+    فهرست کامل مقادیر `ErrorCode` در `codes/error-codes.yaml` و فهرست
+    وضعیت‌های پیامک در `codes/status-codes.yaml` است.
+
+    ## قالب شماره‌ها
+
+    - شمارهٔ گیرنده بدون صفر ابتدایی: `9121112222` یا با کد کشور `989121112222`
+    - شمارهٔ فرستنده یکی از خطوط فعال حساب، مانند `30004040`
+    - سقف گیرنده در هر درخواست: ۹۹ شماره
+
+  contact:
+    name: پشتیبانی پیام‌رسان
+    url: https://payam-resan.com
+  license:
+    name: MIT
+    identifier: MIT
+
+servers:
+  - url: https://api.sms-webservice.com/api/V3
+    description: سرور عملیاتی
+
+tags:
+  - name: ارسال
+    description: ارسال متن آزاد به یک یا چند گیرنده.
+  - name: قالب
+    description: ارسال با قالب از پیش تعریف‌شده، مسیر معمول رمز یک‌بارمصرف.
+  - name: گزارش
+    description: پی‌گیری وضعیت پیامک‌های ارسال‌شده.
+  - name: حساب
+    description: اعتبار و خطوط فعال.
+  - name: دریافت
+    description: پیامک‌های رسیده به خطوط حساب.
+
+paths:
+
+  /Send:
+    get:
+      operationId: Send
+      tags: [ارسال]
+      summary: ارسال یک متن به یک یا چند شماره
+      description: |
+        ساده‌ترین متد ارسال. یک متن را با یک درخواست `GET` به حداکثر ۹۹ گیرنده
+        می‌فرستد.
+
+        گیرندگان یک رشتهٔ جداشده با کاما هستند، نه آرایه.
+
+        متن پیامک را دقیقاً **یک بار** باید url-encode کرد. کتابخانه‌های HTTP
+        هر زبان این کار را هنگام ساختن query string خودشان انجام می‌دهند؛
+        اگر متن را پیش از آن هم encode کنید، پیامک با نویسه‌های `%D8` روی
+        گوشی گیرنده ظاهر می‌شود.
+
+        برای ارسال عملیاتی `SendBulk` ترجیح دارد: کلید را از نشانی بیرون
+        می‌برد و برای هر گیرنده شناسهٔ پی‌گیری اختصاصی می‌پذیرد.
+      parameters:
+        - name: ApiKey
+          in: query
+          required: true
+          description: کلید اختصاصی حساب، از پنل کاربری.
+          schema: { $ref: '#/components/schemas/ApiKey' }
+        - name: Text
+          in: query
+          required: true
+          description: متن پیامک.
+          schema: { type: string }
+          example: کد تأیید شما ۱۲۳۴۵۶ است
+        - name: Sender
+          in: query
+          required: true
+          description: یکی از خطوط فعال حساب.
+          schema: { type: integer, format: int64 }
+          example: 30004040
+        - name: Recipients
+          in: query
+          required: true
+          description: شماره‌های گیرنده، جداشده با کاما. حداکثر ۹۹ شماره.
+          schema: { type: string }
+          example: 9121112222,9121113333
+      responses:
+        '200':
+          description: پاسخ سامانه. موفقیت را از فیلد `Success` بخوانید.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SendResponse' }
+
+  /SendBulk:
+    post:
+      operationId: SendBulk
+      tags: [ارسال]
+      summary: ارسال یک متن به چند گیرنده با شناسهٔ پی‌گیری
+      description: |
+        یک متن واحد به چند گیرنده، و برای هر گیرنده یک `UserTraceId` که خودتان
+        تعیین می‌کنید. بعداً با همان شناسه و متد `StatusByUserTraceId` می‌توانید
+        وضعیت را بگیرید، بدون اینکه لازم باشد `Id` سامانه را نگه دارید.
+
+        روش پیشنهادی برای ارسال عملیاتی.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SendBulkRequest' }
+      responses:
+        '200':
+          description: پاسخ سامانه. موفقیت را از فیلد `Success` بخوانید.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SendResponse' }
+
+  /SendMultiple:
+    post:
+      operationId: SendMultiple
+      tags: [ارسال]
+      summary: ارسال متن‌های متفاوت به گیرندگان متفاوت
+      description: |
+        هر گیرنده متن و خط فرستندهٔ خودش را دارد. برای پیام‌های شخصی‌سازی‌شده
+        که با یک قالب ثابت پوشش داده نمی‌شوند.
+
+        برخلاف `SendBulk`، اینجا `Text` و `Sender` در سطح هر گیرنده تعریف
+        می‌شوند، نه در سطح درخواست.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SendMultipleRequest' }
+      responses:
+        '200':
+          description: پاسخ سامانه. موفقیت را از فیلد `Success` بخوانید.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SendResponse' }
+
+  /SendTokenSingle:
+    get:
+      operationId: SendTokenSingleByQuery
+      tags: [قالب]
+      summary: ارسال قالب به یک شماره
+      description: |
+        مسیر معمول رمز یک‌بارمصرف. یک قالبِ تأییدشده را با پارامترهایش به یک
+        شمارهٔ واحد می‌فرستد. خط فرستنده را سامانه از روی خود قالب انتخاب
+        می‌کند، پس `Sender` ورودی ندارد.
+
+        جای‌گاه‌های قالب `{1}` تا `{10}` به‌ترتیب با `p1` تا `p10` پر می‌شوند.
+        فقط به تعداد جای‌گاه‌های قالب پارامتر بفرستید.
+
+        کلید قالب را از متد `TokenList` یا از پنل کاربری بگیرید.
+
+        همین متد واریانت `POST` هم دارد، که برای محیط عملیاتی ترجیح دارد چون
+        کلید و مقدار رمز یک‌بارمصرف را از نشانی بیرون می‌برد.
+      parameters:
+        - name: ApiKey
+          in: query
+          required: true
+          description: کلید اختصاصی حساب، از پنل کاربری.
+          schema: { $ref: '#/components/schemas/ApiKey' }
+        - name: TemplateKey
+          in: query
+          required: true
+          description: کلید قالبِ تأییدشده.
+          schema: { type: string }
+        - name: Destination
+          in: query
+          required: true
+          description: شمارهٔ گیرنده.
+          schema: { type: integer, format: int64 }
+          example: 9121112222
+        - name: p1
+          in: query
+          required: false
+          description: مقدار جای‌گاه {1} در قالب.
+          schema: { type: string }
+        - name: p2
+          in: query
+          required: false
+          description: مقدار جای‌گاه {2} در قالب.
+          schema: { type: string }
+        - name: p3
+          in: query
+          required: false
+          description: مقدار جای‌گاه {3} در قالب.
+          schema: { type: string }
+        - name: p4
+          in: query
+          required: false
+          description: مقدار جای‌گاه {4} در قالب.
+          schema: { type: string }
+        - name: p5
+          in: query
+          required: false
+          description: مقدار جای‌گاه {5} در قالب.
+          schema: { type: string }
+        - name: p6
+          in: query
+          required: false
+          description: مقدار جای‌گاه {6} در قالب.
+          schema: { type: string }
+        - name: p7
+          in: query
+          required: false
+          description: مقدار جای‌گاه {7} در قالب.
+          schema: { type: string }
+        - name: p8
+          in: query
+          required: false
+          description: مقدار جای‌گاه {8} در قالب.
+          schema: { type: string }
+        - name: p9
+          in: query
+          required: false
+          description: مقدار جای‌گاه {9} در قالب.
+          schema: { type: string }
+        - name: p10
+          in: query
+          required: false
+          description: مقدار جای‌گاه {10} در قالب.
+          schema: { type: string }
+      responses:
+        '200':
+          description: پاسخ سامانه. موفقیت را از فیلد `Success` بخوانید.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TokenResponse' }
+    post:
+      operationId: SendTokenSingle
+      tags: [قالب]
+      summary: ارسال قالب به یک شماره با بدنهٔ JSON
+      description: |
+        همان `SendTokenSingle` با ورودی در بدنهٔ درخواست. برای رمز یک‌بارمصرف
+        این واریانت ترجیح دارد، چون نه کلید حساب و نه خود رمز در نشانی و
+        لاگ وب‌سرور ثبت نمی‌شوند.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SendTokenSingleRequest' }
+      responses:
+        '200':
+          description: پاسخ سامانه. موفقیت را از فیلد `Success` بخوانید.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TokenResponse' }
+
+  /SendTokenMulti:
+    post:
+      operationId: SendTokenMulti
+      tags: [قالب]
+      summary: ارسال یک قالب به چند گیرنده با مقادیر متفاوت
+      description: |
+        یک قالب واحد، چند گیرنده، و برای هر گیرنده مجموعهٔ پارامترهای خودش.
+        پارامترها اینجا آرایه‌اند (`Parameters`)، نه `p1` تا `p10`، و ترتیب
+        آرایه همان ترتیب جای‌گاه‌های `{1}`، `{2}`، … است.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SendTokenMultiRequest' }
+      responses:
+        '200':
+          description: پاسخ سامانه. موفقیت را از فیلد `Success` بخوانید.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TokenResponse' }
+
+  /TokenList:
+    post:
+      operationId: TokenList
+      tags: [قالب]
+      summary: فهرست قالب‌های تعریف‌شده
+      description: |
+        قالب‌های حساب را با کلید، متن و وضعیت تأییدشان برمی‌گرداند. برای پیدا
+        کردن `TemplateKey` که متدهای ارسال قالب لازم دارند.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ApiKeyOnlyRequest' }
+      responses:
+        '200':
+          description: پاسخ سامانه. موفقیت را از فیلد `Success` بخوانید.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TokenListResponse' }
+
+  /StatusById:
+    post:
+      operationId: StatusById
+      tags: [گزارش]
+      summary: وضعیت پیامک با شناسهٔ سامانه
+      description: |
+        وضعیت یک یا چند پیامک را با `Id`هایی که متدهای ارسال برگردانده‌اند
+        می‌گیرد.
+
+        وضعیت پیامک بلافاصله نهایی نیست: پیامک از `۰` (در صف سامانه) شروع
+        می‌شود و تا `۴` (تحویل به گوشی) چند مرحله جلو می‌رود. برای گزارش
+        تحویل، فاصلهٔ چند دقیقه‌ای بین ارسال و استعلام لازم است.
+
+        فهرست کامل مقادیر در `codes/status-codes.yaml`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/StatusByIdRequest' }
+      responses:
+        '200':
+          description: پاسخ سامانه. موفقیت را از فیلد `Success` بخوانید.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StatusResponse' }
+
+  /StatusByUserTraceId:
+    post:
+      operationId: StatusByUserTraceId
+      tags: [گزارش]
+      summary: وضعیت پیامک با شناسهٔ پی‌گیری خودتان
+      description: |
+        همان `StatusById`، اما با شناسه‌هایی که خودتان هنگام ارسال تعیین
+        کرده‌اید. اگر `UserTraceId` را کلید رکورد پایگاه دادهٔ خودتان بگذارید،
+        دیگر لازم نیست `Id` سامانه را ذخیره کنید.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/StatusByUserTraceIdRequest' }
+      responses:
+        '200':
+          description: پاسخ سامانه. موفقیت را از فیلد `Success` بخوانید.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StatusResponse' }
+
+  /AccountInfo:
+    post:
+      operationId: AccountInfo
+      tags: [حساب]
+      summary: اعتبار و خطوط فعال حساب
+      description: |
+        اعتبار باقی‌مانده و فهرست خطوط قابل استفاده به‌عنوان `Sender`.
+
+        سبک‌ترین متد سرویس، و مناسب‌ترین فراخوانی برای آزمودن درستی کلید:
+        چیزی ارسال نمی‌کند و اعتباری مصرف نمی‌کند.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ApiKeyOnlyRequest' }
+      responses:
+        '200':
+          description: پاسخ سامانه. موفقیت را از فیلد `Success` بخوانید.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AccountInfoResponse' }
+
+  /GetInbox:
+    post:
+      operationId: GetInbox
+      tags: [دریافت]
+      summary: پیامک‌های رسیده به خطوط حساب
+      description: |
+        پیامک‌هایی را که کاربران به خطوط حساب شما فرستاده‌اند برمی‌گرداند.
+
+        این متد یک استعلام است، نه webhook: سامانه چیزی به سرور شما نمی‌فرستد
+        و باید خودتان دوره‌ای فراخوانی کنید.
+
+        فیلد فرستنده در پاسخ `Form` نام دارد. این غلط املایی در خود سرویس است
+        و به‌عمد اصلاح نشده تا مستندات با پاسخ واقعی یکی بماند؛ در کد خودتان
+        دنبال `From` نگردید.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ApiKeyOnlyRequest' }
+      responses:
+        '200':
+          description: پاسخ سامانه. موفقیت را از فیلد `Success` بخوانید.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/InboxResponse' }
+
+components:
+
+  schemas:
+
+    ApiKey:
+      type: string
+      description: |
+        کلید اختصاصی حساب. از پنل کاربری پیام‌رسان گرفته می‌شود و شکل آن
+        شش رقم شناسهٔ کاربری، یک خط تیره، و پانزده نویسهٔ حرف و عدد است.
+
+        کلید یک راز است: در مخزن کد، در فایل کامپایل‌شدهٔ اپلیکیشن موبایل و
+        در جاوااسکریپت سمت مرورگر نباید قرار بگیرد. جای آن متغیر محیطی است.
+      examples:
+        - 123456-XXXXXXXXXXXXXXX
+
+    ErrorCode:
+      type: integer
+      format: int32
+      description: |
+        علت شکست درخواست. فقط وقتی معنا دارد که `Success` برابر `false` باشد.
+        شرح هر کد در `codes/error-codes.yaml`.
+      enum: [1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 100]
+
+    ResponseEnvelope:
+      type: object
+      description: پاکت مشترک همهٔ پاسخ‌ها.
+      properties:
+        Success:
+          type: boolean
+          description: |
+            یگانه نشانهٔ معتبر موفقیت. کد وضعیت HTTP در هر حالت `200` است و
+            نباید مبنای تصمیم قرار بگیرد.
+        ErrorCode:
+          $ref: '#/components/schemas/ErrorCode'
+        Error:
+          type: [string, 'null']
+          readOnly: true
+          description: شرح فارسی خطا، متناظر با `ErrorCode`.
+
+    ApiKeyOnlyRequest:
+      type: object
+      required: [ApiKey]
+      properties:
+        ApiKey:
+          $ref: '#/components/schemas/ApiKey'
+
+    # ---------- ارسال ----------
+
+    SentMessage:
+      type: object
+      description: یک گیرنده در پاسخ متدهای ارسال متن.
+      properties:
+        Id:
+          type: integer
+          format: int64
+          description: شناسهٔ سامانه. ورودی `StatusById`.
+        UserTraceId:
+          type: integer
+          format: int64
+          description: شناسهٔ پی‌گیری که خودتان فرستاده‌اید. ورودی `StatusByUserTraceId`.
+
+    SendResponse:
+      allOf:
+        - $ref: '#/components/schemas/ResponseEnvelope'
+        - type: object
+          properties:
+            Result:
+              type: array
+              description: یک درایه به‌ازای هر گیرنده، به همان ترتیب درخواست.
+              items:
+                $ref: '#/components/schemas/SentMessage'
+
+    SendBulkRecipient:
+      type: object
+      required: [Destination]
+      properties:
+        Destination:
+          type: integer
+          format: int64
+          description: شمارهٔ گیرنده، بدون صفر ابتدایی.
+          examples: [9121112222]
+        UserTraceId:
+          type: integer
+          format: int64
+          description: شناسهٔ دلخواه شما برای این گیرنده، برای گزارش‌گیری بعدی.
+
+    SendBulkRequest:
+      type: object
+      required: [ApiKey, Text, Sender, Recipients]
+      properties:
+        ApiKey:
+          $ref: '#/components/schemas/ApiKey'
+        Text:
+          type: string
+          description: متن پیامک، یکسان برای همهٔ گیرندگان.
+        Sender:
+          type: integer
+          format: int64
+          description: یکی از خطوط فعال حساب.
+          examples: [30004040]
+        Recipients:
+          type: array
+          description: حداکثر ۹۹ گیرنده.
+          maxItems: 99
+          items:
+            $ref: '#/components/schemas/SendBulkRecipient'
+
+    SendMultipleRecipient:
+      type: object
+      required: [Sender, Text, Destination]
+      properties:
+        Sender:
+          type: integer
+          format: int64
+          description: خط فرستنده برای همین گیرنده.
+        Text:
+          type: string
+          description: متن اختصاصی همین گیرنده.
+        Destination:
+          type: integer
+          format: int64
+          description: شمارهٔ گیرنده، بدون صفر ابتدایی.
+        UserTraceId:
+          type: integer
+          format: int64
+          description: شناسهٔ دلخواه شما برای این گیرنده.
+
+    SendMultipleRequest:
+      type: object
+      required: [ApiKey, Recipients]
+      properties:
+        ApiKey:
+          $ref: '#/components/schemas/ApiKey'
+        Recipients:
+          type: array
+          maxItems: 99
+          items:
+            $ref: '#/components/schemas/SendMultipleRecipient'
+
+    # ---------- قالب ----------
+
+    TokenSentMessage:
+      type: object
+      description: یک گیرنده در پاسخ متدهای ارسال قالب.
+      properties:
+        UserTraceId:
+          type: integer
+          format: int64
+        Id:
+          type: integer
+          format: int64
+          description: شناسهٔ سامانه. ورودی `StatusById`.
+        Sender:
+          type: integer
+          format: int64
+          description: خطی که سامانه از روی قالب انتخاب کرده است.
+        FinalText:
+          type: string
+          description: متن نهایی پس از جای‌گذاری پارامترها در قالب.
+
+    TokenResponse:
+      allOf:
+        - $ref: '#/components/schemas/ResponseEnvelope'
+        - type: object
+          properties:
+            Result:
+              type: array
+              items:
+                $ref: '#/components/schemas/TokenSentMessage'
+
+    SendTokenSingleRequest:
+      type: object
+      required: [ApiKey, TemplateKey, Destination]
+      properties:
+        ApiKey:
+          $ref: '#/components/schemas/ApiKey'
+        TemplateKey:
+          type: string
+          description: کلید قالبِ تأییدشده. از `TokenList` گرفته می‌شود.
+        Destination:
+          type: integer
+          format: int64
+          description: شمارهٔ گیرنده، بدون صفر ابتدایی.
+          examples: [9121112222]
+        p1:
+          type: string
+          description: مقدار جای‌گاه {1} در قالب.
+        p2:
+          type: string
+          description: مقدار جای‌گاه {2} در قالب.
+        p3:
+          type: string
+          description: مقدار جای‌گاه {3} در قالب.
+        p4:
+          type: string
+          description: مقدار جای‌گاه {4} در قالب.
+        p5:
+          type: string
+          description: مقدار جای‌گاه {5} در قالب.
+        p6:
+          type: string
+          description: مقدار جای‌گاه {6} در قالب.
+        p7:
+          type: string
+          description: مقدار جای‌گاه {7} در قالب.
+        p8:
+          type: string
+          description: مقدار جای‌گاه {8} در قالب.
+        p9:
+          type: string
+          description: مقدار جای‌گاه {9} در قالب.
+        p10:
+          type: string
+          description: مقدار جای‌گاه {10} در قالب.
+
+    TokenRecipient:
+      type: object
+      required: [Destination]
+      properties:
+        Destination:
+          type: integer
+          format: int64
+          description: شمارهٔ گیرنده، بدون صفر ابتدایی.
+        UserTraceId:
+          type: integer
+          format: int64
+          description: شناسهٔ دلخواه شما برای این گیرنده.
+        Parameters:
+          type: array
+          description: |
+            مقادیر جای‌گاه‌های قالب، به‌ترتیب `{1}`، `{2}`، … . جایگزین
+            `p1` تا `p10` در واریانت تک‌گیرنده.
+          items:
+            type: string
+
+    SendTokenMultiRequest:
+      type: object
+      required: [ApiKey, TemplateKey, Recipients]
+      properties:
+        ApiKey:
+          $ref: '#/components/schemas/ApiKey'
+        TemplateKey:
+          type: string
+          description: کلید قالب، مشترک بین همهٔ گیرندگان.
+        Recipients:
+          type: array
+          maxItems: 99
+          items:
+            $ref: '#/components/schemas/TokenRecipient'
+
+    TokenListDetail:
+      type: object
+      properties:
+        Key:
+          type: string
+          description: همان `TemplateKey` که متدهای ارسال قالب می‌خواهند.
+        TextTemplate:
+          type: string
+          description: متن قالب، با جای‌گاه‌های `{1}`، `{2}`، … .
+        VoiceTemplate:
+          type: [string, 'null']
+          description: قالب تماس صوتی، اگر تعریف شده باشد.
+        Status:
+          type: integer
+          format: int32
+          description: |
+            وضعیت تأیید قالب، همان چهار حالتی که ادمین در پنل تعیین می‌کند.
+            فقط مقدار `1` قابل ارسال است.
+
+            enum منتشرشدهٔ swagger مقدار `0` را جا انداخته است. آن مقدار
+            واقعی است و قالب تازه‌ساخته با همان شروع می‌شود.
+
+            شرح مقادیر در `codes/template-status.yaml`.
+          enum: [0, 1, 2, 3]
+
+    TokenListResponse:
+      allOf:
+        - $ref: '#/components/schemas/ResponseEnvelope'
+        - type: object
+          properties:
+            Result:
+              type: array
+              items:
+                $ref: '#/components/schemas/TokenListDetail'
+
+    # ---------- گزارش ----------
+
+    StatusByIdRequest:
+      type: object
+      required: [ApiKey, Ids]
+      properties:
+        ApiKey:
+          $ref: '#/components/schemas/ApiKey'
+        Ids:
+          type: array
+          description: شناسه‌های سامانه، از پاسخ متدهای ارسال.
+          items:
+            type: integer
+            format: int64
+
+    StatusByUserTraceIdRequest:
+      type: object
+      required: [ApiKey, UserTraceIds]
+      properties:
+        ApiKey:
+          $ref: '#/components/schemas/ApiKey'
+        UserTraceIds:
+          type: array
+          description: شناسه‌های پی‌گیری که خودتان هنگام ارسال تعیین کرده‌اید.
+          items:
+            type: integer
+            format: int64
+
+    StatusItem:
+      type: object
+      properties:
+        Id:
+          type: integer
+          format: int64
+        UserTraceId:
+          type: integer
+          format: int64
+        StatusCode:
+          type: integer
+          format: int32
+          description: |
+            وضعیت پیامک. شرح هر مقدار در `codes/status-codes.yaml`.
+          enum: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]
+        Status:
+          type: string
+          readOnly: true
+          description: شرح فارسی وضعیت، متناظر با `StatusCode`.
+
+    StatusResponse:
+      allOf:
+        - $ref: '#/components/schemas/ResponseEnvelope'
+        - type: object
+          properties:
+            Result:
+              type: array
+              items:
+                $ref: '#/components/schemas/StatusItem'
+
+    # ---------- حساب ----------
+
+    AccountDetail:
+      type: object
+      properties:
+        Credit:
+          type: number
+          format: double
+          description: اعتبار باقی‌ماندهٔ حساب.
+        AvailableSenders:
+          type: array
+          description: خطوطی که می‌توانند `Sender` باشند.
+          items:
+            type: integer
+            format: int64
+
+    AccountInfoResponse:
+      allOf:
+        - $ref: '#/components/schemas/ResponseEnvelope'
+        - type: object
+          properties:
+            Result:
+              $ref: '#/components/schemas/AccountDetail'
+
+    # ---------- دریافت ----------
+
+    InboxItem:
+      type: object
+      properties:
+        Id:
+          type: integer
+          format: int32
+          description: شناسهٔ پیامک دریافتی.
+        Text:
+          type: string
+          description: متن پیامکی که کاربر فرستاده است.
+        Form:
+          type: integer
+          format: int64
+          description: |
+            شمارهٔ فرستنده. نام فیلد در خود سرویس `Form` است، نه `From`.
+        To:
+          type: integer
+          format: int64
+          description: خط حساب شما که پیامک به آن رسیده است.
+        Time:
+          type: string
+          description: زمان دریافت، به‌صورت رشته و آن‌طور که سامانه برمی‌گرداند.
+
+    InboxResponse:
+      allOf:
+        - $ref: '#/components/schemas/ResponseEnvelope'
+        - type: object
+          properties:
+            Result:
+              type: array
+              items:
+                $ref: '#/components/schemas/InboxItem'
