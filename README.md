@@ -1,7 +1,22 @@
-# مرجع وب‌سرویس پیامکی پیام‌رسان
+<div align="center">
 
-توصیف ماشین‌خوان رابط برنامه‌نویسی سامانهٔ پیامکی
-[پیام‌رسان](https://payam-resan.com).
+<a href="https://payam-resan.com">
+  <img src=".github/assets/logo.svg" width="64" height="64" alt="پیام رسان">
+</a>
+
+<h1>مرجع وب‌سرویس پنل پیامکی پیام رسان</h1>
+
+توصیف ماشین‌خوان رابط برنامه‌نویسی <a href="https://payam-resan.com"><b>پنل پیامکی پیام رسان</b></a><br>
+منبع واحدی که مستندات، نمونه‌کدها و سرور MCP از آن مشتق می‌شوند
+
+[![OpenAPI](https://img.shields.io/badge/OpenAPI-3.1-0a7cbd)](specs/v3/openapi.yaml)
+[![API](https://img.shields.io/badge/API-V3-777bb4)](https://payam-resan.com)
+[![Lint](https://img.shields.io/badge/redocly-clean-2ea44f)](redocly.yaml)
+[![License](https://img.shields.io/badge/license-MIT-6e7781)](LICENSE)
+
+</div>
+
+---
 
 این مخزن **منبع حقیقت** است. مستندات `docs.payam-resan.com`، نمونه‌کدهای هر
 زبان و سرور MCP همگی از همین‌جا مشتق می‌شوند. هیچ‌کدام نباید دستی با سرویس
@@ -115,3 +130,13 @@ docker run --rm -v "$PWD":/spec -w /spec redocly/cli lint specs/v3/openapi.yaml
 ## مجوز
 
 [MIT](LICENSE)
+
+<br>
+<div align="center">
+  <sub>
+    <a href="https://payam-resan.com">
+      <img src=".github/assets/logo.svg" width="20" height="20" alt="" align="top">
+    </a>
+    &nbsp;<b>پنل پیامکی پیام رسان</b> · <a href="https://payam-resan.com">payam-resan.com</a>
+  </sub>
+</div>
