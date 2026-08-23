@@ -31,9 +31,9 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 # جدول کدها، و جایی در اسکیما که enum متناظرش می‌نشیند.
 TABLES = [
-    ("error-codes.yaml", ["ErrorCode", "enum"], "کد خطا"),
-    ("status-codes.yaml", ["StatusItem", "properties", "StatusCode", "enum"], "کد وضعیت"),
-    ("template-status.yaml", ["TokenListDetail", "properties", "Status", "enum"], "وضعیت قالب"),
+    ("error-codes.yaml", ["ErrorCode"], "کد خطا"),
+    ("status-codes.yaml", ["StatusItem", "properties", "StatusCode"], "کد وضعیت"),
+    ("template-status.yaml", ["TokenListDetail", "properties", "Status"], "وضعیت قالب"),
 ]
 
 errors = []
@@ -44,6 +44,27 @@ gaps = []
 def load(path):
     with open(path, encoding="utf-8") as fh:
         return yaml.safe_load(fh)
+
+
+def find_enum(node):
+    """اولین enum را در یک زیردرخت اسکیما پیدا می‌کند.
+
+    مسیر ثابت کافی نیست: یک فیلد nullable، enumش را داخل oneOf می‌برد و
+    هر مسیر سفت‌وسختی می‌شکند.
+    """
+    if isinstance(node, dict):
+        if isinstance(node.get("enum"), list):
+            return node["enum"]
+        for value in node.values():
+            found = find_enum(value)
+            if found is not None:
+                return found
+    elif isinstance(node, list):
+        for value in node:
+            found = find_enum(value)
+            if found is not None:
+                return found
+    return None
 
 
 def row_exists(row):
@@ -68,9 +89,13 @@ def check_codes(label, version_dir, schemas):
             errors.append(f"{label}: {filename} نیست")
             continue
 
-        enum = dig(schemas, keys)
-        if enum is None:
+        node = dig(schemas, keys)
+        if node is None:
             errors.append(f"{label}: مسیر {'.'.join(keys)} در spec پیدا نشد")
+            continue
+        enum = find_enum(node)
+        if enum is None:
+            errors.append(f"{label}: {'.'.join(keys)} در spec enum ندارد")
             continue
 
         table = load(table_path)

@@ -427,8 +427,6 @@ components:
         - 123456-XXXXXXXXXXXXXXX
 
     ErrorCode:
-      type: integer
-      format: int32
       description: |
         علت شکست درخواست. فقط وقتی معنا دارد که `Success` برابر `false` باشد.
         شرح و راهکار هر کد در `codes/error-codes.yaml`.
@@ -457,11 +455,26 @@ components:
 
         `AccountInfo` و `TokenList` از بررسی اعتبار معاف‌اند و حتی با اعتبار
         صفر هم پاسخ می‌دهند، پس برای آزمودن کلید همیشه امن‌اند.
-      enum: [1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 100]
+      oneOf:
+        - type: 'null'
+        - type: integer
+          format: int32
+          enum: [1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 100]
 
     ResponseEnvelope:
       type: object
-      description: پاکت مشترک همهٔ پاسخ‌ها.
+      description: |
+        پاکت مشترک همهٔ پاسخ‌ها.
+
+        سه فیلد از چهار فیلد nullable هستند و کدامشان پر باشد به `Success`
+        بستگی دارد:
+
+        | `Success` | `ErrorCode` | `Error` | `Result` |
+        |---|---|---|---|
+        | `true` | `null` | `null` | پر |
+        | `false` | عدد | متن فارسی | `null` |
+
+        `ErrorCode` در حالت موفق `null` است، نه `0`.
       properties:
         Success:
           type: boolean
@@ -503,7 +516,7 @@ components:
         - type: object
           properties:
             Result:
-              type: array
+              type: [array, 'null']
               description: یک درایه به‌ازای هر گیرنده، به همان ترتیب درخواست.
               items:
                 $ref: '#/components/schemas/SentMessage'
@@ -602,7 +615,7 @@ components:
         - type: object
           properties:
             Result:
-              type: array
+              type: [array, 'null']
               items:
                 $ref: '#/components/schemas/TokenSentMessage'
 
@@ -718,7 +731,7 @@ components:
         - type: object
           properties:
             Result:
-              type: array
+              type: [array, 'null']
               items:
                 $ref: '#/components/schemas/TokenListDetail'
 
@@ -794,7 +807,7 @@ components:
         - type: object
           properties:
             Result:
-              type: array
+              type: [array, 'null']
               items:
                 $ref: '#/components/schemas/StatusItem'
 
@@ -820,7 +833,9 @@ components:
         - type: object
           properties:
             Result:
-              $ref: '#/components/schemas/AccountDetail'
+              oneOf:
+                - $ref: '#/components/schemas/AccountDetail'
+                - type: 'null'
 
     # ---------- دریافت ----------
 
@@ -853,6 +868,6 @@ components:
         - type: object
           properties:
             Result:
-              type: array
+              type: [array, 'null']
               items:
                 $ref: '#/components/schemas/InboxItem'
