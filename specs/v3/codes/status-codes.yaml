@@ -1,203 +1,211 @@
 # وضعیت پیامک ارسالی، نسخهٔ ۳.
 #
 # مقدار فیلد StatusCode در پاسخ StatusById و StatusByUserTraceId.
+# فهرست از ۰ تا ۲۱ کامل است.
 #
-# وضعیت بلافاصله نهایی نیست: پیامک از ۰ شروع می‌شود و تا ۴ چند مرحله جلو
-# می‌رود. وضعیت‌های ۴، ۵، ۶، ۷، ۸، ۹ و ۱۱ تا ۱۷ پایانی‌اند.
+# fa          : همان متنی که سرویس در فیلد Status برمی‌گرداند
+# description : چه اتفاقی افتاده است
+# action      : برنامه یا کاربر باید چه کند
+# disposition : pending | final | not-sent | not-found
+# in_api      : در enum منتشرشدهٔ swagger هست
+# confirmed   : تیم سرویس تأییدش کرده است
 #
-# متن‌ها عیناً همان چیزی است که در فهرست رسمی منتشر شده.
+# disposition تعیین می‌کند حلقهٔ استعلام چه وقت بایستد:
 #
-# in_api    : در enum منتشرشدهٔ swagger هست
-# in_legacy_docs : در فهرست عمومیِ بازنشسته بود. مرجع تازه docs.payam-resan.com است.
-# confirmed : کسی از تیم وجود و معنی‌اش را تأیید کرده است
-#
-# هر کدی که confirmed نباشد باید از سمت پنل پیگیری شود.
+#   pending    هنوز در راه است، بعداً دوباره استعلام کنید
+#   final      دیگر تغییر نمی‌کند، استعلام را متوقف کنید
+#   not-sent   اصلاً ارسال نشد، مانع را رفع و دوباره بفرستید
+#   not-found  این شناسه در حساب شما نیست
 
 version: 3
 sources:
   api: https://api.sms-webservice.com/swagger/docs/v3
-  captured: 2026-08-22
+  team: تیم سرویس
+  captured: 2026-08-23
   legacy_docs:
     status: بازنشسته، بدون جانشین در همان نشانی
-    note: این صفحه از دور خارج می‌شود و نباید به آن لینک داد. ستون in_legacy_docs فقط ثبت می‌کند آن صفحه چه چیزی را پوشش می‌داد، تا مرجع تازه در docs.payam-resan.com همان کاستی‌ها را تکرار نکند.
+    note: فهرست عمومی پیشین فقط تا کد ۱۷ را پوشش می‌داد و متن چند کد با آنچه اینجاست فرق داشت. مرجع تازه docs.payam-resan.com است.
+
+guidance:
+  - هر درایهٔ پاسخ شامل Id، UserTraceId، StatusCode و Status است.
+  - Status همان متن فارسی همین کد است. برای منطق برنامه روی StatusCode شرط بگذارید و Status را فقط نمایش بدهید.
+  - استعلام را دسته‌ای بفرستید. هر دو متد آرایهٔ شناسه می‌گیرند.
+  - فاصلهٔ استعلام‌ها را کمتر از چند دقیقه نگذارید، وگرنه به خطای ۲۰ می‌خورید.
+  - وضعیت pending را دوباره استعلام کنید، نه دوباره ارسال.
 
 codes:
   - code: 0
     fa: در صف سامانه
-    description: پیامک در صف ارسال سامانه است و هنوز از سامانه خارج نشده است.
-    final: false
+    description: پیام ثبت شده و هنوز ارسال نشده است.
+    action: چند دقیقه بعد دوباره استعلام کنید. دوباره ارسال نکنید.
+    disposition: pending
     in_api: true
-    in_legacy_docs: true
     confirmed: true
 
   - code: 1
     fa: ارسال شده، بدون وضعیت
-    description: پیامک از سامانه خارج شده و تحویل اپراتور شده، اما هنوز وضعیتی از اپراتور دریافت نشده است.
-    final: false
+    description: پیام تحویل شبکه شده ولی هنوز رسید تحویلی نیامده است.
+    action: منتظر بمانید. ممکن است بعداً به تحویل به گوشی یا نرسیده به گوشی تغییر کند. بعضی خطوط اصلاً رسید تحویل ندارند و در همین وضعیت می‌مانند.
+    disposition: pending
     in_api: true
-    in_legacy_docs: true
     confirmed: true
 
   - code: 2
     fa: ارسال شده، در صف
-    description: پیامک تحویل اپراتور داده شده، و در صف ارسال اپراتور ارسال کننده می باشد.
-    final: false
+    description: پیام در صف ارسال شبکه است.
+    action: وضعیت موقت است. بعداً دوباره استعلام کنید.
+    disposition: pending
     in_api: true
-    in_legacy_docs: true
     confirmed: true
 
   - code: 3
     fa: در انتظار تحویل گوشی
-    description: پیامک از اپراتور خارج شده، اما هنوز تاییده دریافت از گوشی دریافت نشده (ممکن است گوشی در دسترس نباشد).
-    final: false
+    description: پیام فرستاده شده و منتظر تحویل به گوشی است. معمولاً گوشی خاموش یا خارج از دسترس است.
+    action: منتظر بمانید. تا زمان انقضای پیام در شبکه ممکن است تحویل شود.
+    disposition: pending
     in_api: true
-    in_legacy_docs: true
     confirmed: true
 
   - code: 4
     fa: تحویل به گوشی
-    description: پیامک به گوشی تحویل داده شده است.
-    final: true
+    description: پیام با موفقیت به گوشی رسید.
+    action: استعلام را متوقف کنید.
+    disposition: final
     in_api: true
-    in_legacy_docs: true
     confirmed: true
 
   - code: 5
     fa: نرسیده به گوشی
-    description: پیامک از اپراتور ارسال شده است اما به دلایل مختلفی مانند خاموش بودن گوشی یا اختلالات مختلف پیامک توسط گوشی دریافت نشده است.
-    final: true
+    description: پیام فرستاده شد ولی تا زمان انقضا به گوشی نرسید.
+    action: در صورت نیاز بعداً دوباره ارسال کنید.
+    disposition: final
     in_api: true
-    in_legacy_docs: true
     confirmed: true
 
   - code: 6
     fa: خطا در ارسال
-    description: خطایی در روند ارسال رخ داده است.
-    final: true
+    description: ارسال با خطا مواجه شد.
+    action: شماره و خط فرستنده را بررسی و یک بار دیگر ارسال کنید. اگر تکرار شد، با شناسهٔ پیام به پشتیبانی اطلاع بدهید.
+    disposition: final
     in_api: true
-    in_legacy_docs: true
     confirmed: true
 
   - code: 7
     fa: گیرنده مسدود
-    description: گیرنده دریافت پیامک از خطوط تبلیغاتی را بر روی خط بسته است.
-    final: true
+    description: گیرنده در فهرست سیاه سراسری است.
+    action: این شماره را از فهرست خود حذف کنید. ارسال مجدد همیشه همین نتیجه را می‌دهد.
+    disposition: final
     in_api: true
-    in_legacy_docs: true
     confirmed: true
 
   - code: 8
     fa: شناسه پیدا نشد
-    description: پیامی با شناسه ارسالی ثبت نشده است.
-    final: true
+    description: این شناسه در حساب شما وجود ندارد.
+    action: مطمئن شوید شناسه درست است و متعلق به همین حساب. اگر پیامی با این شناسه فرستاده بودید، یعنی ارسال ثبت نشده و باید دوباره بفرستید.
+    disposition: not-found
     in_api: true
-    in_legacy_docs: true
     confirmed: true
 
   - code: 9
     fa: منقضی
-    description: مدت زمان معتبر برای ارسال پیامک به دلایلی چون در دسترس نبودن اپراتور و ... به اتمام رسیده و پیامک از سامانه ارسال نشده است.
-    final: true
+    description: پیام پیش از ارسال منقضی شد.
+    action: اگر پیام هنوز ارزش دارد دوباره بفرستید. برای پیام‌های حساس به زمان، مهلت مجاز تأخیر را واقع‌بینانه تنظیم کنید.
+    disposition: final
     in_api: true
-    in_legacy_docs: true
     confirmed: true
 
   - code: 10
     fa: نامشخص
-    description: نامشخص
-    final: false
+    description: وضعیت دریافتی از شبکه قابل تفسیر نبود.
+    action: مثل بدون وضعیت رفتار کنید و چند بار دیگر استعلام کنید. اگر ماندگار شد و پیام مهم بود، شناسه را به پشتیبانی بدهید.
+    disposition: pending
     in_api: true
-    in_legacy_docs: true
     confirmed: true
 
   - code: 11
     fa: دریافت کننده نامعتبر
-    description: فرمت شماره ورودی اشتباه است.
-    final: true
+    description: شمارهٔ گیرنده غیرفعال است.
+    action: شماره را اصلاح یا از فهرست حذف کنید.
+    disposition: final
     in_api: true
-    in_legacy_docs: true
     confirmed: true
 
   - code: 12
     fa: گیرنده در لیست سیاه اکانت شماست
-    description: شماره گیرنده قبلا در لیست سیاه پنل شما ثبت شده است.
-    final: true
+    description: خودتان این شماره را در فهرست سیاه حسابتان قرار داده‌اید.
+    action: اگر عمدی نبوده، شماره را از فهرست سیاه پنل بردارید و دوباره بفرستید.
+    disposition: final
     in_api: true
-    in_legacy_docs: true
     confirmed: true
 
   - code: 13
     fa: گیرنده نامعتبر
-    description: شماره وارد شده برای اپراتور ارسال کننده نامعتبر است (برای مثال، امکان ارسال پیامک متنی برای گیرنده شماره تلفن ثابت وجود ندارد).
-    final: true
+    description: شبکه این شماره را نامعتبر یا ناموجود اعلام کرد.
+    action: شماره را اصلاح کنید. ارسال مجدد بدون اصلاح نتیجه‌ای ندارد.
+    disposition: final
     in_api: true
-    in_legacy_docs: true
     confirmed: true
 
   - code: 14
     fa: متن بلاک
-    description: امکان ارسال متن وارد شده نمی باشد.
-    final: true
+    description: متن پیام حاوی کلمه یا الگوی غیرمجاز بوده و رد شده است.
+    action: متن را بازنویسی کنید و به لینک‌ها و عبارات تبلیغاتی حساس دقت کنید. برای متن‌های تکرارشونده از قالب تأییدشده استفاده کنید.
+    disposition: final
     in_api: true
-    in_legacy_docs: true
     confirmed: true
 
   - code: 15
     fa: لغو دریافت توسط گیرنده
-    description: گیرنده قبلا با ارسال کلید لغو، دریافت پیامک از سرشماره مورد استفاده شما را لغو نموده است.
-    final: true
+    description: گیرنده دریافت پیام از این سرویس را لغو کرده است.
+    action: شماره را از فهرست ارسال خود خارج کنید.
+    disposition: final
     in_api: true
-    in_legacy_docs: true
     confirmed: true
 
   - code: 16
     fa: بلاک شده
-    description: پیامک بلاک شده و امکان ارسال آن نمی باشد.
-    final: true
+    description: ارسال این پیام مسدود شده است.
+    action: برای بررسی دلیل با پشتیبانی تماس بگیرید. تکرار ارسال کمکی نمی‌کند.
+    disposition: final
     in_api: true
-    in_legacy_docs: true
     confirmed: true
 
   - code: 17
-    fa: محدودیت روزانه
-    description: سقف تعداد ارسال پیامک api پنل شما به اتمام رسیده است.
-    final: true
+    fa: اتمام سقف ارسال روزانه
+    description: پیام ارسال نشد چون سهمیهٔ روزانه پر بود.
+    action: پس از ریست روزانه دوباره بفرستید یا افزایش سقف بگیرید.
+    disposition: not-sent
     in_api: true
-    in_legacy_docs: true
     confirmed: true
 
   - code: 18
-    fa: null
-    description: null
-    final: null
+    fa: اتمام سقف ارسال API
+    description: پیام ارسال نشد چون سهمیهٔ وب‌سرویس پر بود.
+    action: پس از آزاد شدن سهمیه دوباره بفرستید یا افزایش سقف بگیرید.
+    disposition: not-sent
     in_api: true
-    in_legacy_docs: false
-    confirmed: false
-    note: در enum سرویس هست، شرح رسمی ندارد.
+    confirmed: true
 
   - code: 19
-    fa: null
-    description: null
-    final: null
+    fa: اتمام سقف ارسال شبانه
+    description: پیام در بازهٔ شبانه و بیش از سقف مجاز آن بازه بود.
+    action: ارسال را به ساعات مجاز روز منتقل کنید و دوباره بفرستید.
+    disposition: not-sent
     in_api: true
-    in_legacy_docs: false
-    confirmed: false
-    note: در enum سرویس هست، شرح رسمی ندارد.
+    confirmed: true
 
   - code: 20
-    fa: null
-    description: null
-    final: null
+    fa: اتمام سقف خط اشتراکی
+    description: سهمیهٔ خط اشتراکی پر بود.
+    action: از خط اختصاصی استفاده کنید یا تا آزاد شدن سهمیه صبر کنید.
+    disposition: not-sent
     in_api: true
-    in_legacy_docs: false
-    confirmed: false
-    note: در enum سرویس هست، شرح رسمی ندارد.
+    confirmed: true
 
   - code: 21
-    fa: null
-    description: null
-    final: null
+    fa: حساب احراز نشده
+    description: پیام ارسال نشد چون احراز هویت حساب کامل نیست.
+    action: احراز هویت را در پنل انجام دهید و سپس دوباره بفرستید.
+    disposition: not-sent
     in_api: true
-    in_legacy_docs: false
-    confirmed: false
-    note: در enum سرویس هست، شرح رسمی ندارد.
+    confirmed: true
