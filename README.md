@@ -150,9 +150,17 @@ docker run --rm -v "$PWD":/spec -w /spec redocly/cli lint specs/v3/openapi.yaml
 <br>
 <div align="center">
   <sub>
-    <a href="https://payam-resan.com">
-      <img src=".github/assets/logo.svg" width="20" height="20" alt="" align="top">
-    </a>
-    &nbsp;<b>پنل پیامکی پیام رسان</b> · <a href="https://payam-resan.com">payam-resan.com</a>
+    <img src=".github/assets/logo.svg" width="16" height="16" alt="" align="top">
+    &nbsp;<b>پنل پیامکی پیام رسان - موج شهر</b>&nbsp;
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset=".github/assets/mojeshahr-dark.svg">
+      <img src=".github/assets/mojeshahr-light.svg" width="16" height="16" alt="" align="top">
+    </picture>
+  </sub>
+  <br>
+  <sub>
+    <a href="https://payam-resan.com">payam-resan.com</a>
+    &nbsp;·&nbsp;
+    <a href="https://mojeshahr.ir">mojeshahr.ir</a>
   </sub>
 </div>
