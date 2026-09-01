@@ -5,14 +5,14 @@
 #
 # منبع: تیم سرویس. فهرست بسته است؛ هر کد دیگری که دیدید مثل ۱۰۰ رفتار کنید.
 #
-# name      : نام عضو enum در بک‌اند، عیناً با همان املا
+# name      : نام عضو enum در API، عیناً با همان املا
 # fa        : متنی که سرویس در فیلد Error برمی‌گرداند
 # cause     : چه چیزی این خطا را می‌سازد
 # action    : کاربر باید چه کند
 # retry     : never | backoff | limit-reset
 # exists    : در نسخه ۳ امروز وجود دارد
 # in_api    : در enum منتشرشده swagger هست
-# in_legacy_docs : در فهرست عمومیِ بازنشسته بود. مرجع تازه docs.payam-resan.com است.
+# in_legacy_docs : در فهرست پیشین بود. مرجع رسمی docs.payam-resan.com است.
 # confirmed : تیم سرویس تأییدش کرده است
 #
 # enum در spec شامل کدهایی است که exists باشند.
@@ -24,7 +24,7 @@ sources:
   captured: 2026-08-22
   legacy_docs:
     status: بازنشسته، بدون جانشین در همان نشانی
-    note: این صفحه از دور خارج می‌شود و نباید به آن لینک داد. ستون in_legacy_docs فقط ثبت می‌کند آن صفحه چه چیزی را پوشش می‌داد، تا مرجع تازه در docs.payam-resan.com همان کاستی‌ها را تکرار نکند.
+    note: مرجع رسمی docs.payam-resan.com است. ستون in_legacy_docs فقط نشان می‌دهد فهرست پیشین کدام کدها را پوشش می‌داد.
 
 guidance:
   - اول Success را بخوانید. تا false نباشد، ErrorCode معنا ندارد.
@@ -32,7 +32,7 @@ guidance:
   - همیشه UserTraceId یکتا بفرستید. بعد از timeout یا کد ۱۰۰، تنها راه امن تشخیص اینکه پیامک ثبت شده یا نه، StatusByUserTraceId است.
   - خطای retry never را دوباره نفرستید. تکرارش فقط سهمیه نرخ را می‌سوزاند و در نهایت به کد ۲۰ می‌رسد.
   - هر کد ناشناخته‌ای را مثل ۱۰۰ رفتار کنید.
-  - متدهای AccountInfo و TokenList از بررسی اعتبار معاف‌اند و حتی با اعتبار صفر هم پاسخ می‌دهند. در بک‌اند به TokenList گفته می‌شود OtpList.
+  - متدهای AccountInfo و TokenList از بررسی اعتبار معاف‌اند و حتی با اعتبار صفر هم پاسخ می‌دهند.
 
 codes:
   - code: 1
@@ -80,7 +80,7 @@ codes:
     in_api: true
     in_legacy_docs: true
     confirmed: true
-    note: املای نام عضو enum در بک‌اند همین است، Temprory.
+    note: املای نام عضو enum در API همین است، Temprory.
 
   - code: 5
     name: MethodIsDeactive
@@ -103,7 +103,7 @@ codes:
     in_api: true
     in_legacy_docs: true
     confirmed: true
-    note: فهرست عمومی متن کهنه‌ای نشان می‌دهد که از تأیید تلفن همراه می‌گوید، و باید اصلاح شود. املای نام عضو enum در بک‌اند بدون e است.
+    note: املای نام عضو enum در API بدون e است.
 
   - code: 7
     name: AccountEmailNotActived
@@ -115,7 +115,7 @@ codes:
     in_api: false
     in_legacy_docs: true
     confirmed: true
-    note: حذف شده است و دیگر برگردانده نمی‌شود. فهرست عمومی هنوز شرحش را درباره تأیید ایمیل نشان می‌دهد و باید از آن صفحه برداشته شود.
+    note: حذف شده است و دیگر برگردانده نمی‌شود.
 
   - code: 8
     name: AccountInfoIsIncomplete
@@ -184,7 +184,6 @@ codes:
     in_api: true
     in_legacy_docs: true
     confirmed: true
-    note: فهرست عمومی فقط فرمت شماره را می‌گوید و به سقف تعداد گیرنده اشاره نمی‌کند. در متن آن صفحه هم یک کلمه تکرار شده است.
 
   - code: 14
     name: UnauthorizedMethod

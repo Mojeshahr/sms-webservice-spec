@@ -24,7 +24,7 @@ sources:
   captured: 2026-08-23
   legacy_docs:
     status: بازنشسته، بدون جانشین در همان نشانی
-    note: فهرست عمومی پیشین فقط تا کد ۱۷ را پوشش می‌داد و متن چند کد با آنچه اینجاست فرق داشت. مرجع تازه docs.payam-resan.com است.
+    note: مرجع رسمی docs.payam-resan.com است. فهرست پیشین تا کد ۱۷ را پوشش می‌داد.
 
 guidance:
   - هر درایه پاسخ شامل Id، UserTraceId، StatusCode و Status است.
