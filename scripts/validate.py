@@ -130,10 +130,9 @@ def check_codes(label, version_dir, schemas):
                 gaps.append((label, what, code, reason))
                 warnings.append(f"{label}: {what} {code} تأیید نشده، {reason}")
 
-            # کدی که فهرست عمومیِ پیشین داشت و دیگر وجود ندارد. مرجع تازه
-            # نباید تکرارش کند، و این هشدار همان یادآوری است.
+            # کدی که در فهرست پیشین بود و دیگر در سرویس وجود ندارد.
             if row.get("exists") is False and row.get("in_legacy_docs"):
-                warnings.append(f"{label}: {what} {code} حذف شده، مرجع تازه نباید فهرستش کند")
+                warnings.append(f"{label}: {what} {code} دیگر در سرویس وجود ندارد")
 
 
 def check_operations(label, spec):
