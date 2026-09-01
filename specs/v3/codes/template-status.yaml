@@ -1,19 +1,19 @@
-# وضعیت تأیید قالب، نسخهٔ ۳.
+# وضعیت تأیید قالب، نسخه ۳.
 #
-# مقدار فیلد Status در هر درایهٔ پاسخ TokenList. فقط قالب تأییدشده قابل
+# مقدار فیلد Status در هر درایه پاسخ TokenList. فقط قالب تأییدشده قابل
 # ارسال است.
 #
 # ⚠ پنل و API یکی نیستند. پنل چهار حالت دارد و بین دو نوع رد شدن فرق
 # می‌گذارد، ولی API هر دو را ۳ برمی‌گرداند. برای همین جدول زیر سه ردیف
 # دارد، نه چهار.
 #
-# in_api    : در enum منتشرشدهٔ swagger هست
+# in_api    : در enum منتشرشده swagger هست
 # confirmed : با پاسخ واقعی سرویس سنجیده شده است
 
 version: 3
 sources:
   api: https://api.sms-webservice.com/swagger/docs/v3
-  panel: پنل کاربری، مقایسهٔ ستون وضعیت با پاسخ TokenList
+  panel: پنل کاربری، مقایسه ستون وضعیت با پاسخ TokenList
   captured: 2026-08-22
 
 codes:
@@ -55,6 +55,6 @@ codes:
 
 observation:
   checked: 2026-08-22
-  method: مقایسهٔ ستون وضعیت پنل با مقدار Status در پاسخ TokenList، شش قالب شامل یکی در انتظار تأیید
+  method: مقایسه ستون وضعیت پنل با مقدار Status در پاسخ TokenList، شش قالب شامل یکی در انتظار تأیید
   values_seen: [1, 2, 3]
   values_not_seen: []

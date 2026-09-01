@@ -68,7 +68,7 @@ def find_enum(node):
 
 
 def row_exists(row):
-    """آیا این کد در نسخهٔ جاری سرویس وجود دارد."""
+    """آیا این کد در نسخه جاری سرویس وجود دارد."""
     if "exists" in row:
         return bool(row["exists"])
     return bool(row.get("in_api") or row.get("confirmed"))
