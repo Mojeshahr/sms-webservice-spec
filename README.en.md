@@ -20,11 +20,15 @@ the single source that the documentation, the language examples and the MCP serv
 
 ---
 
-This repository is the **source of truth**. The documentation at
-`docs.payam-resan.com`, the examples for every language and the MCP server are
-all derived from it. None of them is kept in step with the service by hand,
-because that turns one API change into dozens of scattered edits and a slow,
-silent drift.
+This repository is the official machine readable description of the web
+service. The documentation at
+[`docs.payam-resan.com`](https://docs.payam-resan.com), the examples for every
+language and the MCP server are all derived from these files, so that one
+question has one answer everywhere.
+
+If you are looking for a guide to read, go to
+[`docs.payam-resan.com`](https://docs.payam-resan.com). What lives here is the
+description itself, for tools and code generators.
 
 ## Layout
 
@@ -42,8 +46,21 @@ scripts/
 
 A version is a folder, not a branch and not a tag. Older versions of the service
 are still live and have to be readable next to the current one, so each version
-gets its own folder and the validator checks all of them together. Adding a
-version means adding a folder and touching nothing that already exists.
+has its own folder, and adding a new version changes no file inside the folders
+that already exist.
+
+## What you need to know about the responses
+
+Three behaviours of the service that shape every integration:
+
+| Behaviour | What it means for you |
+|---|---|
+| Every response is `200` | success is read from the `Success` field, never from the HTTP status |
+| `ErrorCode` means something only on failure | until `Success` is `false`, reading it is meaningless |
+| The key travels inside the request | a query parameter on `GET`, a body field on `POST`, never a header |
+
+All three are described in full in the `info` section of
+[`openapi.yaml`](specs/v3/openapi.yaml).
 
 ## Why the code tables live outside the spec
 
@@ -56,7 +73,26 @@ practically unusable.
 So the numbers stay in the spec, the text lives in `codes/`, and
 [`scripts/validate.py`](scripts/validate.py) fails if the two drift apart.
 
-## Running the checks
+## Coverage
+
+| Table | What it holds |
+|---|---|
+| [`error-codes.yaml`](specs/v3/codes/error-codes.yaml) | 20 error codes, each with a cause, a remedy and a `retry` class |
+| [`status-codes.yaml`](specs/v3/codes/status-codes.yaml) | 22 message states, `0` to `21`, each with a `disposition` |
+| [`template-status.yaml`](specs/v3/codes/template-status.yaml) | 3 template approval states |
+
+The `retry` class says whether repeating a request can help, and `disposition`
+says when a status polling loop should stop. Both exist so that a program can
+decide without guessing.
+
+## Two things your code has to handle
+
+| Detail | What to do |
+|---|---|
+| The sender field in `GetInbox` | it is named `Form`, not `From`. It is documented exactly that way so your code matches the real response |
+| Template status | the panel shows four states and separates two kinds of rejection, but the API returns `3` for both |
+
+## Validation
 
 Two independent checks, and both have to be green.
 
@@ -64,7 +100,7 @@ Two independent checks, and both have to be green.
 
 ```bash
 python3 scripts/validate.py            # check and report
-python3 scripts/validate.py --gaps     # list the gaps only, for follow up
+python3 scripts/validate.py --gaps     # list the gaps only
 python3 scripts/validate.py --strict   # treat warnings as failures
 ```
 
@@ -74,34 +110,8 @@ python3 scripts/validate.py --strict   # treat warnings as failures
 docker run --rm -v "$PWD":/spec -w /spec redocly/cli lint specs/v3/openapi.yaml
 ```
 
-The two disabled rules and the reason for each are in
+The disabled rules and the reason for each are in
 [`redocly.yaml`](redocly.yaml).
-
-## Coverage
-
-Nothing is left open. Every code the service declares has a name, a
-description, a cause and a remedy, and none of them was filled in by guessing.
-
-| Table | Coverage | How it was confirmed |
-|---|---|---|
-| Error codes | 20 existing codes, each with a `retry` class | the service team |
-| SMS status | 22 codes, `0` to `21`, each with a `disposition` | the service team, code `8` against a live response |
-| Template status | 3 codes, all three measured against a live `TokenList` | panel compared with the API |
-
-Three things the retired public list did not have, documented here:
-
-- the `GetInbox` method and the `POST` variant of `SendTokenSingle`
-- error codes `16` to `20` and `100`, and status codes `18` to `21`
-- error code `7`, which was removed and is no longer returned
-
-Two inconsistencies are recorded exactly as they are, because they live in the
-service, and correcting them here would separate the generated code from the
-real response:
-
-| Inconsistency | Detail |
-|---|---|
-| Misspelling | the sender field in `GetInbox` is named `Form`, not `From` |
-| Template status | the panel has four states and distinguishes two kinds of rejection, but the API returns `3` for both |
 
 ## Consumers
 
