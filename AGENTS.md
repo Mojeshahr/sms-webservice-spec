@@ -1,99 +1,108 @@
-# راهنمای عامل‌ها
+# Agent guide
 
-این مخزن توصیف یک سرویس بیرونی است، نه یک نرم‌افزار. تفاوت مهم است: اینجا
-هیچ چیزی را «درست» نمی‌کنیم، فقط چیزی را که هست دقیق ثبت می‌کنیم.
+This repository describes an external service, not a piece of software. The
+difference matters: nothing here is ever "fixed". What is here is recorded
+exactly as the service behaves.
 
-## قانون اول: چیزی را حدس نزنید
+## Rule one: never guess
 
-اگر شرح یک کد خطا، معنی یک فیلد یا رفتار یک متد را نمی‌دانید، `null` بگذارید
-و در `note` بنویسید که چرا. یک شرح حدسی در یک فایل مرجع بدتر از نبودنش است،
-چون به مستندات، نمونه‌کدها و سرور MCP تکثیر می‌شود و کسی دیگر بازبینی‌اش
-نمی‌کند.
+If you do not know what an error code means, what a field holds or how a method
+behaves, write `null` and say why in `note`. A guessed description in a
+reference file is worse than a missing one, because it propagates into the
+documentation, the language examples and the MCP server, and nobody reviews it
+again downstream.
 
-جدول‌های `codes/` فیلد `in_api` و `in_docs` دارند تا منشأ هر سطر روشن بماند.
-سطری که هیچ‌کدام را ندارد یعنی از جایی آمده که معلوم نیست کجاست، و باید حذف
-شود.
+The tables under `codes/` carry `in_api` and `in_legacy_docs` so the origin of
+every row stays visible. A row with neither is a row from nowhere, and it should
+be removed.
 
-## قانون دوم: غلط‌های سرویس را اصلاح نکنید
+## Rule two: do not correct the service's mistakes
 
-فیلد فرستنده در `GetInbox` نامش `Form` است. متن کد خطای ۱۳ کلمه «شماره» را
-دوبار دارد. اینها در خود سرویس‌اند. اگر اینجا اصلاحشان کنید، کد تولیدشده
-دیگر با پاسخ واقعی نمی‌خواند و کسی ساعت‌ها دنبال دلیلش می‌گردد.
+The sender field in `GetInbox` is spelled `Form`. That spelling lives in the
+service. Correct it here and the generated code stops matching the real
+response, and somebody loses hours finding out why.
 
-غلط را عیناً ثبت کنید و کنارش در `description` تذکر بدهید.
+Record the mistake verbatim and warn about it in the neighbouring
+`description`.
 
-## قانون سوم: نسخه یک پوشه است
+## Rule three: a version is a folder
 
-نسخه تازه یعنی `specs/v<n>/` تازه. هیچ فایلی در پوشه‌های موجود جابه‌جا،
-تغییر نام یا بازآرایی نمی‌شود؛ نسخه‌های قدیمی سرویس هنوز مشتری دارند.
+A new version means a new `specs/v<n>/`. No file inside an existing version
+folder is moved, renamed or rearranged; older versions of the service still
+have customers.
 
-پوشه‌ای برای نسخه‌ای که هنوز منتشر نشده ساخته نمی‌شود، حتی خالی.
+No folder is created for a version the service has not released, not even an
+empty one.
 
-## قانون چهارم: اعتبارسنج را راضی کنید، خاموشش نکنید
+## Rule four: satisfy the validator, never silence it
 
 ```bash
 python3 scripts/validate.py
 docker run --rm -v "$PWD":/spec -w /spec redocly/cli lint specs/v3/openapi.yaml
 ```
 
-خطا یعنی spec و جدول‌ها از هم واگرا شده‌اند و باید یکی‌شان اصلاح شود.
+An error means the spec and the tables have drifted apart, and one of them has
+to be corrected.
 
-هشدار یعنی شکافی در خود سرویس هست. هشدار را با پر کردن حدسی جدول ساکت
-نکنید و شرطش را از `validate.py` برندارید. هشدار وقتی می‌رود که کسی از تیم
-سرویس جواب واقعی را بدهد.
+A warning means there is a gap in the service itself. Do not quiet a warning by
+filling a table with a guess, and do not remove its condition from
+`validate.py`. A warning goes away when somebody from the service team supplies
+the real answer.
 
-## قانون پنجم: پس از هر تغییر spec
+## Rule five: after every change to the spec
 
-تغییر در `openapi.yaml` روی سه مصرف‌کننده اثر دارد: مستندات سایت،
-نمونه‌کدهای هر زبان، و سرور MCP. در پیام کامیت بنویسید کدام متد یا فیلد
-عوض شده تا آن مخزن‌ها بدانند چه چیزی را بازتولید کنند.
+A change in `openapi.yaml` reaches three consumers: the documentation site, the
+per-language examples, and the MCP server. Name the method or the field that
+changed in the commit message, so those repositories know what to regenerate.
 
-## قواعد نگارش فارسی
+## Two languages, two files
 
-در همه متن‌ها اعمال می‌شوند: README، توضیح داخل کد، مقادیر YAML، و هر
-رشته‌ای که به کاربر نشان داده می‌شود.
+The repository carries two READMEs and both stay in step:
 
-نمونه شکل غلط را عمداً اینجا ننوشته‌ایم، تا یک `grep` ساده برای هر کدام
-همیشه معتبر بماند و خود این فایل را علامت نزند.
+| File | Language | Direction |
+|---|---|---|
+| `README.md` | Persian | right to left |
+| `README.en.md` | English | left to right |
 
-**۱. حرف «ه» هرگز همزه نمی‌گیرد.** کسره اضافه پس از «ه» پایانی با
-نیم‌فاصله و «ی» نوشته می‌شود: `صفحه اصلی`، `لایه تنظیمات`،
-`نسخه قبلی`.
+The English file is named exactly `README.en.md`. GitHub renders only
+`README.md` on its own, so both files open with a language switch line so that
+either one leads to the other:
 
-همزه روی «ه» دو شکل یونیکد دارد که چشم فرقشان را نمی‌بیند: نشانه
-ترکیبی `U+0654` روی «ه»، و شکل از پیش ترکیب‌شده `U+06C0`. جستجو باید هر دو
-را بگیرد وگرنه نیمی جا می‌ماند.
-
-**۲. خط‌تیره بلند `U+2014` ممنوع.** به‌جایش خط‌تیره ساده `-` برای
-جداکردن عنوان و برچسب، و ویرگول یا نقطه‌ویرگول در میان جمله.
-
-اگر خط‌تیره بلند جمله معترضه می‌ساخته، جمله را بازنویسی کنید؛ گذاشتن
-خط‌تیره ساده به‌جایش بد خوانده می‌شود.
-
-**۳. نام برند با فاصله است، نه نیم‌فاصله:** `پیام رسان`. شکل نیم‌فاصله‌دار
-اسم عام برای انواع نرم‌افزار پیام‌رسانی اجتماعی است و با هویت برند تداخل
-دارد.
-
-جایی که برند معرفی می‌شود عبارت کامل **پنل پیامکی پیام رسان** به کار برود.
-
-هر README باید در پابرگ نشانی `payam-resan.com` را **نوشته و لینک‌شده**
-داشته باشد، نه فقط یک لینک روی نام برند.
-
-### بررسی سریع
-
-```bash
-grep -rnP '\x{0654}|\x{06C0}|\x{2014}' .
+```
+<b>فارسی</b> · <a href="README.en.md">English</a>
 ```
 
-## سبک
+**The English text is not a literal translation of the Persian.** Same material,
+written for a reader who does not know Persian and most likely arrived from
+outside Iran. The structure and the section order stay identical, which is what
+makes keeping them in step cheap.
 
-- زبان مستندات فارسی است. نام فیلدها و متدها انگلیسی و عیناً مثل سرویس.
-- توضیح هر متد باید بگوید **کِی از این استفاده کنیم**، نه فقط پارامترها را
-  فهرست کند. پارامترها را خود اسکیما می‌گوید.
-- جایی که یک متد جایگزین بهتری دارد، بگویید. مثلاً `Send` کلید را در نشانی
-  می‌گذارد و برای محیط عملیاتی `SendBulk` ترجیح دارد.
+## Persian text
 
-## گیت
+Follow the wording, spelling and punctuation already in the repository. When you
+add a passage or rewrite one, match the surrounding text instead of bringing
+your own conventions to it. This covers the README, the comments in the YAML
+files, and every value shown to a reader.
 
-قواعد کامیت پروژه: پیام معنایی `type(scope): subject`، بدون بدنه توضیحی،
-بدون هیچ اشاره‌ای به ابزار یا دستیار. بدون تأیید صریح کامیت نکنید.
+**The brand name takes a real space, not a ZWNJ:** `پیام رسان`. The joined form
+is the common noun for social messaging apps and collides with the brand.
+
+Where the brand is first introduced, use the full phrase
+**پنل پیامکی پیام رسان**.
+
+Every README carries `payam-resan.com` in the footer, written out and linked,
+not merely a link sitting on the brand name.
+
+## Style
+
+- The prose is Persian. Field names and method names are English, spelled
+  exactly as the service spells them.
+- The description of a method says **when to reach for it**, rather than listing
+  its parameters. The schema already lists the parameters.
+- Where a method has a better alternative, say so. `Send` puts the key in the
+  URL, so `SendBulk` is the one for production.
+
+## Git
+
+Semantic messages, `type(scope): subject`, with no explanatory body and no
+mention of any tool or assistant. Do not commit without explicit approval.
