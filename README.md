@@ -14,6 +14,8 @@
 [![Lint](https://img.shields.io/badge/redocly-clean-2ea44f)](redocly.yaml)
 [![License](https://img.shields.io/badge/license-MIT-6e7781)](LICENSE)
 
+<b>فارسی</b> · <a href="README.en.md">English</a>
+
 </div>
 
 ---
