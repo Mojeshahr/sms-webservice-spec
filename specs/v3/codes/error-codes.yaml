@@ -263,7 +263,6 @@ codes:
     in_api: true
     in_legacy_docs: false
     confirmed: true
-    note: این درخواست‌ها اصلاً لاگ نمی‌شوند.
 
   - code: 100
     name: InternalError
