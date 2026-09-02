@@ -534,6 +534,7 @@ components:
           type: integer
           format: int64
           description: شناسه دلخواه شما برای این گیرنده، برای گزارش‌گیری بعدی.
+          examples: [45001]
 
     SendBulkRequest:
       type: object
@@ -544,6 +545,7 @@ components:
         Text:
           type: string
           description: متن پیامک، یکسان برای همه گیرندگان.
+          examples: [کد تأیید شما ۱۲۳۴۵۶ است]
         Sender:
           type: integer
           format: int64
@@ -564,17 +566,21 @@ components:
           type: integer
           format: int64
           description: خط فرستنده برای همین گیرنده.
+          examples: [30004040]
         Text:
           type: string
           description: متن اختصاصی همین گیرنده.
+          examples: [سفارش شما ارسال شد]
         Destination:
           type: integer
           format: int64
           description: شماره گیرنده، بدون صفر ابتدایی.
+          examples: [9121112222]
         UserTraceId:
           type: integer
           format: int64
           description: شناسه دلخواه شما برای این گیرنده.
+          examples: [45001]
 
     SendMultipleRequest:
       type: object
@@ -584,6 +590,7 @@ components:
           $ref: '#/components/schemas/ApiKey'
         Recipients:
           type: array
+          description: حداکثر ۹۹ گیرنده. متن و خط فرستنده در سطح هر گیرنده تعریف می‌شود، نه در سطح درخواست.
           maxItems: 99
           items:
             $ref: '#/components/schemas/SendMultipleRecipient'
@@ -597,6 +604,7 @@ components:
         UserTraceId:
           type: integer
           format: int64
+          description: شناسه پی‌گیری که خودتان فرستاده‌اید. ورودی `StatusByUserTraceId`.
         Id:
           type: integer
           format: int64
@@ -672,10 +680,12 @@ components:
           type: integer
           format: int64
           description: شماره گیرنده، بدون صفر ابتدایی.
+          examples: [9121112222]
         UserTraceId:
           type: integer
           format: int64
           description: شناسه دلخواه شما برای این گیرنده.
+          examples: [45001]
         Parameters:
           type: array
           description: |
@@ -695,6 +705,7 @@ components:
           description: کلید قالب، مشترک بین همه گیرندگان.
         Recipients:
           type: array
+          description: حداکثر ۹۹ گیرنده، هر کدام با مقادیر قالب خودش.
           maxItems: 99
           items:
             $ref: '#/components/schemas/TokenRecipient'
@@ -749,6 +760,7 @@ components:
           items:
             type: integer
             format: int64
+            examples: [9903211]
 
     StatusByUserTraceIdRequest:
       type: object
@@ -762,6 +774,7 @@ components:
           items:
             type: integer
             format: int64
+            examples: [45001]
 
     StatusItem:
       type: object
@@ -769,9 +782,11 @@ components:
         Id:
           type: integer
           format: int64
+          description: شناسه سامانه، همان که متد ارسال برگردانده است.
         UserTraceId:
           type: integer
           format: int64
+          description: شناسه پی‌گیری که هنگام ارسال تعیین کرده‌اید.
         StatusCode:
           type: integer
           format: int32
