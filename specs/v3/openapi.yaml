@@ -191,8 +191,9 @@ paths:
         - name: TemplateKey
           in: query
           required: true
-          description: کلید قالبِ تأییدشده.
+          description: کلید قالبِ تأییدشده. یک عبارت انگلیسی است و به بزرگ و کوچک بودن حروف حساس نیست.
           schema: { type: string }
+          example: verifycode
         - name: Destination
           in: query
           required: true
@@ -635,7 +636,8 @@ components:
           $ref: '#/components/schemas/ApiKey'
         TemplateKey:
           type: string
-          description: کلید قالبِ تأییدشده. از `TokenList` گرفته می‌شود.
+          description: کلید قالبِ تأییدشده. یک عبارت انگلیسی است و به بزرگ و کوچک بودن حروف حساس نیست. از `TokenList` گرفته می‌شود.
+          examples: [verifycode]
         Destination:
           type: integer
           format: int64
@@ -702,7 +704,8 @@ components:
           $ref: '#/components/schemas/ApiKey'
         TemplateKey:
           type: string
-          description: کلید قالب، مشترک بین همه گیرندگان.
+          description: کلید قالب، مشترک بین همه گیرندگان. یک عبارت انگلیسی است و به بزرگ و کوچک بودن حروف حساس نیست.
+          examples: [verifycode]
         Recipients:
           type: array
           description: حداکثر ۹۹ گیرنده، هر کدام با مقادیر قالب خودش.
