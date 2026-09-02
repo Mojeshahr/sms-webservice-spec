@@ -709,6 +709,8 @@ components:
             ترتیب از **شماره** جای‌گاه می‌آید، نه از جایی که در متن قالب
             دیده می‌شود. در قالبی که متنش با `{2}` شروع شود و `{1}` بعد
             بیاید، باز هم درایه اول آرایه در `{1}` می‌نشیند.
+          examples:
+            - ["BARCODE-AAA", "شیراز"]
           items:
             type: string
 
@@ -721,7 +723,8 @@ components:
         TemplateKey:
           type: string
           description: کلید قالب، مشترک بین همه گیرندگان. یک عبارت انگلیسی است و به بزرگ و کوچک بودن حروف حساس نیست.
-          examples: [verifycode]
+          # قالبی با دو جای‌گاه، تا نمونه شکل آرایه Parameters را نشان بدهد.
+          examples: [postcode]
         Recipients:
           type: array
           description: حداکثر ۹۹ گیرنده، هر کدام با مقادیر قالب خودش.
