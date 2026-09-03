@@ -154,7 +154,7 @@ codes:
 
   - code: 11
     name: MalformattedApiKey
-    fa: فرمت ورودی ApiKey نادرست است
+    fa: فرمت روردی ApiKey نادرست است
     cause: ساختار کلید غلط است. باید شش رقم شناسه کاربری، خط تیره، و بخش کلید باشد و بخش اول عدد.
     action: فرمت را اصلاح کنید. فاصله یا newline اضافه هم همین خطا را می‌دهد.
     retry: never
@@ -162,6 +162,9 @@ codes:
     in_api: true
     in_legacy_docs: true
     confirmed: true
+    note: >-
+      «روردی» غلط املایی خود سرویس است، نه اینجا. متن عیناً همان چیزی است
+      که در فیلد Error برمی‌گردد؛ اگر روی متن شرط گذاشته‌اید حواستان باشد.
 
   - code: 12
     name: InvalidSender
