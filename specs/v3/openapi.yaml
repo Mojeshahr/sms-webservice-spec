@@ -230,6 +230,10 @@ paths:
           required: false
           description: مقدار جای‌گاه {1} در قالب.
           schema: { type: string }
+          # فقط همین یکی مقدار نمونه دارد، تا نمونه تولیدشده یک قالب
+          # تک‌جای‌گاهی مثل verifycode را نشان بدهد. اگر p2 تا p10 هم نمونه
+          # بگیرند، هر ده‌تا در نمونه‌های صفحه ظاهر می‌شوند.
+          example: '123456'
         - name: p2
           in: query
           required: false
@@ -682,6 +686,8 @@ components:
         p1:
           type: string
           description: مقدار جای‌گاه {1} در قالب.
+          # مثل واریانت GET، فقط جای‌گاه اول مقدار نمونه دارد.
+          examples: ['123456']
         p2:
           type: string
           description: مقدار جای‌گاه {2} در قالب.
