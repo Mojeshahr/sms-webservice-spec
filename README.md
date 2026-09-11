@@ -134,9 +134,17 @@ docker run --rm -v "$PWD":/spec -w /spec redocly/cli lint specs/v3/openapi.yaml
 
 </div>
 
+## مستندات و پشتیبانی
+
+راهنمای کامل وب‌سرویس در [docs.payam-resan.com](https://docs.payam-resan.com)
+است.
+
+سؤال یا خطایی هست؟ [issue باز کنید](https://github.com/Mojeshahr/sms-webservice-spec/issues)
+یا با [پشتیبانی](https://payam-resan.com) تماس بگیرید.
+
 ## مجوز
 
-[MIT](LICENSE)
+منتشرشده با مجوز MIT. متن کامل در [`LICENSE`](LICENSE).
 
 <br>
 <div align="center">

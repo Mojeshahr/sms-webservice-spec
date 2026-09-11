@@ -121,9 +121,17 @@ The disabled rules and the reason for each are in
 | the per-language example repositories | method signatures and field names |
 | the MCP server | the tool definitions |
 
+## Documentation and support
+
+The full guide to the web service is at
+[docs.payam-resan.com](https://docs.payam-resan.com).
+
+Question or bug? [Open an issue](https://github.com/Mojeshahr/sms-webservice-spec/issues)
+or contact [support](https://payam-resan.com).
+
 ## License
 
-[MIT](LICENSE)
+Released under the MIT license. Full text in [`LICENSE`](LICENSE).
 
 <br>
 <div align="center">
