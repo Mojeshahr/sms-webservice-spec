@@ -1,108 +1,102 @@
-# Agent guide
+# Working with this repository
 
-This repository describes an external service, not a piece of software. The
-difference matters: nothing here is ever "fixed". What is here is recorded
-exactly as the service behaves.
+This is the **OpenAPI 3.1 description** of the Payam Resan SMS web service
+(`api.sms-webservice.com`, API V3), an Iranian SMS provider. It is the
+machine-readable source that the documentation site, the per-language example
+repositories and the MCP server all derive from.
 
-## Rule one: never guess
+It is not a client library and not a guide. If someone wants working code,
+send them to their language's repository at <https://github.com/Mojeshahr>; if
+they want something to read, send them to <https://docs.payam-resan.com>. What
+lives here is the description itself, for tools and code generators.
 
-If you do not know what an error code means, what a field holds or how a method
-behaves, write `null` and say why in `note`. A guessed description in a
-reference file is worse than a missing one, because it propagates into the
-documentation, the language examples and the MCP server, and nobody reviews it
-again downstream.
+## What you would use this for
 
-The tables under `codes/` carry `in_api` and `in_legacy_docs` so the origin of
-every row stays visible. A row with neither is a row from nowhere, and it should
-be removed.
+Generating a client, or building the error and status tables into an
+application. `specs/v3/openapi.yaml` has the eleven operations across ten paths;
+`specs/v3/codes/` has three tables the spec's enums refer to.
 
-## Rule two: do not correct the service's mistakes
+A version is a folder, not a branch and not a tag. Nothing inside an existing
+version folder is ever moved or renamed.
 
-The sender field in `GetInbox` is spelled `Form`. That spelling lives in the
-service. Correct it here and the generated code stops matching the real
-response, and somebody loses hours finding out why.
+## Three behaviours any generated client must encode
 
-Record the mistake verbatim and warn about it in the neighbouring
-`description`.
+These are properties of the service, not of this file, and a generator will not
+infer them:
 
-## Rule three: a version is a folder
+**Every response is `200`.** Success is read from the `Success` field, never
+from the HTTP status. A wrong key, an empty account and a malformed body all
+come back `200`.
 
-A new version means a new `specs/v<n>/`. No file inside an existing version
-folder is moved, renamed or rearranged; older versions of the service still
-have customers.
+**`ErrorCode` means something only on failure.** Until `Success` is `false`,
+reading it is meaningless.
 
-No folder is created for a version the service has not released, not even an
-empty one.
+**The key travels inside the request** — a query parameter on `GET`, a body
+field on `POST`, never a header. This is why the spec declares no
+`securityScheme`: OpenAPI cannot express a credential that sits in a JSON body.
+The key is a required parameter on every method instead.
 
-## Rule four: satisfy the validator, never silence it
+## Two spellings your code has to match
+
+The sender field in `GetInbox` is named **`Form`, not `From`**. It is documented
+exactly that way so generated code matches the real response. Do not correct it.
+
+The user panel shows four template states and separates two kinds of rejection,
+but the API returns `3` for both. `codes/template-status.yaml` records what the
+API returns, not what the panel displays.
+
+## Why the code tables live outside the spec
+
+The `ErrorCode` and `StatusCode` values are needed in two places: as an `enum`
+in the response schema, and as a "what does this number mean" table that the
+documentation, the examples and the MCP server render. Neither is enough on its
+own, and keeping the Persian text inside the `description` of an enum makes it
+practically unusable.
+
+So the numbers stay in the spec, the text lives in `codes/`, and
+`scripts/validate.py` fails if the two drift apart.
+
+What the tables carry beyond the text:
+
+- `retry` on each error code — `never`, `backoff` or `limit-reset`. A client
+  that ignores this will hammer a code that can never succeed until the account
+  hits error `20`.
+- `disposition` on each status code — `pending`, `final`, `not-sent` or
+  `not-found`. This is what tells a polling loop when to stop.
+- `sendable` on each template state.
+
+Rows also carry their provenance: `in_api`, `in_legacy_docs`, `confirmed`. A
+row that is not `confirmed` is a gap in the service, not in this repository, and
+it is a warning rather than an error.
+
+## If you are changing something here
+
+Never guess. If you do not know what an error code means, write `null` and say
+why in `note`. A guessed description in a reference file is worse than a missing
+one, because it propagates into the documentation, the language examples and the
+MCP server, and nobody reviews it again downstream.
+
+This repository describes an external service. Nothing here is ever "fixed" —
+what is recorded is exactly how the service behaves, misspellings included.
+
+Two checks must be green, and the way to pass them is to satisfy them, never to
+silence them:
 
 ```bash
 python3 scripts/validate.py
-docker run --rm -v "$PWD":/spec -w /spec redocly/cli lint specs/v3/openapi.yaml
+docker run --rm -v "$PWD:/spec" redocly/cli lint specs/v3/openapi.yaml
 ```
 
-An error means the spec and the tables have drifted apart, and one of them has
-to be corrected.
+Redocly has exactly two rules disabled, each because of a real property of this
+service rather than to quiet the linter: `security-defined`, because the key is
+a body field on `POST`; and `operation-4xx-response`, because the service never
+returns `4xx`.
 
-A warning means there is a gap in the service itself. Do not quiet a warning by
-filling a table with a guess, and do not remove its condition from
-`validate.py`. A warning goes away when somebody from the service team supplies
-the real answer.
+A change to `openapi.yaml` reaches three consumers. Name the method or the field
+that changed in the commit message, so those repositories know what to
+regenerate.
 
-## Rule five: after every change to the spec
+## Where to go next
 
-A change in `openapi.yaml` reaches three consumers: the documentation site, the
-per-language examples, and the MCP server. Name the method or the field that
-changed in the commit message, so those repositories know what to regenerate.
-
-## Two languages, two files
-
-The repository carries two READMEs and both stay in step:
-
-| File | Language | Direction |
-|---|---|---|
-| `README.md` | Persian | right to left |
-| `README.en.md` | English | left to right |
-
-The English file is named exactly `README.en.md`. GitHub renders only
-`README.md` on its own, so both files open with a language switch line so that
-either one leads to the other:
-
-```
-<b>فارسی</b> · <a href="README.en.md">English</a>
-```
-
-**The English text is not a literal translation of the Persian.** Same material,
-written for a reader who does not know Persian and most likely arrived from
-outside Iran. The structure and the section order stay identical, which is what
-makes keeping them in step cheap.
-
-## Persian text
-
-Follow the wording, spelling and punctuation already in the repository. When you
-add a passage or rewrite one, match the surrounding text instead of bringing
-your own conventions to it. This covers the README, the comments in the YAML
-files, and every value shown to a reader.
-
-**The brand name takes a real space, not a ZWNJ:** `پیام رسان`. The joined form
-is the common noun for social messaging apps and collides with the brand.
-
-Where the brand is first introduced, use the full phrase
-**پنل پیامکی پیام رسان**.
-
-Every README carries `payam-resan.com` in the footer, written out and linked,
-not merely a link sitting on the brand name.
-
-## Style
-
-- The prose is Persian. Field names and method names are English, spelled
-  exactly as the service spells them.
-- The description of a method says **when to reach for it**, rather than listing
-  its parameters. The schema already lists the parameters.
-- Where a method has a better alternative, say so. `Send` puts the key in the
-  URL, so `SendBulk` is the one for production.
-
-## Git
-
-Semantic messages, `type(scope): subject`, with no explanatory body and no
-mention of any tool or assistant. Do not commit without explicit approval.
+- Human documentation: <https://docs.payam-resan.com>
+- Working code in twenty languages: <https://github.com/Mojeshahr>
