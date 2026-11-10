@@ -14,13 +14,17 @@ reference file is worse than a missing one, because it propagates into the
 documentation, the language examples and the MCP server, and nobody reviews it
 again downstream.
 
-The tables under `codes/` carry `in_api` and `in_legacy_docs` so the origin of
-every row stays visible. A row with neither is a row from nowhere, and it should
-be removed.
+The V3 tables under `specs/v3/codes/` carry `in_api` and `in_legacy_docs` so
+the origin of every row stays visible. A row with neither is a row from nowhere,
+and it should be removed.
+
+The V4 OpenAPI file follows the published Swagger for operation and response
+shapes. Keep claims from that document distinguishable from behavior confirmed
+against the live service; do not copy V3 behavior into V4 to fill a gap.
 
 ## Rule two: do not correct the service's mistakes
 
-The sender field in `GetInbox` is spelled `Form`. That spelling lives in the
+The sender field in V3 `GetInbox` is spelled `Form`. That spelling lives in the
 service. Correct it here and the generated code stops matching the real
 response, and somebody loses hours finding out why.
 
@@ -40,7 +44,7 @@ empty one.
 
 ```bash
 python3 scripts/validate.py
-docker run --rm -v "$PWD":/spec -w /spec redocly/cli lint specs/v3/openapi.yaml
+docker run --rm -v "$PWD":/spec -w /spec redocly/cli lint specs/v3/openapi.yaml specs/v4/openapi.yaml
 ```
 
 An error means the spec and the tables have drifted apart, and one of them has
@@ -101,8 +105,9 @@ not merely a link sitting on the brand name.
   exactly as the service spells them.
 - The description of a method says **when to reach for it**, rather than listing
   its parameters. The schema already lists the parameters.
-- Where a method has a better alternative, say so. `Send` puts the key in the
-  URL, so `SendBulk` is the one for production.
+- Where a method has a better alternative, say so. In V3, `Send` puts the key
+  in the URL, so `SendBulk` is the one for production. V4 also offers POST
+  alternatives for the template-send GET methods, which put the key in the URL.
 
 ## Git
 

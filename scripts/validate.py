@@ -4,7 +4,7 @@
 هدف این نیست که spec «معتبر OpenAPI» باشد، آن کار redocly است. هدف این است
 که چیزهایی که همیشه بی‌صدا از هم واگرا می‌شوند، بلند شکست بخورند:
 
-  ۱. enum هر کد در spec، در برابر جدول متناظرش در codes/
+  ۱. enum هر کد در spec، در برابر جدول متناظرش در codes/ (برای نسخه‌هایی که جدول دارند)
   ۲. هر مسیری که operationId، summary، description یا tag ندارد
   ۳. هر ارجاع شکسته یا مدل بی‌استفاده
 
@@ -85,13 +85,14 @@ def dig(node, keys):
 def check_codes(label, version_dir, schemas):
     for filename, keys, what in TABLES:
         table_path = version_dir / "codes" / filename
+        node = dig(schemas, keys)
+        # A version without this response model has no corresponding code enum to reconcile.
+        if node is None:
+            if table_path.exists():
+                errors.append(f"{label}: مسیر {'.'.join(keys)} در spec پیدا نشد")
+            continue
         if not table_path.exists():
             errors.append(f"{label}: {filename} نیست")
-            continue
-
-        node = dig(schemas, keys)
-        if node is None:
-            errors.append(f"{label}: مسیر {'.'.join(keys)} در spec پیدا نشد")
             continue
         enum = find_enum(node)
         if enum is None:

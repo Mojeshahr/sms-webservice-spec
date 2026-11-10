@@ -10,7 +10,7 @@ The machine readable description of the <a href="https://payam-resan.com"><b>Pay
 the single source that the documentation, the language examples and the MCP server derive from
 
 [![OpenAPI](https://img.shields.io/badge/OpenAPI-3.1-0a7cbd)](specs/v3/openapi.yaml)
-[![API](https://img.shields.io/badge/API-V3-777bb4)](https://payam-resan.com)
+[![API](https://img.shields.io/badge/API-V3%20%2B%20V4-777bb4)](https://payam-resan.com)
 [![Lint](https://img.shields.io/badge/redocly-clean-2ea44f)](redocly.yaml)
 [![License](https://img.shields.io/badge/license-MIT-6e7781)](LICENSE)
 
@@ -34,24 +34,46 @@ description itself, for tools and code generators.
 
 ```
 specs/
-└── v3/
-    ├── openapi.yaml              the OpenAPI 3.1 description
-    └── codes/
-        ├── error-codes.yaml      the ErrorCode values
-        ├── status-codes.yaml     the StatusCode values
-        └── template-status.yaml  the template approval states
+├── v3/
+│   ├── openapi.yaml              the OpenAPI 3.1 description
+│   └── codes/
+│       ├── error-codes.yaml      the ErrorCode values
+│       ├── status-codes.yaml     the StatusCode values
+│       └── template-status.yaml  the template approval states
+└── v4/
+    └── openapi.yaml              the V4 namespace operations and request models
 scripts/
-└── validate.py                   the spec against the tables
+└── validate.py                   structure and code-table consistency checks
 ```
 
 A version is a folder, not a branch and not a tag. Older versions of the service
 are still live and have to be readable next to the current one, so each version
 has its own folder, and adding a new version changes no file inside the folders
-that already exist.
+that already exist. The V4 document includes 26 published production operations
+across 24 paths, plus 25 known-working sandbox operations across 23 paths. The
+sandbox routes are not listed in the public Swagger and are intentionally
+retained in the spec. Typed request and response shapes follow the public
+Swagger; they have not been independently verified against live responses.
+For four operations without a longer description, the published summary is
+used as the description. See
+[`PUBLISHED-SWAGGER-CHANGES.md`](PUBLISHED-SWAGGER-CHANGES.md) for the comparison.
 
-## What you need to know about the responses
+## What the published V4 Swagger describes
 
-Three behaviours of the service that shape every integration:
+The public V4 Swagger documents single and bulk SMS, template messages, SMS and
+voice OTP, delivery and account queries, inbox, phonebook management, and
+campaign management. Most operations use `POST` with the API key in the JSON
+body; two template-send operations also offer `GET` with the key in the query.
+Prefer `POST` when possible to avoid exposing the key in URLs.
+
+The Swagger declares `200`, `429`, and `default` responses for V4 operations.
+These response codes and shapes are documented claims, not independently
+verified runtime behavior. The V3 contract still records `200` for both
+successes and failures; see the comparison report for the discrepancy.
+
+## What you need to know about V3 responses
+
+Three V3 behaviours of the service that shape every integration:
 
 | Behaviour | What it means for you |
 |---|---|
@@ -59,21 +81,21 @@ Three behaviours of the service that shape every integration:
 | `ErrorCode` means something only on failure | until `Success` is `false`, reading it is meaningless |
 | The key travels inside the request | a query parameter on `GET`, a body field on `POST`, never a header |
 
-All three are described in full in the `info` section of
+All three V3 behaviours are described in full in the `info` section of
 [`openapi.yaml`](specs/v3/openapi.yaml).
 
-## Why the code tables live outside the spec
+## Why the V3 code tables live outside the spec
 
-The `ErrorCode` and `StatusCode` values are needed in two places: as an `enum`
-in the response schema, and as a "what does this number mean" table that the
+The V3 `ErrorCode` and `StatusCode` values are needed in two places: as an
+`enum` in the response schema, and as a "what does this number mean" table that the
 documentation, the examples and the MCP server render. Neither is enough on its
 own, and keeping the Persian text inside the `description` of an enum makes it
 practically unusable.
 
-So the numbers stay in the spec, the text lives in `codes/`, and
+So the V3 numbers stay in the spec, the text lives in `specs/v3/codes/`, and
 [`scripts/validate.py`](scripts/validate.py) fails if the two drift apart.
 
-## Coverage
+## V3 code-table coverage
 
 | Table | What it holds |
 |---|---|
@@ -89,8 +111,8 @@ decide without guessing.
 
 | Detail | What to do |
 |---|---|
-| The sender field in `GetInbox` | it is named `Form`, not `From`. It is documented exactly that way so your code matches the real response |
-| Template status | the panel shows four states and separates two kinds of rejection, but the API returns `3` for both |
+| The sender field in V3 `GetInbox` | it is named `Form`, not `From`. It is documented exactly that way so your code matches the real response |
+| V3 template status | the panel shows four states and separates two kinds of rejection, but the API returns `3` for both |
 
 ## Validation
 
@@ -107,7 +129,7 @@ python3 scripts/validate.py --strict   # treat warnings as failures
 **2. The OpenAPI document itself.** With Docker, nothing to install.
 
 ```bash
-docker run --rm -v "$PWD":/spec -w /spec redocly/cli lint specs/v3/openapi.yaml
+docker run --rm -v "$PWD":/spec -w /spec redocly/cli lint specs/v3/openapi.yaml specs/v4/openapi.yaml
 ```
 
 The disabled rules and the reason for each are in

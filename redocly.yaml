@@ -1,6 +1,6 @@
 # پیکربندی linter برای spec.
 #
-#   docker run --rm -v "$PWD":/spec redocly/cli lint /spec/specs/v3/openapi.yaml
+#   docker run --rm -v "$PWD":/spec redocly/cli lint /spec/specs/v3/openapi.yaml /spec/specs/v4/openapi.yaml
 #
 # دو قاعده از مجموعه پیشنهادی خاموش شده‌اند. هر دو به‌خاطر ویژگی واقعی این
 # سرویس، نه برای ساکت کردن linter.
@@ -19,7 +19,7 @@ rules:
   # بخش «احراز هویت» توصیف info آمده.
   security-defined: off
 
-  # سرویس هرگز 4xx برنمی‌گرداند. حتی کلید نامعتبر هم پاسخ 200 می‌گیرد با
-  # Success: false و یک ErrorCode. این یک ویژگی سرویس است که باید مستند
-  # شود، نه نقصی در این فایل، و در توصیف هر متد تذکر داده شده.
+  # V3 حتی برای خطا پاسخ 200 می‌دهد و Success: false و ErrorCode را برمی‌گرداند.
+  # Swagger عمومی V4 پاسخ 429 هم ثبت کرده است؛ چون هر دو نسخه در این مخزن‌اند،
+  # الزام یکسان برای پاسخ 4xx مناسب نیست. رفتار اجرایی V4 هنوز مستقلاً تأیید نشده.
   operation-4xx-response: off
