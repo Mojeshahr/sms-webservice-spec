@@ -1,0 +1,43 @@
+{
+  "invalid_examples": [
+    {
+      "path": "/uapi/v4/campaign/get",
+      "method": "post",
+      "status": "200",
+      "media_type": "application/json",
+      "example": "success",
+      "location": "POST /uapi/v4/campaign/get/response/200/application/json/examples/success",
+      "example_sha256": "1d760aaa7c2faeba4c1451429a26e0a8fd6acd653e20a6ea0635162e2e61e0aa",
+      "field": "result.createdAt",
+      "value": "2026-01-01T10:00:00",
+      "reason": "Published date-time example omits the RFC 3339 timezone. No offset is inferred.",
+      "resolution": "Preserve original under x-invalid-source-examples and in the exact source snapshot; do not present it as a schema-valid example."
+    },
+    {
+      "path": "/uapi/v4/campaign/search",
+      "method": "post",
+      "status": "200",
+      "media_type": "application/json",
+      "example": "success",
+      "location": "POST /uapi/v4/campaign/search/response/200/application/json/examples/success",
+      "example_sha256": "94dc750f3bbec663b2b4ad44a6bbbcf533070e6de126462351a64df5a70d0294",
+      "field": "result.items[0].createdAt",
+      "value": "2026-01-01T10:00:00",
+      "reason": "Published date-time example omits the RFC 3339 timezone. No offset is inferred.",
+      "resolution": "Preserve original under x-invalid-source-examples and in the exact source snapshot; do not present it as a schema-valid example."
+    },
+    {
+      "path": "/uapi/v4/campaign/recipients",
+      "method": "post",
+      "status": "200",
+      "media_type": "application/json",
+      "example": "success",
+      "location": "POST /uapi/v4/campaign/recipients/response/200/application/json/examples/success",
+      "example_sha256": "b26c0ce59a4b93a69699722480cafe7d2ced9e681e782807f9122c52c4f91f02",
+      "field": "result.items[0].sentAt",
+      "value": "2026-01-01T10:30:00",
+      "reason": "Published date-time example omits the RFC 3339 timezone. No offset is inferred.",
+      "resolution": "Preserve original under x-invalid-source-examples and in the exact source snapshot; do not present it as a schema-valid example."
+    }
+  ]
+}

@@ -1,1222 +1,187 @@
+x-generator: NSwag v14.4.0.0 (NJsonSchema v11.3.2.0 (Newtonsoft.Json v13.0.0.0))
 openapi: 3.1.0
 info:
   title: راهنمای وب‌سرویس پیامک V4
-  version: '4'
-  description: 'کلید `ApiKey` در POST داخل JSON و در GET داخل نشانی است. HTTP 200 همیشه به معنی موفقیت
-    نیست؛ `success` را بررسی کنید و خطا را از `errorCode` و `error` بخوانید.
+  description: |-
+    کلید `ApiKey` در POST داخل JSON و در GET داخل نشانی است. HTTP 200 همیشه به معنی موفقیت نیست؛ `success` را بررسی کنید و خطا را از `errorCode` و `error` بخوانید.
 
-
-    برای تست بدون ارسال و هزینه، پایهٔ `/uapi/v4` را با `/uapi/v4/sandbox` جایگزین کنید. اگر کلید تست
-    تنظیم شده است، همان را بفرستید. `SendMultiple` در محیط تست وجود ندارد.
-
+    برای تست بدون ارسال و هزینه، پایهٔ `/uapi/v4` را با `/uapi/v4SandBox` جایگزین کنید. اگر کلید تست تنظیم شده است، همان را بفرستید. `SendMultiple` در محیط تست وجود ندارد.
 
     <details><summary><strong>نکات اتصال</strong></summary>
 
+    از HTTPS و ترجیحاً POST استفاده کنید. شماره‌های فرستنده و الگوها را از متدهای اطلاعات حساب و فهرست الگوها بگیرید.
 
-    از HTTPS و ترجیحاً POST استفاده کنید. شماره‌های فرستنده و الگوها را از متدهای اطلاعات حساب و فهرست
-    الگوها بگیرید.
+    مجوز لازم کنار هر متد آمده است. کلید باید فعال و IP شما مجاز باشد. سقف ارسال و هزینه به تنظیمات حساب بستگی دارد.
 
+    پذیرش درخواست به معنی تحویل نیست. پس از قطع ارتباط، پیش از ارسال دوباره وضعیت را با شناسهٔ پیگیری بررسی کنید.
 
-    مجوز لازم کنار هر متد آمده است. کلید باید فعال و IP شما مجاز باشد. سقف ارسال و هزینه به تنظیمات حساب
-    بستگی دارد.
-
-
-    پذیرش درخواست به معنی تحویل نیست. پس از قطع ارتباط، پیش از ارسال دوباره وضعیت را با شناسهٔ پیگیری
-    بررسی کنید.
-
-
-    مبلغ‌ها ریال و زمان‌ها به وقت ایران هستند. شناسه‌های string را رشته نگه دارید. `sendTime: null` یعنی
-    ارسال فوری.
-
+    مبلغ‌ها ریال و زمان‌ها به وقت ایران هستند. شناسه‌های string را رشته نگه دارید. `sendTime: null` یعنی ارسال فوری.
 
     خطاهای HTTP مثل 429 یا 5xx ممکن است قالب پاسخ دیگری داشته باشند.
 
-
     </details>
-
 
     <details><summary><strong>کدهای خطا</strong></summary>
 
-
     | کد | نام | توضیح |
-
     | --- | --- | --- |
-
     | 1 | `InvalidApiKey` | 1 — ApiKey نادرست است |
-
     | 2 | `ApiIsNotActive` | 2 — ارسال از وبسرویس برای این کاربر فعال نشده است |
-
     | 3 | `UserIsNotActive` | 3 — کاربر فعال نیست |
-
     | 4 | `ApiTemproryDeactive` | 4 — ارسال از طریق Api موقتا غیر فعال است |
-
     | 5 | `MethodIsDeactive` | 5 — ارسال از طریق این متد موقتا غیر فعال است |
-
     | 6 | `NoAuthntication` | 6 — احراز هویت حساب انجام نشده است |
-
     | 8 | `AccountInfoIsIncomplete` | 8 — اطلاعات هویتی کاربر به صورت کامل درج نشده است |
-
     | 9 | `InvalidParameters` | 9 — مقادیر ورودی نادرست است |
-
     | 10 | `IpIsNotValid` | 10 — آی پی درخواست دهنده در لیست آی پی های معتبر نیست |
-
     | 11 | `MalformattedApiKey` | 11 — فرمت ورودی ApiKey نادرست است |
-
     | 12 | `InvalidSender` | 12 — شماره ارسال کننده نادرست است |
-
     | 13 | `InvalidDestination` | 13 — شماره دریافت کننده باید با 9 یا 989 شروع شود |
-
     | 14 | `UnauthorizedMethod` | 14 — شما به این متد دسترسی ندارید |
-
     | 15 | `DailyLimitReached` | 15 — سقف ارسال روزانه به پایان رسید |
-
     | 16 | `ApiLimitReached` | 16 — سقف ارسال Api به پایان رسید |
-
     | 17 | `NightlyLimitReached` | 17 — سقف ارسال شبانه به پایان رسید |
-
     | 18 | `ShareLineLimitReached` | 18 — سقف ارسال خط اشتراکی به پایان رسید |
-
     | 19 | `CreditIsLow` | 19 — اعتبار حساب کافی نیست |
-
     | 20 | `OtpApiLimitReached` | 20 — سقف ارسال OTP وب‌سرویس به پایان رسید |
-
     | 21 | `DailyPartLimitReached` | 21 — سقف تعداد پارت ارسالی روزانه به پایان رسید |
-
     | 22 | `DailyCreditLimitReached` | 22 — سقف اعتبار مصرفی روزانه به پایان رسید |
-
     | 23 | `InvalidSendTime` | 23 — زمان ارسال زمان‌بندی‌شده نامعتبر است (خارج از بازه مجاز) |
-
-    | 24 | `RecipientVoiceLimitReached` | 24 — سقف تماس صوتی کد یکبارمصرف برای این شماره پر شده است (فاصله‌ی
-    دو تماس یا سقف روزانه) |
-
+    | 24 | `RecipientVoiceLimitReached` | 24 — سقف تماس صوتی کد یکبارمصرف برای این شماره پر شده است (فاصله‌ی دو تماس یا سقف روزانه) |
     | 100 | `InternalError` | 100 — خطا داخلی سیستم |
 
-
     </details>
-
 
 
     <details><summary><strong>وضعیت تحویل پیامک</strong></summary>
 
-
     | کد | نام | توضیح |
-
     | --- | --- | --- |
-
     | 0 | `InQueue` | در صف سامانه |
-
     | 1 | `SentNoStatus` | ارسال شده، بدون وضعیت |
-
     | 2 | `SentInQueue` | ارسال شده، در صف |
-
     | 3 | `SentPendingToDeliver` | در انتظار تحویل گوشی |
-
     | 4 | `Delivered` | تحویل به گوشی |
-
     | 5 | `SentFailed` | نرسیده به گوشی |
-
     | 6 | `Failed` | خطا در ارسال |
-
     | 7 | `BlackList` | گیرنده مسدود |
-
     | 8 | `NotFound` | شناسه پیدا نشد |
-
     | 9 | `Expired` | منقضی |
-
     | 10 | `Unknown` | نامشخص |
-
     | 11 | `DeactiveDestination` | دریافت کننده نامعتبر |
-
     | 12 | `UserBlackList` | گیرنده در شماره‌های مسدود اکانت شماست |
-
     | 13 | `InvalidDestinationForOperator` | گیرنده نامعتبر |
-
     | 14 | `HasBlockWord` | متن بلاک |
-
     | 15 | `UnsubscribedByRecepient` | لغو دریافت توسط گیرنده |
-
     | 16 | `BlockedByRequester` | بلاک شده |
-
     | 17 | `DailyLimitReached` | اتمام سقف ارسال روزانه |
-
     | 18 | `ApiLimitReached` | اتمام سقف ارسال Api |
-
     | 19 | `NightlyLimitReached` | اتمام سقف ارسال شبانه |
-
     | 20 | `ShareLineLimitReached` | اتمام سقف خط اشتراکی |
-
     | 21 | `AccountNotAuthenticated` | حساب احراز نشده |
 
-
     </details>
-
 
 
     <details><summary><strong>وضعیت تأیید الگو</strong></summary>
 
-
     | کد | نام | توضیح |
-
     | --- | --- | --- |
-
     | 1 | `Pending` | در انتظار تأیید |
-
     | 2 | `Approved` | تأییدشده |
-
     | 3 | `Rejected` | ردشده |
-
     | 4 | `RejectedPermanently` | رد قطعی |
 
-
     </details>
-
 
     <details><summary><strong>راهنمای کمپین و وضعیت‌ها</strong></summary>
 
+    با `draft` هزینه را ببینید و با `draft/finalize` تأیید کنید؛ `submit` هر دو را انجام می‌دهد. خطای نهایی‌سازی، پیش‌نویس را نگه می‌دارد؛ خطای submit آن را حذف می‌کند.
 
-    با `draft` هزینه را ببینید و با `draft/finalize` تأیید کنید؛ `submit` هر دو را انجام می‌دهد. خطای
-    نهایی‌سازی، پیش‌نویس را نگه می‌دارد؛ خطای submit آن را حذف می‌کند.
-
-
-    صفحات از 1 تا `totalPages` هستند. گیرندگان پس از `recipientsSeeded: true` آماده‌اند؛ وضعیت null یعنی
-    هنوز ارسال نشده است. `reducedCredit` هزینهٔ خالص است.
-
+    صفحات از 1 تا `totalPages` هستند. گیرندگان پس از `recipientsSeeded: true` آماده‌اند؛ وضعیت null یعنی هنوز ارسال نشده است. `reducedCredit` هزینهٔ خالص است.
 
     <details><summary><strong>وضعیت پیشرفت کمپین</strong></summary>
 
-
     | کد | نام | توضیح |
-
     | --- | --- | --- |
-
     | 0 | `Draft` | پیش‌نویس |
-
     | 1 | `Scheduled` | زمان‌بندی شده |
-
     | 2 | `Sending` | در حال ارسال |
-
     | 3 | `Paused` | متوقف‌شده |
-
     | 4 | `NeedsAttention` | نیازمند بررسی |
-
     | 5 | `Completed` | پایان‌یافته |
 
-
     </details>
-
 
 
     <details><summary><strong>فیلتر وضعیت کمپین</strong></summary>
 
-
     | کد | نام | توضیح |
-
     | --- | --- | --- |
-
     | 1 | `InProgress` | در جریان |
-
     | 2 | `NeedsAction` | نیازمند بررسی |
-
     | 3 | `Completed` | پایان‌یافته |
-
 
     </details>
 
-
-    کدهای وضعیت گیرندگان کمپین با کدهای `StatusById` تفاوت دارند؛ عنوان وضعیت در `statusTitle` یا `title`
-    برمی‌گردد.
-
+    کدهای وضعیت گیرندگان کمپین با کدهای `StatusById` تفاوت دارند؛ عنوان وضعیت در `statusTitle` یا `title` برمی‌گردد.
 
     <details><summary><strong>وضعیت گیرندگان کمپین</strong></summary>
 
-
     | کد | توضیح |
-
     | --- | --- |
-
     | 1 | در صف ارسال |
-
     | 10 | منقضی شد |
-
     | 11 | لغو دریافت |
-
     | 12 | شماره مسدود |
-
     | 13 | رد شد |
-
     | 14 | سقف ارسال |
-
     | 15 | اعتبار ناکافی |
-
     | 16 | ارسال نشد — خطای قیمت‌گذاری |
-
     | 17 | اعتبار نماینده ناکافی |
-
     | 18 | در انتظار بررسی |
-
     | 19 | در انتظار بررسی |
-
     | 20 | احراز هویت نشده |
-
     | 21 | ارسال نشد |
-
     | 22 | حساب مسدود |
-
     | 23 | خط غیرمجاز |
-
     | 24 | کاربر مسدود |
-
     | 25 | خارج از ساعت ارسال |
-
     | 26 | حساب نمایشی |
-
     | 27 | شماره نامعتبر |
-
     | 28 | حساب فعال نشده |
-
     | 29 | ارسال تکراری |
-
     | 30 | طول متن بیش از حد مجاز |
-
     | 100 | گیرنده مسدود |
-
     | 101 | متن رد شد |
-
     | 102 | لغو دریافت نزد اپراتور |
-
     | 103 | خط غیرفعال نزد اپراتور |
-
     | 104 | لینک برای این خط مجاز نیست |
-
     | 150 | رسیده به مخابرات |
-
     | 152 | تحویل شد |
-
     | 154 | تحویل نشد |
-
     | 155 | خطای اپراتور |
-
     | 156 | نامشخص |
 
+    </details>
 
     </details>
 
 
-    </details>
-
-
-
-    یادداشت این مخزن: شکل پاسخ‌ها مطابق Swagger عمومی ثبت شده و مستقلاً با پاسخ واقعی سرویس تأیید نشده
-    است. مسیرهای `/sandbox/` از توصیف قبلی حفظ شده‌اند؛ در Swagger عمومی فهرست نشده‌اند.'
+    این توصیف فقط عملیات منتشرشده در Swagger رسمی را پوشش می‌دهد. درخواست‌ها و پاسخ‌های نمونه از همان سند هستند و با سرویس زنده آزموده نشده‌اند. نام فیلدها و حروف بزرگ و کوچک آن‌ها مطابق اسکیما و پارامترهای منتشرشده است. تعریف‌های پیشین sandbox که در Swagger عمومی نیستند، به‌عنوان شاهد تاریخی در sources/v4/previous-sandbox.json نگه داشته شده‌اند؛ وضعیت فعلی آن‌ها تأیید نشده است.
+  version: '4'
   contact:
     name: پشتیبانی پنل پیامکی پیام رسان
     url: https://payam-resan.com
   license:
     name: MIT
-    url: https://opensource.org/licenses/MIT
+    identifier: MIT
 servers:
 - url: https://www.payam-resan.com/uapi/v4
-  description: سرور نسخه ۴؛ مسیرها نسبت به این نشانی پایه هستند.
-tags:
-- name: V4
-  description: عملیات اصلی نسخه ۴.
-- name: V4Campaign
-  description: ساخت، ارسال و پی‌گیری کمپین در نسخه ۴.
-- name: SandboxV4
-  description: مسیرهای آزمایشی نسخه ۴ زیرمسیر /sandbox/.
+  description: سرور عملیاتی نسخه ۴؛ مسیرها نسبت به این پایه هستند
+- url: https://www.payam-resan.com/uapi/v4SandBox
+  description: پایه آزمایشی با تأیید نگهدارنده؛ عملیات آن در این مرحله آزموده نشده‌اند
 paths:
-  /sandbox/Send:
-    post:
-      tags:
-      - SandboxV4
-      operationId: SandboxV4_SendSingle
-      parameters:
-      - name: source-app
-        in: header
-        description: Optional caller application label, recorded in request logs and the API console.
-          Maximum 100 characters; not used for authentication.
-        schema:
-          type: string
-          maxLength: 100
-      requestBody:
-        x-name: req
-        content:
-          application/json:
-            schema: {$ref: '#/components/schemas/SendBulkRequest'}
-        required: true
-        x-position: 1
-      responses:
-        '200':
-          description: Swagger داخلی پاسخ را به‌صورت application/octet-stream و داده دودویی ثبت کرده است؛
-            ساختار واقعی پاسخ هنوز تأیید نشده است.
-          content:
-            application/octet-stream:
-              schema:
-                type: string
-                format: binary
-      summary: SandboxV4_SendSingle
-      description: این عملیات در Swagger داخلی توضیح داده نشده است؛ شرح آن پیش از انتشار عمومی باید از
-        تیم سرویس تأیید شود.
-  /sandbox/SendBulk:
-    post:
-      tags:
-      - SandboxV4
-      operationId: SandboxV4_SendBulk
-      parameters:
-      - name: source-app
-        in: header
-        description: Optional caller application label, recorded in request logs and the API console.
-          Maximum 100 characters; not used for authentication.
-        schema:
-          type: string
-          maxLength: 100
-      requestBody:
-        x-name: req
-        content:
-          application/json:
-            schema: {$ref: '#/components/schemas/SendBulkRequest'}
-        required: true
-        x-position: 1
-      responses:
-        '200':
-          description: Swagger داخلی پاسخ را به‌صورت application/octet-stream و داده دودویی ثبت کرده است؛
-            ساختار واقعی پاسخ هنوز تأیید نشده است.
-          content:
-            application/octet-stream:
-              schema:
-                type: string
-                format: binary
-      summary: SandboxV4_SendBulk
-      description: این عملیات در Swagger داخلی توضیح داده نشده است؛ شرح آن پیش از انتشار عمومی باید از
-        تیم سرویس تأیید شود.
-  /sandbox/SendOtp:
-    post:
-      tags:
-      - SandboxV4
-      operationId: SandboxV4_SendOtp
-      parameters:
-      - name: source-app
-        in: header
-        description: Optional caller application label, recorded in request logs and the API console.
-          Maximum 100 characters; not used for authentication.
-        schema:
-          type: string
-          maxLength: 100
-      requestBody:
-        x-name: req
-        content:
-          application/json:
-            schema: {$ref: '#/components/schemas/CodeOtpRequest'}
-        required: true
-        x-position: 1
-      responses:
-        '200':
-          description: Swagger داخلی پاسخ را به‌صورت application/octet-stream و داده دودویی ثبت کرده است؛
-            ساختار واقعی پاسخ هنوز تأیید نشده است.
-          content:
-            application/octet-stream:
-              schema:
-                type: string
-                format: binary
-      summary: SandboxV4_SendOtp
-      description: این عملیات در Swagger داخلی توضیح داده نشده است؛ شرح آن پیش از انتشار عمومی باید از
-        تیم سرویس تأیید شود.
-  /sandbox/SendVoiceOtp:
-    post:
-      tags:
-      - SandboxV4
-      operationId: SandboxV4_SendVoiceOtp
-      parameters:
-      - name: source-app
-        in: header
-        description: Optional caller application label, recorded in request logs and the API console.
-          Maximum 100 characters; not used for authentication.
-        schema:
-          type: string
-          maxLength: 100
-      requestBody:
-        x-name: req
-        content:
-          application/json:
-            schema: {$ref: '#/components/schemas/VoiceOtpRequest'}
-        required: true
-        x-position: 1
-      responses:
-        '200':
-          description: Swagger داخلی پاسخ را به‌صورت application/octet-stream و داده دودویی ثبت کرده است؛
-            ساختار واقعی پاسخ هنوز تأیید نشده است.
-          content:
-            application/octet-stream:
-              schema:
-                type: string
-                format: binary
-      summary: SandboxV4_SendVoiceOtp
-      description: این عملیات در Swagger داخلی توضیح داده نشده است؛ شرح آن پیش از انتشار عمومی باید از
-        تیم سرویس تأیید شود.
-  /sandbox/SendTokenMulti:
-    post:
-      tags:
-      - SandboxV4
-      operationId: SandboxV4_SendTokenMulti
-      parameters:
-      - name: source-app
-        in: header
-        description: Optional caller application label, recorded in request logs and the API console.
-          Maximum 100 characters; not used for authentication.
-        schema:
-          type: string
-          maxLength: 100
-      requestBody:
-        x-name: req
-        content:
-          application/json:
-            schema: {$ref: '#/components/schemas/OtpRequest'}
-        required: true
-        x-position: 1
-      responses:
-        '200':
-          description: Swagger داخلی پاسخ را به‌صورت application/octet-stream و داده دودویی ثبت کرده است؛
-            ساختار واقعی پاسخ هنوز تأیید نشده است.
-          content:
-            application/octet-stream:
-              schema:
-                type: string
-                format: binary
-      summary: SandboxV4_SendTokenMulti
-      description: این عملیات در Swagger داخلی توضیح داده نشده است؛ شرح آن پیش از انتشار عمومی باید از
-        تیم سرویس تأیید شود.
-  /sandbox/SendTokenSingle:
-    post:
-      tags:
-      - SandboxV4
-      operationId: SandboxV4_SendTokenSingle
-      parameters:
-      - name: source-app
-        in: header
-        description: Optional caller application label, recorded in request logs and the API console.
-          Maximum 100 characters; not used for authentication.
-        schema:
-          type: string
-          maxLength: 100
-      requestBody:
-        x-name: req
-        content:
-          application/json:
-            schema: {$ref: '#/components/schemas/OtpSingleRequest'}
-        required: true
-        x-position: 1
-      responses:
-        '200':
-          description: Swagger داخلی پاسخ را به‌صورت application/octet-stream و داده دودویی ثبت کرده است؛
-            ساختار واقعی پاسخ هنوز تأیید نشده است.
-          content:
-            application/octet-stream:
-              schema:
-                type: string
-                format: binary
-      summary: SandboxV4_SendTokenSingle
-      description: این عملیات در Swagger داخلی توضیح داده نشده است؛ شرح آن پیش از انتشار عمومی باید از
-        تیم سرویس تأیید شود.
-    get:
-      tags:
-      - SandboxV4
-      operationId: SandboxV4_SendTokenSingleByQuery
-      parameters:
-      - name: ApiKey
-        in: query
-        schema:
-          type: string
-        x-position: 1
-      - name: TemplateKey
-        in: query
-        schema:
-          type: string
-        x-position: 2
-      - name: Destination
-        in: query
-        schema:
-          type: integer
-          format: int64
-        x-position: 3
-      - name: P1
-        in: query
-        schema:
-          type:
-          - string
-          - 'null'
-        x-position: 4
-      - name: P2
-        in: query
-        schema:
-          type:
-          - string
-          - 'null'
-        x-position: 5
-      - name: P3
-        in: query
-        schema:
-          type:
-          - string
-          - 'null'
-        x-position: 6
-      - name: P4
-        in: query
-        schema:
-          type:
-          - string
-          - 'null'
-        x-position: 7
-      - name: P5
-        in: query
-        schema:
-          type:
-          - string
-          - 'null'
-        x-position: 8
-      - name: P6
-        in: query
-        schema:
-          type:
-          - string
-          - 'null'
-        x-position: 9
-      - name: P7
-        in: query
-        schema:
-          type:
-          - string
-          - 'null'
-        x-position: 10
-      - name: P8
-        in: query
-        schema:
-          type:
-          - string
-          - 'null'
-        x-position: 11
-      - name: P9
-        in: query
-        schema:
-          type:
-          - string
-          - 'null'
-        x-position: 12
-      - name: P10
-        in: query
-        schema:
-          type:
-          - string
-          - 'null'
-        x-position: 13
-      - name: source-app
-        in: header
-        description: Optional caller application label, recorded in request logs and the API console.
-          Maximum 100 characters; not used for authentication.
-        schema:
-          type: string
-          maxLength: 100
-      responses:
-        '200':
-          description: Swagger داخلی پاسخ را به‌صورت application/octet-stream و داده دودویی ثبت کرده است؛
-            ساختار واقعی پاسخ هنوز تأیید نشده است.
-          content:
-            application/octet-stream:
-              schema:
-                type: string
-                format: binary
-      summary: SandboxV4_SendTokenSingleByQuery
-      description: این عملیات در Swagger داخلی توضیح داده نشده است؛ شرح آن پیش از انتشار عمومی باید از
-        تیم سرویس تأیید شود.
-  /sandbox/SendTokenSingleConcatParam:
-    get:
-      tags:
-      - SandboxV4
-      operationId: SandboxV4_SendTokenSingleConcatByQuery
-      parameters:
-      - name: ApiKey
-        in: query
-        schema:
-          type: string
-        x-position: 1
-      - name: TemplateKey
-        in: query
-        schema:
-          type: string
-        x-position: 2
-      - name: Destination
-        in: query
-        schema:
-          type: integer
-          format: int64
-        x-position: 3
-      - name: P
-        in: query
-        description: All parameters concatenated with ';' — e.g. "Ali;12345".
-        schema:
-          type: string
-        x-position: 4
-      - name: source-app
-        in: header
-        description: Optional caller application label, recorded in request logs and the API console.
-          Maximum 100 characters; not used for authentication.
-        schema:
-          type: string
-          maxLength: 100
-      responses:
-        '200':
-          description: Swagger داخلی پاسخ را به‌صورت application/octet-stream و داده دودویی ثبت کرده است؛
-            ساختار واقعی پاسخ هنوز تأیید نشده است.
-          content:
-            application/octet-stream:
-              schema:
-                type: string
-                format: binary
-      summary: SandboxV4_SendTokenSingleConcatByQuery
-      description: این عملیات در Swagger داخلی توضیح داده نشده است؛ شرح آن پیش از انتشار عمومی باید از
-        تیم سرویس تأیید شود.
-    post:
-      tags:
-      - SandboxV4
-      operationId: SandboxV4_SendTokenSingleConcat
-      parameters:
-      - name: source-app
-        in: header
-        description: Optional caller application label, recorded in request logs and the API console.
-          Maximum 100 characters; not used for authentication.
-        schema:
-          type: string
-          maxLength: 100
-      requestBody:
-        x-name: req
-        content:
-          application/json:
-            schema: {$ref: '#/components/schemas/OtpSingleConcatRequest'}
-        required: true
-        x-position: 1
-      responses:
-        '200':
-          description: Swagger داخلی پاسخ را به‌صورت application/octet-stream و داده دودویی ثبت کرده است؛
-            ساختار واقعی پاسخ هنوز تأیید نشده است.
-          content:
-            application/octet-stream:
-              schema:
-                type: string
-                format: binary
-      summary: SandboxV4_SendTokenSingleConcat
-      description: این عملیات در Swagger داخلی توضیح داده نشده است؛ شرح آن پیش از انتشار عمومی باید از
-        تیم سرویس تأیید شود.
-  /sandbox/GetToken:
-    post:
-      tags:
-      - SandboxV4
-      operationId: SandboxV4_GetToken
-      parameters:
-      - name: source-app
-        in: header
-        description: Optional caller application label, recorded in request logs and the API console.
-          Maximum 100 characters; not used for authentication.
-        schema:
-          type: string
-          maxLength: 100
-      requestBody:
-        x-name: req
-        content:
-          application/json:
-            schema: {$ref: '#/components/schemas/TokenListRequest'}
-        required: true
-        x-position: 1
-      responses:
-        '200':
-          description: Swagger داخلی پاسخ را به‌صورت application/octet-stream و داده دودویی ثبت کرده است؛
-            ساختار واقعی پاسخ هنوز تأیید نشده است.
-          content:
-            application/octet-stream:
-              schema:
-                type: string
-                format: binary
-      summary: SandboxV4_GetToken
-      description: این عملیات در Swagger داخلی توضیح داده نشده است؛ شرح آن پیش از انتشار عمومی باید از
-        تیم سرویس تأیید شود.
-  /sandbox/StatusById:
-    post:
-      tags:
-      - SandboxV4
-      operationId: SandboxV4_StatusById
-      parameters:
-      - name: source-app
-        in: header
-        description: Optional caller application label, recorded in request logs and the API console.
-          Maximum 100 characters; not used for authentication.
-        schema:
-          type: string
-          maxLength: 100
-      requestBody:
-        x-name: req
-        content:
-          application/json:
-            schema: {$ref: '#/components/schemas/StatusByIdRequest'}
-        required: true
-        x-position: 1
-      responses:
-        '200':
-          description: Swagger داخلی پاسخ را به‌صورت application/octet-stream و داده دودویی ثبت کرده است؛
-            ساختار واقعی پاسخ هنوز تأیید نشده است.
-          content:
-            application/octet-stream:
-              schema:
-                type: string
-                format: binary
-      summary: SandboxV4_StatusById
-      description: این عملیات در Swagger داخلی توضیح داده نشده است؛ شرح آن پیش از انتشار عمومی باید از
-        تیم سرویس تأیید شود.
-  /sandbox/StatusByUserTraceId:
-    post:
-      tags:
-      - SandboxV4
-      operationId: SandboxV4_StatusByUserTraceId
-      parameters:
-      - name: source-app
-        in: header
-        description: Optional caller application label, recorded in request logs and the API console.
-          Maximum 100 characters; not used for authentication.
-        schema:
-          type: string
-          maxLength: 100
-      requestBody:
-        x-name: req
-        content:
-          application/json:
-            schema: {$ref: '#/components/schemas/StatusByUserTraceIdRequest'}
-        required: true
-        x-position: 1
-      responses:
-        '200':
-          description: Swagger داخلی پاسخ را به‌صورت application/octet-stream و داده دودویی ثبت کرده است؛
-            ساختار واقعی پاسخ هنوز تأیید نشده است.
-          content:
-            application/octet-stream:
-              schema:
-                type: string
-                format: binary
-      summary: SandboxV4_StatusByUserTraceId
-      description: این عملیات در Swagger داخلی توضیح داده نشده است؛ شرح آن پیش از انتشار عمومی باید از
-        تیم سرویس تأیید شود.
-  /sandbox/GetAccountInfo:
-    post:
-      tags:
-      - SandboxV4
-      operationId: SandboxV4_GetAccountInfo
-      parameters:
-      - name: source-app
-        in: header
-        description: Optional caller application label, recorded in request logs and the API console.
-          Maximum 100 characters; not used for authentication.
-        schema:
-          type: string
-          maxLength: 100
-      requestBody:
-        x-name: req
-        content:
-          application/json:
-            schema: {$ref: '#/components/schemas/AccountInfoRequest'}
-        required: true
-        x-position: 1
-      responses:
-        '200':
-          description: Swagger داخلی پاسخ را به‌صورت application/octet-stream و داده دودویی ثبت کرده است؛
-            ساختار واقعی پاسخ هنوز تأیید نشده است.
-          content:
-            application/octet-stream:
-              schema:
-                type: string
-                format: binary
-      summary: SandboxV4_GetAccountInfo
-      description: این عملیات در Swagger داخلی توضیح داده نشده است؛ شرح آن پیش از انتشار عمومی باید از
-        تیم سرویس تأیید شود.
-  /sandbox/GetInbox:
-    post:
-      tags:
-      - SandboxV4
-      operationId: SandboxV4_GetInbox
-      parameters:
-      - name: source-app
-        in: header
-        description: Optional caller application label, recorded in request logs and the API console.
-          Maximum 100 characters; not used for authentication.
-        schema:
-          type: string
-          maxLength: 100
-      requestBody:
-        x-name: req
-        content:
-          application/json:
-            schema: {$ref: '#/components/schemas/GetInboxRequest'}
-        required: true
-        x-position: 1
-      responses:
-        '200':
-          description: Swagger داخلی پاسخ را به‌صورت application/octet-stream و داده دودویی ثبت کرده است؛
-            ساختار واقعی پاسخ هنوز تأیید نشده است.
-          content:
-            application/octet-stream:
-              schema:
-                type: string
-                format: binary
-      summary: SandboxV4_GetInbox
-      description: این عملیات در Swagger داخلی توضیح داده نشده است؛ شرح آن پیش از انتشار عمومی باید از
-        تیم سرویس تأیید شود.
-  /sandbox/phonebook/groups:
-    post:
-      tags:
-      - SandboxV4
-      operationId: SandboxV4_PhonebookGroups
-      parameters:
-      - name: source-app
-        in: header
-        description: Optional caller application label, recorded in request logs and the API console.
-          Maximum 100 characters; not used for authentication.
-        schema:
-          type: string
-          maxLength: 100
-      requestBody:
-        x-name: req
-        content:
-          application/json:
-            schema: {$ref: '#/components/schemas/PhonebookGroupsRequest'}
-        required: true
-        x-position: 1
-      responses:
-        '200':
-          description: Swagger داخلی پاسخ را به‌صورت application/octet-stream و داده دودویی ثبت کرده است؛
-            ساختار واقعی پاسخ هنوز تأیید نشده است.
-          content:
-            application/octet-stream:
-              schema:
-                type: string
-                format: binary
-      summary: SandboxV4_PhonebookGroups
-      description: این عملیات در Swagger داخلی توضیح داده نشده است؛ شرح آن پیش از انتشار عمومی باید از
-        تیم سرویس تأیید شود.
-  /sandbox/phonebook/group:
-    post:
-      tags:
-      - SandboxV4
-      operationId: SandboxV4_CreatePhonebookGroup
-      parameters:
-      - name: source-app
-        in: header
-        description: Optional caller application label, recorded in request logs and the API console.
-          Maximum 100 characters; not used for authentication.
-        schema:
-          type: string
-          maxLength: 100
-      requestBody:
-        x-name: req
-        content:
-          application/json:
-            schema: {$ref: '#/components/schemas/CreatePhonebookGroupRequest'}
-        required: true
-        x-position: 1
-      responses:
-        '200':
-          description: Swagger داخلی پاسخ را به‌صورت application/octet-stream و داده دودویی ثبت کرده است؛
-            ساختار واقعی پاسخ هنوز تأیید نشده است.
-          content:
-            application/octet-stream:
-              schema:
-                type: string
-                format: binary
-      summary: SandboxV4_CreatePhonebookGroup
-      description: این عملیات در Swagger داخلی توضیح داده نشده است؛ شرح آن پیش از انتشار عمومی باید از
-        تیم سرویس تأیید شود.
-  /sandbox/phonebook/group-with-contacts:
-    post:
-      tags:
-      - SandboxV4
-      operationId: SandboxV4_CreatePhonebookGroupWithContacts
-      parameters:
-      - name: source-app
-        in: header
-        description: Optional caller application label, recorded in request logs and the API console.
-          Maximum 100 characters; not used for authentication.
-        schema:
-          type: string
-          maxLength: 100
-      requestBody:
-        x-name: req
-        content:
-          application/json:
-            schema: {$ref: '#/components/schemas/CreatePhonebookGroupWithContactsRequest'}
-        required: true
-        x-position: 1
-      responses:
-        '200':
-          description: Swagger داخلی پاسخ را به‌صورت application/octet-stream و داده دودویی ثبت کرده است؛
-            ساختار واقعی پاسخ هنوز تأیید نشده است.
-          content:
-            application/octet-stream:
-              schema:
-                type: string
-                format: binary
-      summary: SandboxV4_CreatePhonebookGroupWithContacts
-      description: این عملیات در Swagger داخلی توضیح داده نشده است؛ شرح آن پیش از انتشار عمومی باید از
-        تیم سرویس تأیید شود.
-  /sandbox/phonebook/contacts:
-    post:
-      tags:
-      - SandboxV4
-      operationId: SandboxV4_UpsertPhonebookContacts
-      parameters:
-      - name: source-app
-        in: header
-        description: Optional caller application label, recorded in request logs and the API console.
-          Maximum 100 characters; not used for authentication.
-        schema:
-          type: string
-          maxLength: 100
-      requestBody:
-        x-name: req
-        content:
-          application/json:
-            schema: {$ref: '#/components/schemas/UpsertPhonebookContactsRequest'}
-        required: true
-        x-position: 1
-      responses:
-        '200':
-          description: Swagger داخلی پاسخ را به‌صورت application/octet-stream و داده دودویی ثبت کرده است؛
-            ساختار واقعی پاسخ هنوز تأیید نشده است.
-          content:
-            application/octet-stream:
-              schema:
-                type: string
-                format: binary
-      summary: SandboxV4_UpsertPhonebookContacts
-      description: این عملیات در Swagger داخلی توضیح داده نشده است؛ شرح آن پیش از انتشار عمومی باید از
-        تیم سرویس تأیید شود.
-  /sandbox/phonebook/contacts/remove:
-    post:
-      tags:
-      - SandboxV4
-      operationId: SandboxV4_RemovePhonebookContacts
-      parameters:
-      - name: source-app
-        in: header
-        description: Optional caller application label, recorded in request logs and the API console.
-          Maximum 100 characters; not used for authentication.
-        schema:
-          type: string
-          maxLength: 100
-      requestBody:
-        x-name: req
-        content:
-          application/json:
-            schema: {$ref: '#/components/schemas/RemovePhonebookContactsRequest'}
-        required: true
-        x-position: 1
-      responses:
-        '200':
-          description: Swagger داخلی پاسخ را به‌صورت application/octet-stream و داده دودویی ثبت کرده است؛
-            ساختار واقعی پاسخ هنوز تأیید نشده است.
-          content:
-            application/octet-stream:
-              schema:
-                type: string
-                format: binary
-      summary: SandboxV4_RemovePhonebookContacts
-      description: این عملیات در Swagger داخلی توضیح داده نشده است؛ شرح آن پیش از انتشار عمومی باید از
-        تیم سرویس تأیید شود.
-  /sandbox/campaign/draft:
-    post:
-      tags:
-      - SandboxV4
-      operationId: SandboxV4_CreateCampaignDraft
-      parameters:
-      - name: source-app
-        in: header
-        description: Optional caller application label, recorded in request logs and the API console.
-          Maximum 100 characters; not used for authentication.
-        schema:
-          type: string
-          maxLength: 100
-      requestBody:
-        x-name: req
-        content:
-          application/json:
-            schema: {$ref: '#/components/schemas/ApiCampaignSubmitRequest'}
-        required: true
-        x-position: 1
-      responses:
-        '200':
-          description: Swagger داخلی پاسخ را به‌صورت application/octet-stream و داده دودویی ثبت کرده است؛
-            ساختار واقعی پاسخ هنوز تأیید نشده است.
-          content:
-            application/octet-stream:
-              schema:
-                type: string
-                format: binary
-      summary: SandboxV4_CreateCampaignDraft
-      description: این عملیات در Swagger داخلی توضیح داده نشده است؛ شرح آن پیش از انتشار عمومی باید از
-        تیم سرویس تأیید شود.
-  /sandbox/campaign/draft/finalize:
-    post:
-      tags:
-      - SandboxV4
-      operationId: SandboxV4_FinalizeCampaignDraft
-      parameters:
-      - name: source-app
-        in: header
-        description: Optional caller application label, recorded in request logs and the API console.
-          Maximum 100 characters; not used for authentication.
-        schema:
-          type: string
-          maxLength: 100
-      requestBody:
-        x-name: req
-        content:
-          application/json:
-            schema: {$ref: '#/components/schemas/ApiCampaignIdRequest'}
-        required: true
-        x-position: 1
-      responses:
-        '200':
-          description: Swagger داخلی پاسخ را به‌صورت application/octet-stream و داده دودویی ثبت کرده است؛
-            ساختار واقعی پاسخ هنوز تأیید نشده است.
-          content:
-            application/octet-stream:
-              schema:
-                type: string
-                format: binary
-      summary: SandboxV4_FinalizeCampaignDraft
-      description: این عملیات در Swagger داخلی توضیح داده نشده است؛ شرح آن پیش از انتشار عمومی باید از
-        تیم سرویس تأیید شود.
-  /sandbox/campaign/submit:
-    post:
-      tags:
-      - SandboxV4
-      operationId: SandboxV4_SubmitCampaign
-      parameters:
-      - name: source-app
-        in: header
-        description: Optional caller application label, recorded in request logs and the API console.
-          Maximum 100 characters; not used for authentication.
-        schema:
-          type: string
-          maxLength: 100
-      requestBody:
-        x-name: req
-        content:
-          application/json:
-            schema: {$ref: '#/components/schemas/ApiCampaignSubmitRequest'}
-        required: true
-        x-position: 1
-      responses:
-        '200':
-          description: Swagger داخلی پاسخ را به‌صورت application/octet-stream و داده دودویی ثبت کرده است؛
-            ساختار واقعی پاسخ هنوز تأیید نشده است.
-          content:
-            application/octet-stream:
-              schema:
-                type: string
-                format: binary
-      summary: SandboxV4_SubmitCampaign
-      description: این عملیات در Swagger داخلی توضیح داده نشده است؛ شرح آن پیش از انتشار عمومی باید از
-        تیم سرویس تأیید شود.
-  /sandbox/campaign/get:
-    post:
-      tags:
-      - SandboxV4
-      operationId: SandboxV4_GetCampaign
-      parameters:
-      - name: source-app
-        in: header
-        description: Optional caller application label, recorded in request logs and the API console.
-          Maximum 100 characters; not used for authentication.
-        schema:
-          type: string
-          maxLength: 100
-      requestBody:
-        x-name: req
-        content:
-          application/json:
-            schema: {$ref: '#/components/schemas/ApiCampaignIdRequest'}
-        required: true
-        x-position: 1
-      responses:
-        '200':
-          description: Swagger داخلی پاسخ را به‌صورت application/octet-stream و داده دودویی ثبت کرده است؛
-            ساختار واقعی پاسخ هنوز تأیید نشده است.
-          content:
-            application/octet-stream:
-              schema:
-                type: string
-                format: binary
-      summary: SandboxV4_GetCampaign
-      description: این عملیات در Swagger داخلی توضیح داده نشده است؛ شرح آن پیش از انتشار عمومی باید از
-        تیم سرویس تأیید شود.
-  /sandbox/campaign/search:
-    post:
-      tags:
-      - SandboxV4
-      operationId: SandboxV4_SearchCampaigns
-      parameters:
-      - name: source-app
-        in: header
-        description: Optional caller application label, recorded in request logs and the API console.
-          Maximum 100 characters; not used for authentication.
-        schema:
-          type: string
-          maxLength: 100
-      requestBody:
-        x-name: req
-        content:
-          application/json:
-            schema: {$ref: '#/components/schemas/ApiCampaignSearchRequest'}
-        required: true
-        x-position: 1
-      responses:
-        '200':
-          description: Swagger داخلی پاسخ را به‌صورت application/octet-stream و داده دودویی ثبت کرده است؛
-            ساختار واقعی پاسخ هنوز تأیید نشده است.
-          content:
-            application/octet-stream:
-              schema:
-                type: string
-                format: binary
-      summary: SandboxV4_SearchCampaigns
-      description: این عملیات در Swagger داخلی توضیح داده نشده است؛ شرح آن پیش از انتشار عمومی باید از
-        تیم سرویس تأیید شود.
-  /sandbox/campaign/recipients:
-    post:
-      tags:
-      - SandboxV4
-      operationId: SandboxV4_GetCampaignRecipients
-      parameters:
-      - name: source-app
-        in: header
-        description: Optional caller application label, recorded in request logs and the API console.
-          Maximum 100 characters; not used for authentication.
-        schema:
-          type: string
-          maxLength: 100
-      requestBody:
-        x-name: req
-        content:
-          application/json:
-            schema: {$ref: '#/components/schemas/ApiCampaignRecipientsRequest'}
-        required: true
-        x-position: 1
-      responses:
-        '200':
-          description: Swagger داخلی پاسخ را به‌صورت application/octet-stream و داده دودویی ثبت کرده است؛
-            ساختار واقعی پاسخ هنوز تأیید نشده است.
-          content:
-            application/octet-stream:
-              schema:
-                type: string
-                format: binary
-      summary: SandboxV4_GetCampaignRecipients
-      description: این عملیات در Swagger داخلی توضیح داده نشده است؛ شرح آن پیش از انتشار عمومی باید از
-        تیم سرویس تأیید شود.
   /campaign/draft:
     post:
       tags:
@@ -1237,7 +202,8 @@ paths:
         description: کلید، شمارهٔ فرستنده و کلید الگو را با اطلاعات حساب خود جایگزین کنید.
         content:
           application/json:
-            schema: {$ref: '#/components/schemas/ApiCampaignSubmitRequest'}
+            schema:
+              $ref: '#/components/schemas/ApiCampaignSubmitRequest'
             examples:
               request:
                 summary: نمونهٔ درخواست
@@ -1256,7 +222,8 @@ paths:
           description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است.'
           content:
             application/json:
-              schema: {$ref: '#/components/schemas/ApiResponseOfApiCampaignDraftResponse'}
+              schema:
+                $ref: '#/components/schemas/ApiResponseOfApiCampaignDraftResponse'
               examples:
                 success:
                   summary: پاسخ موفق
@@ -1314,7 +281,8 @@ paths:
         description: کلید، شمارهٔ فرستنده و کلید الگو را با اطلاعات حساب خود جایگزین کنید.
         content:
           application/json:
-            schema: {$ref: '#/components/schemas/ApiCampaignIdRequest'}
+            schema:
+              $ref: '#/components/schemas/ApiCampaignIdRequest'
             examples:
               request:
                 summary: نمونهٔ درخواست
@@ -1328,7 +296,8 @@ paths:
           description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است.'
           content:
             application/json:
-              schema: {$ref: '#/components/schemas/ApiResponseOfApiCampaignSubmitResponse'}
+              schema:
+                $ref: '#/components/schemas/ApiResponseOfApiCampaignSubmitResponse'
               examples:
                 success:
                   summary: پاسخ موفق
@@ -1390,7 +359,8 @@ paths:
         description: کلید، شمارهٔ فرستنده و کلید الگو را با اطلاعات حساب خود جایگزین کنید.
         content:
           application/json:
-            schema: {$ref: '#/components/schemas/ApiCampaignSubmitRequest'}
+            schema:
+              $ref: '#/components/schemas/ApiCampaignSubmitRequest'
             examples:
               request:
                 summary: نمونهٔ درخواست
@@ -1409,7 +379,8 @@ paths:
           description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است.'
           content:
             application/json:
-              schema: {$ref: '#/components/schemas/ApiResponseOfApiCampaignSubmitResponse'}
+              schema:
+                $ref: '#/components/schemas/ApiResponseOfApiCampaignSubmitResponse'
               examples:
                 success:
                   summary: پاسخ موفق
@@ -1471,7 +442,8 @@ paths:
         description: کلید، شمارهٔ فرستنده و کلید الگو را با اطلاعات حساب خود جایگزین کنید.
         content:
           application/json:
-            schema: {$ref: '#/components/schemas/ApiCampaignIdRequest'}
+            schema:
+              $ref: '#/components/schemas/ApiCampaignIdRequest'
             examples:
               request:
                 summary: نمونهٔ درخواست
@@ -1482,37 +454,14 @@ paths:
         x-position: 1
       responses:
         '200':
-          description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است.'
+          description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است. نمونه
+            موفق منتشرشده زمان بدون منطقه زمانی دارد و با قالب date-time سازگار نیست؛ اصل آن در x-invalid-source-examples
+            نگه داشته شده است. تا روشن شدن قالب زمان، از آن به‌عنوان نمونه معتبر استفاده نکنید.'
           content:
             application/json:
-              schema: {$ref: '#/components/schemas/ApiResponseOfApiCampaignInfoResponse'}
+              schema:
+                $ref: '#/components/schemas/ApiResponseOfApiCampaignInfoResponse'
               examples:
-                success:
-                  summary: پاسخ موفق
-                  value:
-                    success: true
-                    errorCode: null
-                    error: null
-                    result:
-                      campaignId: '520000000000000001'
-                      title: کمپین نمونه
-                      note: null
-                      sender: 3000123456
-                      text: پیام نمونه
-                      createdAt: '2026-01-01T10:00:00+03:30'
-                      scheduledAt: null
-                      status: 5
-                      statusTitle: پایان‌یافته
-                      recipientsSeeded: true
-                      total: 1
-                      processed: 1
-                      percent: 100
-                      reducedCredit: 1000
-                      statusCounts:
-                      - status: 152
-                        title: تحویل شد
-                        count: 1
-                    moreInfo: null
                 invalid-key:
                   summary: کلید نامعتبر
                   value:
@@ -1529,6 +478,36 @@ paths:
                     error: مقادیر ورودی نادرست است
                     result: null
                     moreInfo: null
+              x-invalid-source-examples:
+                success:
+                  original:
+                    summary: پاسخ موفق
+                    value:
+                      success: true
+                      errorCode: null
+                      error: null
+                      result:
+                        campaignId: '520000000000000001'
+                        title: کمپین نمونه
+                        note: null
+                        sender: 3000123456
+                        text: پیام نمونه
+                        createdAt: '2026-01-01T10:00:00'
+                        scheduledAt: null
+                        status: 5
+                        statusTitle: پایان‌یافته
+                        recipientsSeeded: true
+                        total: 1
+                        processed: 1
+                        percent: 100
+                        reducedCredit: 1000
+                        statusCounts:
+                        - status: 152
+                          title: تحویل شد
+                          count: 1
+                      moreInfo: null
+                  reason: Published date-time example omits the RFC 3339 timezone. No offset is inferred.
+                  field: result.createdAt
         '429':
           description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
         default:
@@ -1553,7 +532,8 @@ paths:
         description: کلید، شمارهٔ فرستنده و کلید الگو را با اطلاعات حساب خود جایگزین کنید.
         content:
           application/json:
-            schema: {$ref: '#/components/schemas/ApiCampaignSearchRequest'}
+            schema:
+              $ref: '#/components/schemas/ApiCampaignSearchRequest'
             examples:
               request:
                 summary: نمونهٔ درخواست
@@ -1565,41 +545,14 @@ paths:
         x-position: 1
       responses:
         '200':
-          description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است.'
+          description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است. نمونه
+            موفق منتشرشده زمان بدون منطقه زمانی دارد و با قالب date-time سازگار نیست؛ اصل آن در x-invalid-source-examples
+            نگه داشته شده است. تا روشن شدن قالب زمان، از آن به‌عنوان نمونه معتبر استفاده نکنید.'
           content:
             application/json:
-              schema: {$ref: '#/components/schemas/ApiResponseOfApiPagedResponseOfApiCampaignInfoResponse'}
+              schema:
+                $ref: '#/components/schemas/ApiResponseOfApiPagedResponseOfApiCampaignInfoResponse'
               examples:
-                success:
-                  summary: پاسخ موفق
-                  value:
-                    success: true
-                    errorCode: null
-                    error: null
-                    result:
-                      page: 1
-                      totalPages: 1
-                      totalCount: 1
-                      items:
-                      - campaignId: '520000000000000001'
-                        title: کمپین نمونه
-                        note: null
-                        sender: 3000123456
-                        text: پیام نمونه
-                        createdAt: '2026-01-01T10:00:00+03:30'
-                        scheduledAt: null
-                        status: 5
-                        statusTitle: پایان‌یافته
-                        recipientsSeeded: true
-                        total: 1
-                        processed: 1
-                        percent: 100
-                        reducedCredit: 1000
-                        statusCounts:
-                        - status: 152
-                          title: تحویل شد
-                          count: 1
-                    moreInfo: null
                 invalid-key:
                   summary: کلید نامعتبر
                   value:
@@ -1616,6 +569,40 @@ paths:
                     error: مقادیر ورودی نادرست است
                     result: null
                     moreInfo: null
+              x-invalid-source-examples:
+                success:
+                  original:
+                    summary: پاسخ موفق
+                    value:
+                      success: true
+                      errorCode: null
+                      error: null
+                      result:
+                        page: 1
+                        totalPages: 1
+                        totalCount: 1
+                        items:
+                        - campaignId: '520000000000000001'
+                          title: کمپین نمونه
+                          note: null
+                          sender: 3000123456
+                          text: پیام نمونه
+                          createdAt: '2026-01-01T10:00:00'
+                          scheduledAt: null
+                          status: 5
+                          statusTitle: پایان‌یافته
+                          recipientsSeeded: true
+                          total: 1
+                          processed: 1
+                          percent: 100
+                          reducedCredit: 1000
+                          statusCounts:
+                          - status: 152
+                            title: تحویل شد
+                            count: 1
+                      moreInfo: null
+                  reason: Published date-time example omits the RFC 3339 timezone. No offset is inferred.
+                  field: result.items[0].createdAt
         '429':
           description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
         default:
@@ -1640,7 +627,8 @@ paths:
         description: کلید، شمارهٔ فرستنده و کلید الگو را با اطلاعات حساب خود جایگزین کنید.
         content:
           application/json:
-            schema: {$ref: '#/components/schemas/ApiCampaignRecipientsRequest'}
+            schema:
+              $ref: '#/components/schemas/ApiCampaignRecipientsRequest'
             examples:
               request:
                 summary: نمونهٔ درخواست
@@ -1652,28 +640,14 @@ paths:
         x-position: 1
       responses:
         '200':
-          description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است.'
+          description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است. نمونه
+            موفق منتشرشده زمان بدون منطقه زمانی دارد و با قالب date-time سازگار نیست؛ اصل آن در x-invalid-source-examples
+            نگه داشته شده است. تا روشن شدن قالب زمان، از آن به‌عنوان نمونه معتبر استفاده نکنید.'
           content:
             application/json:
-              schema: {$ref: '#/components/schemas/ApiResponseOfApiPagedResponseOfApiCampaignRecipientItem'}
+              schema:
+                $ref: '#/components/schemas/ApiResponseOfApiPagedResponseOfApiCampaignRecipientItem'
               examples:
-                success:
-                  summary: پاسخ موفق
-                  value:
-                    success: true
-                    errorCode: null
-                    error: null
-                    result:
-                      page: 1
-                      totalPages: 1
-                      totalCount: 1
-                      items:
-                      - mobile: 989120000001
-                        status: 152
-                        statusTitle: تحویل شد
-                        reducedCredit: 1000
-                        sentAt: '2026-01-01T10:30:00+03:30'
-                    moreInfo: null
                 invalid-key:
                   summary: کلید نامعتبر
                   value:
@@ -1690,6 +664,27 @@ paths:
                     error: مقادیر ورودی نادرست است
                     result: null
                     moreInfo: null
+              x-invalid-source-examples:
+                success:
+                  original:
+                    summary: پاسخ موفق
+                    value:
+                      success: true
+                      errorCode: null
+                      error: null
+                      result:
+                        page: 1
+                        totalPages: 1
+                        totalCount: 1
+                        items:
+                        - mobile: 989120000001
+                          status: 152
+                          statusTitle: تحویل شد
+                          reducedCredit: 1000
+                          sentAt: '2026-01-01T10:30:00'
+                      moreInfo: null
+                  reason: Published date-time example omits the RFC 3339 timezone. No offset is inferred.
+                  field: result.items[0].sentAt
         '429':
           description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
         default:
@@ -1714,7 +709,8 @@ paths:
         description: کلید، شمارهٔ فرستنده و کلید الگو را با اطلاعات حساب خود جایگزین کنید.
         content:
           application/json:
-            schema: {$ref: '#/components/schemas/SendBulkRequest'}
+            schema:
+              $ref: '#/components/schemas/SendBulkRequest'
             examples:
               request:
                 summary: نمونهٔ درخواست
@@ -1732,7 +728,8 @@ paths:
           description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است.'
           content:
             application/json:
-              schema: {$ref: '#/components/schemas/ApiResponseOfListOfSendResponseItem'}
+              schema:
+                $ref: '#/components/schemas/ApiResponseOfListOfSendResponseItem'
               examples:
                 success:
                   summary: پاسخ موفق
@@ -1794,7 +791,8 @@ paths:
         description: کلید، شمارهٔ فرستنده و کلید الگو را با اطلاعات حساب خود جایگزین کنید.
         content:
           application/json:
-            schema: {$ref: '#/components/schemas/SendBulkRequest'}
+            schema:
+              $ref: '#/components/schemas/SendBulkRequest'
             examples:
               request:
                 summary: نمونهٔ درخواست
@@ -1812,7 +810,8 @@ paths:
           description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است.'
           content:
             application/json:
-              schema: {$ref: '#/components/schemas/ApiResponseOfListOfSendResponseItem'}
+              schema:
+                $ref: '#/components/schemas/ApiResponseOfListOfSendResponseItem'
               examples:
                 success:
                   summary: پاسخ موفق
@@ -1874,7 +873,8 @@ paths:
         description: کلید، شمارهٔ فرستنده و کلید الگو را با اطلاعات حساب خود جایگزین کنید.
         content:
           application/json:
-            schema: {$ref: '#/components/schemas/SendMultipleRequest'}
+            schema:
+              $ref: '#/components/schemas/SendMultipleRequest'
             examples:
               request:
                 summary: نمونهٔ درخواست
@@ -1892,7 +892,8 @@ paths:
           description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است.'
           content:
             application/json:
-              schema: {$ref: '#/components/schemas/ApiResponseOfListOfSendResponseItem'}
+              schema:
+                $ref: '#/components/schemas/ApiResponseOfListOfSendResponseItem'
               examples:
                 success:
                   summary: پاسخ موفق
@@ -1934,6 +935,9 @@ paths:
           description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
         default:
           description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
+      servers:
+      - url: https://www.payam-resan.com/uapi/v4
+        description: سرور عملیاتی نسخه ۴؛ مسیرها نسبت به این پایه هستند
   /SendOtp:
     post:
       tags:
@@ -1954,7 +958,8 @@ paths:
         description: کلید، شمارهٔ فرستنده و کلید الگو را با اطلاعات حساب خود جایگزین کنید.
         content:
           application/json:
-            schema: {$ref: '#/components/schemas/CodeOtpRequest'}
+            schema:
+              $ref: '#/components/schemas/CodeOtpRequest'
             examples:
               request:
                 summary: نمونهٔ درخواست
@@ -1970,7 +975,8 @@ paths:
           description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است.'
           content:
             application/json:
-              schema: {$ref: '#/components/schemas/ApiResponseOfListOfOtpResponseItem'}
+              schema:
+                $ref: '#/components/schemas/ApiResponseOfListOfOtpResponseItem'
               examples:
                 success:
                   summary: پاسخ موفق
@@ -2034,7 +1040,8 @@ paths:
         description: کلید، شمارهٔ فرستنده و کلید الگو را با اطلاعات حساب خود جایگزین کنید.
         content:
           application/json:
-            schema: {$ref: '#/components/schemas/VoiceOtpRequest'}
+            schema:
+              $ref: '#/components/schemas/VoiceOtpRequest'
             examples:
               request:
                 summary: نمونهٔ درخواست
@@ -2051,7 +1058,8 @@ paths:
           description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است.'
           content:
             application/json:
-              schema: {$ref: '#/components/schemas/ApiResponseOfListOfOtpResponseItem'}
+              schema:
+                $ref: '#/components/schemas/ApiResponseOfListOfOtpResponseItem'
               examples:
                 success:
                   summary: پاسخ موفق
@@ -2115,7 +1123,8 @@ paths:
         description: کلید، شمارهٔ فرستنده و کلید الگو را با اطلاعات حساب خود جایگزین کنید.
         content:
           application/json:
-            schema: {$ref: '#/components/schemas/OtpRequest'}
+            schema:
+              $ref: '#/components/schemas/OtpRequest'
             examples:
               request:
                 summary: نمونهٔ درخواست
@@ -2134,7 +1143,8 @@ paths:
           description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است.'
           content:
             application/json:
-              schema: {$ref: '#/components/schemas/ApiResponseOfListOfOtpResponseItem'}
+              schema:
+                $ref: '#/components/schemas/ApiResponseOfListOfOtpResponseItem'
               examples:
                 success:
                   summary: پاسخ موفق
@@ -2198,7 +1208,8 @@ paths:
         description: کلید، شمارهٔ فرستنده و کلید الگو را با اطلاعات حساب خود جایگزین کنید.
         content:
           application/json:
-            schema: {$ref: '#/components/schemas/OtpSingleRequest'}
+            schema:
+              $ref: '#/components/schemas/OtpSingleRequest'
             examples:
               request:
                 summary: نمونهٔ درخواست
@@ -2214,7 +1225,8 @@ paths:
           description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است.'
           content:
             application/json:
-              schema: {$ref: '#/components/schemas/ApiResponseOfListOfOtpResponseItem'}
+              schema:
+                $ref: '#/components/schemas/ApiResponseOfListOfOtpResponseItem'
               examples:
                 success:
                   summary: پاسخ موفق
@@ -2262,10 +1274,10 @@ paths:
       tags:
       - کد تأیید و الگوها
       summary: ارسال قالب با پارامترهای نشانی؛ برای حفظ کلید از POST استفاده کنید.
-      description: 'مجوز لازم برای کلید: `Send`. دسترسی OTP حساب نیز باید فعال باشد.
+      description: |-
+        مجوز لازم برای کلید: `Send`. دسترسی OTP حساب نیز باید فعال باشد.
 
-
-        در این متد، `ApiKey` در پارامترهای نشانی است. در صورت امکان از نسخهٔ POST استفاده کنید.'
+        در این متد، `ApiKey` در پارامترهای نشانی است. در صورت امکان از نسخهٔ POST استفاده کنید.
       operationId: V4_SendTokenSingleByQuery
       parameters:
       - name: ApiKey
@@ -2384,7 +1396,8 @@ paths:
           description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است.'
           content:
             application/json:
-              schema: {$ref: '#/components/schemas/ApiResponseOfListOfOtpResponseItem'}
+              schema:
+                $ref: '#/components/schemas/ApiResponseOfListOfOtpResponseItem'
               examples:
                 success:
                   summary: پاسخ موفق
@@ -2433,10 +1446,10 @@ paths:
       tags:
       - کد تأیید و الگوها
       summary: ارسال قالب با پارامترهای جداشده با ; در نشانی؛ POST پیشنهاد می‌شود.
-      description: 'مجوز لازم برای کلید: `Send`. دسترسی OTP حساب نیز باید فعال باشد.
+      description: |-
+        مجوز لازم برای کلید: `Send`. دسترسی OTP حساب نیز باید فعال باشد.
 
-
-        در این متد، `ApiKey` در پارامترهای نشانی است. در صورت امکان از نسخهٔ POST استفاده کنید.'
+        در این متد، `ApiKey` در پارامترهای نشانی است. در صورت امکان از نسخهٔ POST استفاده کنید.
       operationId: V4_SendTokenSingleConcatByQuery
       parameters:
       - name: ApiKey
@@ -2481,7 +1494,8 @@ paths:
           description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است.'
           content:
             application/json:
-              schema: {$ref: '#/components/schemas/ApiResponseOfListOfOtpResponseItem'}
+              schema:
+                $ref: '#/components/schemas/ApiResponseOfListOfOtpResponseItem'
               examples:
                 success:
                   summary: پاسخ موفق
@@ -2544,7 +1558,8 @@ paths:
         description: کلید، شمارهٔ فرستنده و کلید الگو را با اطلاعات حساب خود جایگزین کنید.
         content:
           application/json:
-            schema: {$ref: '#/components/schemas/OtpSingleConcatRequest'}
+            schema:
+              $ref: '#/components/schemas/OtpSingleConcatRequest'
             examples:
               request:
                 summary: نمونهٔ درخواست
@@ -2560,7 +1575,8 @@ paths:
           description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است.'
           content:
             application/json:
-              schema: {$ref: '#/components/schemas/ApiResponseOfListOfOtpResponseItem'}
+              schema:
+                $ref: '#/components/schemas/ApiResponseOfListOfOtpResponseItem'
               examples:
                 success:
                   summary: پاسخ موفق
@@ -2624,7 +1640,8 @@ paths:
         description: کلید، شمارهٔ فرستنده و کلید الگو را با اطلاعات حساب خود جایگزین کنید.
         content:
           application/json:
-            schema: {$ref: '#/components/schemas/TokenListRequest'}
+            schema:
+              $ref: '#/components/schemas/TokenListRequest'
             examples:
               request:
                 summary: نمونهٔ درخواست
@@ -2637,7 +1654,8 @@ paths:
           description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است.'
           content:
             application/json:
-              schema: {$ref: '#/components/schemas/ApiResponseOfListOfTokenListItem'}
+              schema:
+                $ref: '#/components/schemas/ApiResponseOfListOfTokenListItem'
               examples:
                 success:
                   summary: پاسخ موفق
@@ -2690,7 +1708,8 @@ paths:
         description: کلید، شمارهٔ فرستنده و کلید الگو را با اطلاعات حساب خود جایگزین کنید.
         content:
           application/json:
-            schema: {$ref: '#/components/schemas/StatusByIdRequest'}
+            schema:
+              $ref: '#/components/schemas/StatusByIdRequest'
             examples:
               request:
                 summary: نمونهٔ درخواست
@@ -2705,7 +1724,8 @@ paths:
           description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است.'
           content:
             application/json:
-              schema: {$ref: '#/components/schemas/ApiResponseOfListOfStatusResponseItem'}
+              schema:
+                $ref: '#/components/schemas/ApiResponseOfListOfStatusResponseItem'
               examples:
                 success:
                   summary: پاسخ موفق
@@ -2740,6 +1760,7 @@ paths:
           description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
         default:
           description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
+      x-description-source: summary; published description is empty
   /StatusByUserTraceId:
     post:
       tags:
@@ -2760,7 +1781,8 @@ paths:
         description: کلید، شمارهٔ فرستنده و کلید الگو را با اطلاعات حساب خود جایگزین کنید.
         content:
           application/json:
-            schema: {$ref: '#/components/schemas/StatusByUserTraceIdRequest'}
+            schema:
+              $ref: '#/components/schemas/StatusByUserTraceIdRequest'
             examples:
               request:
                 summary: نمونهٔ درخواست
@@ -2775,7 +1797,8 @@ paths:
           description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است.'
           content:
             application/json:
-              schema: {$ref: '#/components/schemas/ApiResponseOfListOfStatusResponseItem'}
+              schema:
+                $ref: '#/components/schemas/ApiResponseOfListOfStatusResponseItem'
               examples:
                 success:
                   summary: پاسخ موفق
@@ -2810,6 +1833,7 @@ paths:
           description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
         default:
           description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
+      x-description-source: summary; published description is empty
   /GetAccountInfo:
     post:
       tags:
@@ -2830,7 +1854,8 @@ paths:
         description: کلید، شمارهٔ فرستنده و کلید الگو را با اطلاعات حساب خود جایگزین کنید.
         content:
           application/json:
-            schema: {$ref: '#/components/schemas/AccountInfoRequest'}
+            schema:
+              $ref: '#/components/schemas/AccountInfoRequest'
             examples:
               request:
                 summary: نمونهٔ درخواست
@@ -2843,7 +1868,8 @@ paths:
           description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است.'
           content:
             application/json:
-              schema: {$ref: '#/components/schemas/ApiResponseOfAccountDetail'}
+              schema:
+                $ref: '#/components/schemas/ApiResponseOfAccountDetail'
               examples:
                 success:
                   summary: پاسخ موفق
@@ -2876,6 +1902,7 @@ paths:
           description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
         default:
           description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
+      x-description-source: summary; published description is empty
   /GetInbox:
     post:
       tags:
@@ -2896,7 +1923,8 @@ paths:
         description: کلید، شمارهٔ فرستنده و کلید الگو را با اطلاعات حساب خود جایگزین کنید.
         content:
           application/json:
-            schema: {$ref: '#/components/schemas/GetInboxRequest'}
+            schema:
+              $ref: '#/components/schemas/GetInboxRequest'
             examples:
               request:
                 summary: نمونهٔ درخواست
@@ -2909,7 +1937,8 @@ paths:
           description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است.'
           content:
             application/json:
-              schema: {$ref: '#/components/schemas/ApiResponseOfListOfInboxResponseItem'}
+              schema:
+                $ref: '#/components/schemas/ApiResponseOfListOfInboxResponseItem'
               examples:
                 success:
                   summary: پاسخ موفق
@@ -2944,6 +1973,7 @@ paths:
           description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
         default:
           description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
+      x-description-source: summary; published description is empty
   /phonebook/groups:
     post:
       tags:
@@ -2964,7 +1994,8 @@ paths:
         description: کلید، شمارهٔ فرستنده و کلید الگو را با اطلاعات حساب خود جایگزین کنید.
         content:
           application/json:
-            schema: {$ref: '#/components/schemas/PhonebookGroupsRequest'}
+            schema:
+              $ref: '#/components/schemas/PhonebookGroupsRequest'
             examples:
               request:
                 summary: نمونهٔ درخواست
@@ -2977,7 +2008,8 @@ paths:
           description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است.'
           content:
             application/json:
-              schema: {$ref: '#/components/schemas/ApiResponseOfListOfPhonebookGroupItem'}
+              schema:
+                $ref: '#/components/schemas/ApiResponseOfListOfPhonebookGroupItem'
               examples:
                 success:
                   summary: پاسخ موفق
@@ -3032,7 +2064,8 @@ paths:
         description: کلید، شمارهٔ فرستنده و کلید الگو را با اطلاعات حساب خود جایگزین کنید.
         content:
           application/json:
-            schema: {$ref: '#/components/schemas/CreatePhonebookGroupRequest'}
+            schema:
+              $ref: '#/components/schemas/CreatePhonebookGroupRequest'
             examples:
               request:
                 summary: نمونهٔ درخواست
@@ -3047,7 +2080,8 @@ paths:
           description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است.'
           content:
             application/json:
-              schema: {$ref: '#/components/schemas/ApiResponseOfCreatePhonebookGroupResult'}
+              schema:
+                $ref: '#/components/schemas/ApiResponseOfCreatePhonebookGroupResult'
               examples:
                 success:
                   summary: پاسخ موفق
@@ -3098,7 +2132,8 @@ paths:
         description: کلید، شمارهٔ فرستنده و کلید الگو را با اطلاعات حساب خود جایگزین کنید.
         content:
           application/json:
-            schema: {$ref: '#/components/schemas/CreatePhonebookGroupWithContactsRequest'}
+            schema:
+              $ref: '#/components/schemas/CreatePhonebookGroupWithContactsRequest'
             examples:
               request:
                 summary: نمونهٔ درخواست
@@ -3116,7 +2151,8 @@ paths:
           description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است.'
           content:
             application/json:
-              schema: {$ref: '#/components/schemas/ApiResponseOfCreatePhonebookGroupWithContactsResult'}
+              schema:
+                $ref: '#/components/schemas/ApiResponseOfCreatePhonebookGroupWithContactsResult'
               examples:
                 success:
                   summary: پاسخ موفق
@@ -3171,7 +2207,8 @@ paths:
         description: کلید، شمارهٔ فرستنده و کلید الگو را با اطلاعات حساب خود جایگزین کنید.
         content:
           application/json:
-            schema: {$ref: '#/components/schemas/UpsertPhonebookContactsRequest'}
+            schema:
+              $ref: '#/components/schemas/UpsertPhonebookContactsRequest'
             examples:
               request:
                 summary: نمونهٔ درخواست
@@ -3189,7 +2226,8 @@ paths:
           description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است.'
           content:
             application/json:
-              schema: {$ref: '#/components/schemas/ApiResponseOfUpsertPhonebookContactsResult'}
+              schema:
+                $ref: '#/components/schemas/ApiResponseOfUpsertPhonebookContactsResult'
               examples:
                 success:
                   summary: پاسخ موفق
@@ -3242,7 +2280,8 @@ paths:
         description: کلید، شمارهٔ فرستنده و کلید الگو را با اطلاعات حساب خود جایگزین کنید.
         content:
           application/json:
-            schema: {$ref: '#/components/schemas/RemovePhonebookContactsRequest'}
+            schema:
+              $ref: '#/components/schemas/RemovePhonebookContactsRequest'
             examples:
               request:
                 summary: نمونهٔ درخواست
@@ -3258,7 +2297,8 @@ paths:
           description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است.'
           content:
             application/json:
-              schema: {$ref: '#/components/schemas/ApiResponseOfRemovePhonebookContactsResult'}
+              schema:
+                $ref: '#/components/schemas/ApiResponseOfRemovePhonebookContactsResult'
               examples:
                 success:
                   summary: پاسخ موفق
@@ -3304,7 +2344,7 @@ components:
         errorCode:
           description: کد خطا؛ در پاسخ موفق null است.
           anyOf:
-          - {$ref: '#/components/schemas/ApiErrorType'}
+          - $ref: '#/components/schemas/ApiErrorType'
           - type: 'null'
         error:
           type:
@@ -3319,7 +2359,7 @@ components:
         result:
           description: نتیجه درخواست؛ در صورت خطا null است.
           anyOf:
-          - {$ref: '#/components/schemas/ApiCampaignDraftResponse'}
+          - $ref: '#/components/schemas/ApiCampaignDraftResponse'
           - type: 'null'
     ApiErrorType:
       type: integer
@@ -3468,7 +2508,7 @@ components:
         errorCode:
           description: کد خطا؛ در پاسخ موفق null است.
           anyOf:
-          - {$ref: '#/components/schemas/ApiErrorType'}
+          - $ref: '#/components/schemas/ApiErrorType'
           - type: 'null'
         error:
           type:
@@ -3483,7 +2523,7 @@ components:
         result:
           description: نتیجه درخواست؛ در صورت خطا null است.
           anyOf:
-          - {$ref: '#/components/schemas/ApiCampaignSubmitResponse'}
+          - $ref: '#/components/schemas/ApiCampaignSubmitResponse'
           - type: 'null'
     ApiCampaignSubmitResponse:
       type: object
@@ -3493,7 +2533,8 @@ components:
         campaignId:
           type: string
           description: شناسه دریافتی از ایجاد پیش‌نویس یا ثبت کمپین.
-        status: {$ref: '#/components/schemas/CampaignProgressStatus'}
+        status:
+          $ref: '#/components/schemas/CampaignProgressStatus'
         statusTitle:
           type: string
           description: عنوان قابل خواندن وضعیت.
@@ -3553,7 +2594,7 @@ components:
         errorCode:
           description: کد خطا؛ در پاسخ موفق null است.
           anyOf:
-          - {$ref: '#/components/schemas/ApiErrorType'}
+          - $ref: '#/components/schemas/ApiErrorType'
           - type: 'null'
         error:
           type:
@@ -3568,7 +2609,7 @@ components:
         result:
           description: نتیجه درخواست؛ در صورت خطا null است.
           anyOf:
-          - {$ref: '#/components/schemas/ApiCampaignInfoResponse'}
+          - $ref: '#/components/schemas/ApiCampaignInfoResponse'
           - type: 'null'
     ApiCampaignInfoResponse:
       type: object
@@ -3604,7 +2645,8 @@ components:
           - 'null'
           description: زمان ارسال به وقت ایران؛ برای ارسال بدون زمان‌بندی null است.
           format: date-time
-        status: {$ref: '#/components/schemas/CampaignProgressStatus'}
+        status:
+          $ref: '#/components/schemas/CampaignProgressStatus'
         statusTitle:
           type: string
           description: عنوان قابل خواندن وضعیت.
@@ -3630,12 +2672,14 @@ components:
         statusCounts:
           type: array
           description: تعداد گیرندگان به تفکیک وضعیت تحویل کمپین.
-          items: {$ref: '#/components/schemas/ApiStatusCount'}
+          items:
+            $ref: '#/components/schemas/ApiStatusCount'
     ApiStatusCount:
       type: object
       additionalProperties: false
       properties:
-        status: {$ref: '#/components/schemas/SentMessageStatus'}
+        status:
+          $ref: '#/components/schemas/SentMessageStatus'
         title:
           type: string
         count:
@@ -3644,72 +2688,41 @@ components:
           format: int32
     SentMessageStatus:
       type: integer
-      description: 'وضعیت گیرندهٔ کمپین؛ این کدها با وضعیت‌های StatusById تفاوت دارند.
-
+      description: |-
+        وضعیت گیرندهٔ کمپین؛ این کدها با وضعیت‌های StatusById تفاوت دارند.
 
         * 1: در صف ارسال
-
         * 10: منقضی شد
-
         * 11: لغو دریافت
-
         * 12: شماره مسدود
-
         * 13: رد شد
-
         * 14: سقف ارسال
-
         * 15: اعتبار ناکافی
-
         * 16: ارسال نشد — خطای قیمت‌گذاری
-
         * 17: اعتبار نماینده ناکافی
-
         * 18: در انتظار بررسی
-
         * 19: در انتظار بررسی
-
         * 20: احراز هویت نشده
-
         * 21: ارسال نشد
-
         * 22: حساب مسدود
-
         * 23: خط غیرمجاز
-
         * 24: کاربر مسدود
-
         * 25: خارج از ساعت ارسال
-
         * 26: حساب نمایشی
-
         * 27: شماره نامعتبر
-
         * 28: حساب فعال نشده
-
         * 29: ارسال تکراری
-
         * 30: طول متن بیش از حد مجاز
-
         * 100: گیرنده مسدود
-
         * 101: متن رد شد
-
         * 102: لغو دریافت نزد اپراتور
-
         * 103: خط غیرفعال نزد اپراتور
-
         * 104: لینک برای این خط مجاز نیست
-
         * 150: رسیده به مخابرات
-
         * 152: تحویل شد
-
         * 154: تحویل نشد
-
         * 155: خطای اپراتور
-
-        * 156: نامشخص'
+        * 156: نامشخص
       enum:
       - 1
       - 10
@@ -3788,7 +2801,7 @@ components:
         errorCode:
           description: کد خطا؛ در پاسخ موفق null است.
           anyOf:
-          - {$ref: '#/components/schemas/ApiErrorType'}
+          - $ref: '#/components/schemas/ApiErrorType'
           - type: 'null'
         error:
           type:
@@ -3803,7 +2816,7 @@ components:
         result:
           description: نتیجه درخواست؛ در صورت خطا null است.
           anyOf:
-          - {$ref: '#/components/schemas/ApiPagedResponseOfApiCampaignInfoResponse'}
+          - $ref: '#/components/schemas/ApiPagedResponseOfApiCampaignInfoResponse'
           - type: 'null'
     ApiPagedResponseOfApiCampaignInfoResponse:
       type: object
@@ -3825,7 +2838,8 @@ components:
         items:
           type: array
           description: نتایج این صفحه.
-          items: {$ref: '#/components/schemas/ApiCampaignInfoResponse'}
+          items:
+            $ref: '#/components/schemas/ApiCampaignInfoResponse'
     ApiCampaignSearchRequest:
       type: object
       description: جست‌وجوی کمپین‌های ثبت‌شده با API، از جدید به قدیم.
@@ -3850,7 +2864,7 @@ components:
         state:
           description: وضعیت کمپین؛ null یعنی همه وضعیت‌ها.
           anyOf:
-          - {$ref: '#/components/schemas/CampaignState'}
+          - $ref: '#/components/schemas/CampaignState'
           - type: 'null'
         createdFrom:
           type:
@@ -3895,7 +2909,7 @@ components:
         errorCode:
           description: کد خطا؛ در پاسخ موفق null است.
           anyOf:
-          - {$ref: '#/components/schemas/ApiErrorType'}
+          - $ref: '#/components/schemas/ApiErrorType'
           - type: 'null'
         error:
           type:
@@ -3910,7 +2924,7 @@ components:
         result:
           description: نتیجه درخواست؛ در صورت خطا null است.
           anyOf:
-          - {$ref: '#/components/schemas/ApiPagedResponseOfApiCampaignRecipientItem'}
+          - $ref: '#/components/schemas/ApiPagedResponseOfApiCampaignRecipientItem'
           - type: 'null'
     ApiPagedResponseOfApiCampaignRecipientItem:
       type: object
@@ -3932,7 +2946,8 @@ components:
         items:
           type: array
           description: نتایج این صفحه.
-          items: {$ref: '#/components/schemas/ApiCampaignRecipientItem'}
+          items:
+            $ref: '#/components/schemas/ApiCampaignRecipientItem'
     ApiCampaignRecipientItem:
       type: object
       description: اطلاعات یک گیرنده کمپین؛ مبالغ به ریال است.
@@ -3946,7 +2961,7 @@ components:
         status:
           description: تا پیش از ارسال برای گیرنده، null است.
           anyOf:
-          - {$ref: '#/components/schemas/SentMessageStatus'}
+          - $ref: '#/components/schemas/SentMessageStatus'
           - type: 'null'
         statusTitle:
           type: string
@@ -3990,7 +3005,7 @@ components:
         errorCode:
           description: کد خطا؛ در پاسخ موفق null است.
           anyOf:
-          - {$ref: '#/components/schemas/ApiErrorType'}
+          - $ref: '#/components/schemas/ApiErrorType'
           - type: 'null'
         error:
           type:
@@ -4007,7 +3022,8 @@ components:
           - array
           - 'null'
           description: نتیجه درخواست؛ در صورت خطا null است.
-          items: {$ref: '#/components/schemas/SendResponseItem'}
+          items:
+            $ref: '#/components/schemas/SendResponseItem'
     SendResponseItem:
       type: object
       description: اطلاعات یک پیام پذیرفته‌شده برای ارسال.
@@ -4050,7 +3066,8 @@ components:
         recipients:
           type: array
           description: گیرندگان پیام؛ دست‌کم یک گیرنده لازم است.
-          items: {$ref: '#/components/schemas/SendBulkRecipient'}
+          items:
+            $ref: '#/components/schemas/SendBulkRecipient'
         sendTime:
           type:
           - string
@@ -4085,7 +3102,8 @@ components:
         recipients:
           type: array
           description: گیرندگان پیام؛ دست‌کم یک گیرنده لازم است.
-          items: {$ref: '#/components/schemas/SendMultipleRecipient'}
+          items:
+            $ref: '#/components/schemas/SendMultipleRecipient'
     SendMultipleRecipient:
       type: object
       additionalProperties: false
@@ -4118,7 +3136,7 @@ components:
         errorCode:
           description: کد خطا؛ در پاسخ موفق null است.
           anyOf:
-          - {$ref: '#/components/schemas/ApiErrorType'}
+          - $ref: '#/components/schemas/ApiErrorType'
           - type: 'null'
         error:
           type:
@@ -4135,7 +3153,8 @@ components:
           - array
           - 'null'
           description: نتیجه درخواست؛ در صورت خطا null است.
-          items: {$ref: '#/components/schemas/OtpResponseItem'}
+          items:
+            $ref: '#/components/schemas/OtpResponseItem'
     OtpResponseItem:
       type: object
       description: اطلاعات پیام رمز یک‌بارمصرف پذیرفته‌شده برای ارسال.
@@ -4231,7 +3250,8 @@ components:
         recipients:
           type: array
           description: گیرندگان پیام؛ دست‌کم یک گیرنده لازم است.
-          items: {$ref: '#/components/schemas/OtpRequestItem'}
+          items:
+            $ref: '#/components/schemas/OtpRequestItem'
     OtpRequestItem:
       type: object
       additionalProperties: false
@@ -4351,7 +3371,7 @@ components:
         errorCode:
           description: کد خطا؛ در پاسخ موفق null است.
           anyOf:
-          - {$ref: '#/components/schemas/ApiErrorType'}
+          - $ref: '#/components/schemas/ApiErrorType'
           - type: 'null'
         error:
           type:
@@ -4368,7 +3388,8 @@ components:
           - array
           - 'null'
           description: نتیجه درخواست؛ در صورت خطا null است.
-          items: {$ref: '#/components/schemas/TokenListItem'}
+          items:
+            $ref: '#/components/schemas/TokenListItem'
     TokenListItem:
       type: object
       description: اطلاعات یک قالب رمز یک‌بارمصرف.
@@ -4380,7 +3401,8 @@ components:
         textTemplate:
           type: string
           description: متن قالب همراه با جای پارامترها.
-        status: {$ref: '#/components/schemas/TokenListItemStatus'}
+        status:
+          $ref: '#/components/schemas/TokenListItemStatus'
     TokenListItemStatus:
       type: integer
       description: وضعیت تأیید قالب رمز یک‌بارمصرف.
@@ -4422,7 +3444,7 @@ components:
         errorCode:
           description: کد خطا؛ در پاسخ موفق null است.
           anyOf:
-          - {$ref: '#/components/schemas/ApiErrorType'}
+          - $ref: '#/components/schemas/ApiErrorType'
           - type: 'null'
         error:
           type:
@@ -4439,7 +3461,8 @@ components:
           - array
           - 'null'
           description: نتیجه درخواست؛ در صورت خطا null است.
-          items: {$ref: '#/components/schemas/StatusResponseItem'}
+          items:
+            $ref: '#/components/schemas/StatusResponseItem'
     StatusResponseItem:
       type: object
       description: وضعیت تحویل یک پیام.
@@ -4454,8 +3477,8 @@ components:
           - 'null'
           description: شناسه پیگیری عددی دلخواه شما؛ اختیاری و در پاسخ ارسال بازگردانده می‌شود.
         statusCode:
-          description: کد وضعیت تحویل؛ جدول همین نسخه را ببینید.
           $ref: '#/components/schemas/ApiMessageStatus'
+          description: کد وضعیت تحویل؛ جدول همین نسخه را ببینید.
         rejectionReason:
           type:
           - string
@@ -4580,7 +3603,7 @@ components:
         errorCode:
           description: کد خطا؛ در پاسخ موفق null است.
           anyOf:
-          - {$ref: '#/components/schemas/ApiErrorType'}
+          - $ref: '#/components/schemas/ApiErrorType'
           - type: 'null'
         error:
           type:
@@ -4595,7 +3618,7 @@ components:
         result:
           description: نتیجه درخواست؛ در صورت خطا null است.
           anyOf:
-          - {$ref: '#/components/schemas/AccountDetail'}
+          - $ref: '#/components/schemas/AccountDetail'
           - type: 'null'
     AccountDetail:
       type: object
@@ -4635,7 +3658,7 @@ components:
         errorCode:
           description: کد خطا؛ در پاسخ موفق null است.
           anyOf:
-          - {$ref: '#/components/schemas/ApiErrorType'}
+          - $ref: '#/components/schemas/ApiErrorType'
           - type: 'null'
         error:
           type:
@@ -4652,7 +3675,8 @@ components:
           - array
           - 'null'
           description: نتیجه درخواست؛ در صورت خطا null است.
-          items: {$ref: '#/components/schemas/InboxResponseItem'}
+          items:
+            $ref: '#/components/schemas/InboxResponseItem'
     InboxResponseItem:
       type: object
       description: یک پیام ورودی دریافتی از GetInbox.
@@ -4698,7 +3722,7 @@ components:
         errorCode:
           description: کد خطا؛ در پاسخ موفق null است.
           anyOf:
-          - {$ref: '#/components/schemas/ApiErrorType'}
+          - $ref: '#/components/schemas/ApiErrorType'
           - type: 'null'
         error:
           type:
@@ -4715,7 +3739,8 @@ components:
           - array
           - 'null'
           description: نتیجه درخواست؛ در صورت خطا null است.
-          items: {$ref: '#/components/schemas/PhonebookGroupItem'}
+          items:
+            $ref: '#/components/schemas/PhonebookGroupItem'
     PhonebookGroupItem:
       type: object
       description: اطلاعات گروه دفترچه تلفن.
@@ -4766,7 +3791,7 @@ components:
         errorCode:
           description: کد خطا؛ در پاسخ موفق null است.
           anyOf:
-          - {$ref: '#/components/schemas/ApiErrorType'}
+          - $ref: '#/components/schemas/ApiErrorType'
           - type: 'null'
         error:
           type:
@@ -4781,7 +3806,7 @@ components:
         result:
           description: نتیجه درخواست؛ در صورت خطا null است.
           anyOf:
-          - {$ref: '#/components/schemas/CreatePhonebookGroupResult'}
+          - $ref: '#/components/schemas/CreatePhonebookGroupResult'
           - type: 'null'
     CreatePhonebookGroupResult:
       type: object
@@ -4827,7 +3852,7 @@ components:
         errorCode:
           description: کد خطا؛ در پاسخ موفق null است.
           anyOf:
-          - {$ref: '#/components/schemas/ApiErrorType'}
+          - $ref: '#/components/schemas/ApiErrorType'
           - type: 'null'
         error:
           type:
@@ -4842,7 +3867,7 @@ components:
         result:
           description: نتیجه درخواست؛ در صورت خطا null است.
           anyOf:
-          - {$ref: '#/components/schemas/CreatePhonebookGroupWithContactsResult'}
+          - $ref: '#/components/schemas/CreatePhonebookGroupWithContactsResult'
           - type: 'null'
     CreatePhonebookGroupWithContactsResult:
       type: object
@@ -4862,7 +3887,8 @@ components:
           format: int32
         errors:
           type: array
-          items: {$ref: '#/components/schemas/PhonebookContactError'}
+          items:
+            $ref: '#/components/schemas/PhonebookContactError'
         message:
           type:
           - string
@@ -4909,7 +3935,8 @@ components:
         contacts:
           type: array
           description: مخاطبان برای افزودن یا ویرایش در گروه.
-          items: {$ref: '#/components/schemas/PhonebookContactInput'}
+          items:
+            $ref: '#/components/schemas/PhonebookContactInput'
     PhonebookContactInput:
       type: object
       additionalProperties: false
@@ -4960,7 +3987,7 @@ components:
         errorCode:
           description: کد خطا؛ در پاسخ موفق null است.
           anyOf:
-          - {$ref: '#/components/schemas/ApiErrorType'}
+          - $ref: '#/components/schemas/ApiErrorType'
           - type: 'null'
         error:
           type:
@@ -4975,7 +4002,7 @@ components:
         result:
           description: نتیجه درخواست؛ در صورت خطا null است.
           anyOf:
-          - {$ref: '#/components/schemas/UpsertPhonebookContactsResult'}
+          - $ref: '#/components/schemas/UpsertPhonebookContactsResult'
           - type: 'null'
     UpsertPhonebookContactsResult:
       type: object
@@ -4988,7 +4015,8 @@ components:
         errors:
           type: array
           description: ردیف‌های دارای خطا؛ فهرست خالی یعنی همه ردیف‌ها پذیرفته شده‌اند.
-          items: {$ref: '#/components/schemas/PhonebookContactError'}
+          items:
+            $ref: '#/components/schemas/PhonebookContactError'
         message:
           type:
           - string
@@ -5011,7 +4039,8 @@ components:
         contacts:
           type: array
           description: مخاطبان برای افزودن یا ویرایش در گروه.
-          items: {$ref: '#/components/schemas/PhonebookContactInput'}
+          items:
+            $ref: '#/components/schemas/PhonebookContactInput'
     ApiResponseOfRemovePhonebookContactsResult:
       type: object
       description: پاسخ V4؛ در موفقیت Success برابر true و Result حاوی نتیجه است. در خطا ErrorCode و Error
@@ -5024,7 +4053,7 @@ components:
         errorCode:
           description: کد خطا؛ در پاسخ موفق null است.
           anyOf:
-          - {$ref: '#/components/schemas/ApiErrorType'}
+          - $ref: '#/components/schemas/ApiErrorType'
           - type: 'null'
         error:
           type:
@@ -5039,7 +4068,7 @@ components:
         result:
           description: نتیجه درخواست؛ در صورت خطا null است.
           anyOf:
-          - {$ref: '#/components/schemas/RemovePhonebookContactsResult'}
+          - $ref: '#/components/schemas/RemovePhonebookContactsResult'
           - type: 'null'
     RemovePhonebookContactsResult:
       type: object
@@ -5073,3 +4102,117 @@ components:
           items:
             type: integer
             format: int64
+externalDocs:
+  url: https://www.payam-resan.com/uapi/v4
+  description: راهنمای Swagger رسمی نسخه ۴
+x-source:
+  url: https://www.payam-resan.com/uapi/v4/swagger.json
+  ui_url: https://www.payam-resan.com/uapi/v4
+  captured: '2026-11-11'
+  sha256: 3406d26a3258370a7034ebdb8fa42f8b775938ecd2e0785991b3f8bf9e5ab968
+  source_openapi: 3.0.0
+  snapshot: ../../sources/v4/swagger.json
+  verification: published-swagger-only
+  issues: ../../sources/v4/issues.json
+x-sandbox-source:
+  path: ../../sources/sandbox-servers.json
+  verification: Base URLs confirmed by the maintainer; no endpoint behavior was tested.
+x-unpublished-sandbox:
+  snapshot: ../../sources/v4/previous-sandbox.json
+  sha256: 3768cc1c44e8d4fd0526d13f150fb6998b66723ef4e2871303f9456b9c6ade11
+  origin:
+    commit: 50f9a72030151e16bdef01d13c1a66060d1cf630
+    path: specs/v4/openapi.yaml
+    extraction: sandbox paths and the original shared schemas; no live-service verification
+  verification: historical definitions only; absent from current public Swagger; not retested
+  operations:
+  - path: /sandbox/Send
+    method: post
+    operationId: SandboxV4_SendSingle
+  - path: /sandbox/SendBulk
+    method: post
+    operationId: SandboxV4_SendBulk
+  - path: /sandbox/SendOtp
+    method: post
+    operationId: SandboxV4_SendOtp
+  - path: /sandbox/SendVoiceOtp
+    method: post
+    operationId: SandboxV4_SendVoiceOtp
+  - path: /sandbox/SendTokenMulti
+    method: post
+    operationId: SandboxV4_SendTokenMulti
+  - path: /sandbox/SendTokenSingle
+    method: post
+    operationId: SandboxV4_SendTokenSingle
+  - path: /sandbox/SendTokenSingle
+    method: get
+    operationId: SandboxV4_SendTokenSingleByQuery
+  - path: /sandbox/SendTokenSingleConcatParam
+    method: get
+    operationId: SandboxV4_SendTokenSingleConcatByQuery
+  - path: /sandbox/SendTokenSingleConcatParam
+    method: post
+    operationId: SandboxV4_SendTokenSingleConcat
+  - path: /sandbox/GetToken
+    method: post
+    operationId: SandboxV4_GetToken
+  - path: /sandbox/StatusById
+    method: post
+    operationId: SandboxV4_StatusById
+  - path: /sandbox/StatusByUserTraceId
+    method: post
+    operationId: SandboxV4_StatusByUserTraceId
+  - path: /sandbox/GetAccountInfo
+    method: post
+    operationId: SandboxV4_GetAccountInfo
+  - path: /sandbox/GetInbox
+    method: post
+    operationId: SandboxV4_GetInbox
+  - path: /sandbox/phonebook/groups
+    method: post
+    operationId: SandboxV4_PhonebookGroups
+  - path: /sandbox/phonebook/group
+    method: post
+    operationId: SandboxV4_CreatePhonebookGroup
+  - path: /sandbox/phonebook/group-with-contacts
+    method: post
+    operationId: SandboxV4_CreatePhonebookGroupWithContacts
+  - path: /sandbox/phonebook/contacts
+    method: post
+    operationId: SandboxV4_UpsertPhonebookContacts
+  - path: /sandbox/phonebook/contacts/remove
+    method: post
+    operationId: SandboxV4_RemovePhonebookContacts
+  - path: /sandbox/campaign/draft
+    method: post
+    operationId: SandboxV4_CreateCampaignDraft
+  - path: /sandbox/campaign/draft/finalize
+    method: post
+    operationId: SandboxV4_FinalizeCampaignDraft
+  - path: /sandbox/campaign/submit
+    method: post
+    operationId: SandboxV4_SubmitCampaign
+  - path: /sandbox/campaign/get
+    method: post
+    operationId: SandboxV4_GetCampaign
+  - path: /sandbox/campaign/search
+    method: post
+    operationId: SandboxV4_SearchCampaigns
+  - path: /sandbox/campaign/recipients
+    method: post
+    operationId: SandboxV4_GetCampaignRecipients
+tags:
+- name: کمپین
+  description: کمپین
+- name: ارسال پیامک
+  description: ارسال پیامک
+- name: کد تأیید و الگوها
+  description: کد تأیید و الگوها
+- name: گزارش تحویل
+  description: گزارش تحویل
+- name: اطلاعات حساب
+  description: اطلاعات حساب
+- name: صندوق دریافت
+  description: صندوق دریافت
+- name: دفترچه تلفن
+  description: دفترچه تلفن
