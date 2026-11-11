@@ -22,6 +22,8 @@ enum در spec شامل کدهایی است که `in_api` یا `confirmed` با�
 import sys
 import pathlib
 
+from validate_readmes import check_readmes
+
 try:
     import yaml
 except ImportError:
@@ -34,6 +36,14 @@ TABLES = [
     ("error-codes.yaml", ["ErrorCode"], "کد خطا"),
     ("status-codes.yaml", ["StatusItem", "properties", "StatusCode"], "کد وضعیت"),
     ("template-status.yaml", ["TokenListDetail", "properties", "Status"], "وضعیت قالب"),
+]
+V4_TABLES = [
+    ("error-codes.yaml", ["ApiErrorType"], "کد خطا"),
+    ("status-codes.yaml", ["ApiMessageStatus"], "کد وضعیت تحویل"),
+    ("template-status.yaml", ["TokenListItemStatus"], "وضعیت قالب"),
+    ("campaign-status.yaml", ["CampaignProgressStatus"], "پیشرفت کمپین"),
+    ("campaign-filter-status.yaml", ["CampaignState"], "فیلتر کمپین"),
+    ("campaign-recipient-status.yaml", ["SentMessageStatus"], "وضعیت گیرنده کمپین"),
 ]
 
 errors = []
@@ -83,7 +93,7 @@ def dig(node, keys):
 
 
 def check_codes(label, version_dir, schemas):
-    for filename, keys, what in TABLES:
+    for filename, keys, what in (V4_TABLES if label == "v4" else TABLES):
         table_path = version_dir / "codes" / filename
         node = dig(schemas, keys)
         # A version without this response model has no corresponding code enum to reconcile.
@@ -122,7 +132,9 @@ def check_codes(label, version_dir, schemas):
                 gaps.append((label, what, code, "موجود است ولی شرحی ندارد"))
                 warnings.append(f"{label}: {what} {code} موجود است ولی شرحی ندارد")
             elif not row.get("confirmed"):
-                if not row.get("in_legacy_docs"):
+                if table.get("sources", {}).get("verification") == "published-swagger-only":
+                    reason = "فقط Swagger بررسی شده؛ تأیید مستقل سرویس انجام نشده است"
+                elif not row.get("in_legacy_docs"):
                     reason = "سرویس اعلامش می‌کند ولی شرح رسمی ندارد"
                 elif not row.get("in_api"):
                     reason = "مستند شده ولی سرویس اعلامش نمی‌کند"
@@ -229,6 +241,9 @@ def main():
 
     for version_dir in versions:
         check_version(version_dir, quiet=only_gaps)
+
+    _, readme_errors = check_readmes()
+    errors.extend(readme_errors)
 
     if only_gaps:
         if not gaps:

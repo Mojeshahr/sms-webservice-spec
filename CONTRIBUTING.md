@@ -85,6 +85,13 @@ makes keeping them in step cheap.
 
 ## Persian text
 
+Every README line containing Persian text must start with a Persian word after
+Markdown/HTML formatting, including wrapped lines, table rows, code comments
+and diagrams. A Latin identifier, URL, path or number cannot be the first word.
+Check both READMEs with `python3 scripts/validate_readmes.py`; the baseline
+validator also runs this check. Keep code lines purely Latin when necessary
+and put Persian explanations on separate Persian-leading lines.
+
 Follow the wording, spelling and punctuation already in the repository. When you
 add a passage or rewrite one, match the surrounding text instead of bringing
 your own conventions to it. This covers the README, the comments in the YAML
