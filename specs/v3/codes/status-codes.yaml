@@ -3,7 +3,7 @@
 # مقدار فیلد StatusCode در پاسخ StatusById و StatusByUserTraceId.
 # فهرست از ۰ تا ۲۱ کامل است.
 #
-# fa          : همان متنی که سرویس در فیلد Status برمی‌گرداند
+# fa          : متن منتشرشده در Swagger؛ previous_fa متن ثبت‌شده پیشین است
 # description : چه اتفاقی افتاده است
 # action      : برنامه یا کاربر باید چه کند
 # disposition : pending | final | not-sent | not-found
@@ -19,7 +19,10 @@
 
 version: 3
 sources:
-  api: https://api.sms-webservice.com/swagger/docs/v3
+  api: https://www.payam-resan.com/api/V3/swagger.json
+  swagger_captured: 2026-11-11
+  verification: published-swagger-only
+  supplementary_guidance: توضیح‌ها و تصمیم‌های retry و disposition و sendable از شواهد پیشین نگه داشته شده‌اند؛ در این مرحله با سرویس زنده سنجیده نشده‌اند.
   team: تیم سرویس
   captured: 2026-08-23
   legacy_docs:
@@ -179,7 +182,8 @@ codes:
     confirmed: true
 
   - code: 18
-    fa: اتمام سقف ارسال API
+    fa: اتمام سقف ارسال Api
+    previous_fa: اتمام سقف ارسال API
     description: پیام ارسال نشد چون سهمیه وب‌سرویس پر بود.
     action: پس از آزاد شدن سهمیه دوباره بفرستید یا افزایش سقف بگیرید.
     disposition: not-sent

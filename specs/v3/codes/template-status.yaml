@@ -8,17 +8,21 @@
 # دارد، نه چهار.
 #
 # in_api    : در enum منتشرشده swagger هست
-# confirmed : با پاسخ واقعی سرویس سنجیده شده است
+# confirmed : شاهد پیشین در تاریخ captured؛ تأیید زنده تازه نیست
 
 version: 3
 sources:
-  api: https://api.sms-webservice.com/swagger/docs/v3
+  api: https://www.payam-resan.com/api/V3/swagger.json
+  swagger_captured: 2026-11-11
+  verification: published-swagger-only
+  supplementary_guidance: توضیح‌ها و تصمیم‌های retry و disposition و sendable از شواهد پیشین نگه داشته شده‌اند؛ در این مرحله با سرویس زنده سنجیده نشده‌اند.
   panel: پنل کاربری، مقایسه ستون وضعیت با پاسخ TokenList
   captured: 2026-08-22
 
 codes:
   - code: 1
-    fa: در انتظار بررسی
+    fa: در انتظار تأیید
+    previous_fa: در انتظار بررسی
     description: قالب ثبت شده و منتظر بررسی ادمین است. تا تأیید نشود قابل ارسال نیست.
     sendable: false
     panel_states:
@@ -28,7 +32,8 @@ codes:
     note: قالب تازه‌ثبت‌شده تا پیش از بررسی ادمین مقدار ۱ دارد.
 
   - code: 2
-    fa: تأیید شده
+    fa: تأییدشده
+    previous_fa: تأیید شده
     description: قالب تأیید شده و قابل ارسال است.
     sendable: true
     panel_states:
@@ -38,7 +43,8 @@ codes:
     note: هر قالبی که پنل «تأیید شده» نشان می‌دهد، در API مقدار ۲ دارد.
 
   - code: 3
-    fa: رد شده
+    fa: ردشده
+    previous_fa: رد شده
     description: >-
       ادمین قالب را رد کرده است. پنل بین «قابل ویرایش» و «غیر قابل ویرایش»
       فرق می‌گذارد، ولی API برای هر دو ۳ برمی‌گرداند.

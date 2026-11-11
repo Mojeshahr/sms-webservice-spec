@@ -6,20 +6,23 @@
 # منبع: تیم سرویس. فهرست بسته است؛ هر کد دیگری که دیدید مثل ۱۰۰ رفتار کنید.
 #
 # name      : نام عضو enum در API، عیناً با همان املا
-# fa        : متنی که سرویس در فیلد Error برمی‌گرداند
+# fa        : متن منتشرشده در Swagger؛ پاسخ زنده در این مرحله سنجیده نشده است
 # cause     : چه چیزی این خطا را می‌سازد
 # action    : کاربر باید چه کند
 # retry     : never | backoff | limit-reset
 # exists    : در نسخه ۳ امروز وجود دارد
 # in_api    : در enum منتشرشده swagger هست
 # in_legacy_docs : در فهرست پیشین بود. مرجع رسمی docs.payam-resan.com است.
-# confirmed : تیم سرویس تأییدش کرده است
+# confirmed : تیم سرویس در تاریخ captured تأییدش کرده است؛ تأیید تازه نیست
 #
 # enum در spec شامل کدهایی است که exists باشند.
 
 version: 3
 sources:
-  api: https://api.sms-webservice.com/swagger/docs/v3
+  api: https://www.payam-resan.com/api/V3/swagger.json
+  swagger_captured: 2026-11-11
+  verification: published-swagger-only
+  supplementary_guidance: توضیح‌ها و تصمیم‌های retry و disposition و sendable از شواهد پیشین نگه داشته شده‌اند؛ در این مرحله با سرویس زنده سنجیده نشده‌اند.
   team: تیم سرویس
   captured: 2026-08-22
   legacy_docs:
@@ -48,7 +51,8 @@ codes:
 
   - code: 2
     name: ApiIsNotActive
-    fa: ارسال از وبسرویس برای این کاربر فعال نشده است
+    fa: ارسال از وبسرویس برای این کاربر فعال نشده است.
+    previous_fa: ارسال از وبسرویس برای این کاربر فعال نشده است
     cause: روی حساب، وب‌سرویس فعال نیست.
     action: از پنل یا پشتیبانی درخواست فعال‌سازی وب‌سرویس بدهید. تکرار درخواست بی‌فایده است.
     retry: never
@@ -59,7 +63,8 @@ codes:
 
   - code: 3
     name: UserIsNotActive
-    fa: کاربر فعال نیست
+    fa: کاربر فعال نیست.
+    previous_fa: کاربر فعال نیست
     cause: حساب کاربری قفل یا غیرفعال است.
     action: با پشتیبانی تماس بگیرید.
     retry: never
@@ -72,7 +77,8 @@ codes:
 
   - code: 4
     name: ApiTemproryDeactive
-    fa: ارسال از طریق Api موقتا غیر فعال است
+    fa: ارسال از طریق Api موقتا غیر فعال است.
+    previous_fa: ارسال از طریق Api موقتا غیر فعال است
     cause: خاموشی سراسری سرویس، حالت اضطراری یا خاموش بودن Api در تنظیمات.
     action: موقتی است. با فاصله ۳۰ تا ۱۲۰ ثانیه دوباره تلاش کنید. کلید را عوض نکنید.
     retry: backoff
@@ -84,7 +90,8 @@ codes:
 
   - code: 5
     name: MethodIsDeactive
-    fa: ارسال از طریق این متد موقتا غیر فعال است
+    fa: ارسال از طریق این متد موقتا غیر فعال است.
+    previous_fa: ارسال از طریق این متد موقتا غیر فعال است
     cause: همان متد خاص سراسری خاموش شده است، نه کل سرویس.
     action: از متد جایگزین استفاده کنید یا صبر کنید. سایر متدها احتمالاً کار می‌کنند.
     retry: backoff
@@ -95,7 +102,8 @@ codes:
 
   - code: 6
     name: NoAuthntication
-    fa: احراز هویت حساب انجام نشده است
+    fa: احراز هویت حساب انجام نشده است.
+    previous_fa: احراز هویت حساب انجام نشده است
     cause: سرویس محدودیت ارسال همه خطوط را بست چون احراز هویت انجام نشده است.
     action: احراز هویت را در پنل کامل کنید. تا آن زمان هیچ ارسالی باز نمی‌شود.
     retry: never
@@ -119,7 +127,8 @@ codes:
 
   - code: 8
     name: AccountInfoIsIncomplete
-    fa: اطلاعات هویتی کاربر به صورت کامل درج نشده است
+    fa: اطلاعات هویتی کاربر به صورت کامل درج نشده است.
+    previous_fa: اطلاعات هویتی کاربر به صورت کامل درج نشده است
     cause: فیلدهای هویتی پروفایل ناقص است.
     action: پروفایل را کامل کنید.
     retry: never
@@ -132,7 +141,8 @@ codes:
 
   - code: 9
     name: InvalidParameters
-    fa: مقادیر ورودی نادرست است
+    fa: مقادیر ورودی نادرست است.
+    previous_fa: مقادیر ورودی نادرست است
     cause: بدنه درخواست خراب است. ApiKey برابر null، آرایه گیرنده خالی یا دارای عضو null، متن خالی، فهرست شناسه خالی، یا پارامترهای OTP ناسازگار با قالب.
     action: متن فیلد Error می‌گوید کدام فیلد. JSON را اصلاح کنید. تکرار بدون اصلاح بی‌فایده است.
     retry: never
@@ -154,7 +164,8 @@ codes:
 
   - code: 11
     name: MalformattedApiKey
-    fa: فرمت روردی ApiKey نادرست است
+    fa: فرمت ورودی ApiKey نادرست است
+    previous_fa: فرمت روردی ApiKey نادرست است
     cause: ساختار کلید غلط است. باید شش رقم شناسه کاربری، خط تیره، و بخش کلید باشد و بخش اول عدد.
     action: فرمت را اصلاح کنید. فاصله یا newline اضافه هم همین خطا را می‌دهد.
     retry: never
@@ -163,8 +174,8 @@ codes:
     in_legacy_docs: true
     confirmed: true
     note: >-
-      «روردی» غلط املایی خود سرویس است، نه اینجا. متن عیناً همان چیزی است
-      که در فیلد Error برمی‌گردد؛ اگر روی متن شرط گذاشته‌اید حواستان باشد.
+      متن ثبت‌شده پیشین «روردی» داشت؛ Swagger جدید «ورودی» منتشر می‌کند.
+      اختلاف در previous_fa نگه داشته شده است؛ پاسخ زنده دوباره سنجیده نشده است.
 
   - code: 12
     name: InvalidSender
@@ -268,7 +279,8 @@ codes:
 
   - code: 100
     name: InternalError
-    fa: خطا داخلی سیستم
+    fa: خطای داخلی سیستم
+    previous_fa: خطا داخلی سیستم
     cause: استثنای مدیریت‌نشده در سرور.
     action: کورکورانه دوباره نفرستید. اول با UserTraceId وضعیت را از StatusByUserTraceId بگیرید. اگر ثبت نشده بود، دوباره بفرستید.
     retry: backoff
