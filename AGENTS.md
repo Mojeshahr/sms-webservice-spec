@@ -12,26 +12,40 @@ lives here is the description itself, for tools and code generators.
 ## What you would use this for
 
 Generating a client, or building the V3 error and status tables into an
-application. `specs/v3/openapi.yaml` has the eleven operations across ten paths;
+application. `specs/v3/openapi.yaml` has thirteen published operations across eleven paths;
 `specs/v3/codes/` has three tables the spec's enums refer to.
-`specs/v4/openapi.yaml` records 26 published production operations across 24
-paths, plus 25 known-working sandbox operations across 23 paths. Its typed
-responses reflect the published Swagger and have not been independently
-verified against live responses. Four operations use their published summary
-as the description because the Swagger has no longer description. Do not infer
-V4 behavior from V3.
+`specs/v4/openapi.yaml` records 26 published operations across 24 paths.
+The former 25 sandbox definitions are preserved in
+`sources/v4/previous-sandbox.json`, explicitly as historical evidence, not a
+current published contract. Never silently discard them or infer their current
+behavior from the production schema. Both specifications record Swagger claims,
+not newly observed live behavior. Four operations in each version use the
+published summary because the longer description is empty.
+
+`sources/` holds exact Swagger captures, provenance hashes and upstream issues.
+`sources/sandbox-servers.json` records maintainer-confirmed sandbox bases:
+V3 `/api/V3SandBox` and V4 `/uapi/v4SandBox`. The V4 Swagger capture still
+contains the obsolete `/uapi/v4/sandbox` address; never restore that as current
+guidance. V4 `SendMultiple` is production-only according to Swagger.
+`scripts/sync_swagger.py <v3|v4> --check` detects drift; omit `--check` only to
+regenerate from a reviewed snapshot. `scripts/validate_swagger.py v3 v4` checks
+coverage, references and examples using PyYAML and jsonschema. Three upstream
+V4 campaign success examples omit a timezone: their exact originals are kept
+under `x-invalid-source-examples`, with hash-bound issues recorded separately.
+Never guess a timezone or weaken a validator to make an example pass.
 
 A version is a folder, not a branch and not a tag. Nothing inside an existing
 version folder is ever moved or renamed.
 
 ## Three behaviours any generated client must encode
 
-These are properties of the service, not of this file, and a generator will not
-infer them:
+These published details matter to generated clients. Treat them as Swagger
+claims; this reconciliation did not independently test service behavior:
 
-**In V3, every response is `200`.** Success is read from the `Success` field,
-never from the HTTP status. A wrong key, an empty account and a malformed body
-all come back `200`.
+**HTTP 200 alone does not imply success.** V3 Swagger publishes `200`, `429`,
+and `default`. Read `Success` when the usual response envelope is present;
+other HTTP errors can have a different shape. These are published claims,
+not live-service tests from this reconciliation.
 
 **In V3, `ErrorCode` means something only on failure.** Until `Success` is
 `false`, reading it is meaningless.
@@ -39,7 +53,10 @@ all come back `200`.
 **In V3, the key travels inside the request** — a query parameter on `GET`, a
 body field on `POST`, never a header. This is why the spec declares no
 `securityScheme`: OpenAPI cannot express a credential that sits in a JSON body.
-The key is a required parameter on every method instead.
+The key is an explicit required query parameter or body property instead.
+Published required and nullable declarations must remain distinct, even when
+the provider’s prose disagrees. `GetToken` exists in V4 and lists templates;
+V3 calls this operation `TokenList`. Neither generates a login token.
 
 ## V3 spellings your code has to match
 
@@ -47,9 +64,10 @@ The sender field in V3 `GetInbox` is named **`Form`, not `From`**. It is
 documented exactly that way so generated code matches the real response. Do not
 correct it.
 
-The V3 user panel shows four template states and separates two kinds of
-rejection, but the API returns `3` for both. `specs/v3/codes/template-status.yaml`
-records what the API returns, not what the panel displays.
+V3 Swagger publishes three template states. Prior panel observations separated
+two kinds of rejection, both recorded as API code `3`; that historical evidence
+is retained in `specs/v3/codes/template-status.yaml` and has not been retested.
+V4 independently publishes four states, including `RejectedPermanently`.
 
 ## Why the V3 code tables live outside the spec
 
@@ -94,8 +112,8 @@ docker run --rm -v "$PWD:/spec" redocly/cli lint specs/v3/openapi.yaml specs/v4/
 ```
 
 Redocly has exactly two rules disabled: `security-defined`, because the key is
-a body field on `POST`; and `operation-4xx-response`, because V3 uses HTTP 200
-for API failures while the public V4 Swagger documents HTTP 429 responses.
+a body field on `POST`; and the existing `operation-4xx-response` exception.
+Both current Swagger documents now publish HTTP 429 responses.
 Treat the V4 status codes as documented claims, not independently verified
 runtime behavior.
 
