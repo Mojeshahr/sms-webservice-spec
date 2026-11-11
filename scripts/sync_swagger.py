@@ -10,12 +10,21 @@ import copy
 import hashlib
 import json
 import pathlib
+import re
 import sys
 
 import yaml
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 REF = "#/components/schemas/"
+V4_TABLE_SCHEMAS = {
+    "error-codes.yaml": "ApiErrorType",
+    "status-codes.yaml": "ApiMessageStatus",
+    "template-status.yaml": "TokenListItemStatus",
+    "campaign-status.yaml": "CampaignProgressStatus",
+    "campaign-filter-status.yaml": "CampaignState",
+    "campaign-recipient-status.yaml": "SentMessageStatus",
+}
 V3_ALIASES = {
     "LegacyApiErrorType": "ErrorCode",
     "LegacySendResponseRecipient": "SentMessage",
@@ -177,7 +186,7 @@ def v3_document(source, provenance):
         "\n\nاین فایل با Swagger رسمی تطبیق داده شده است؛ درخواست‌ها و پاسخ‌های نمونه "
         "از همان سند آمده‌اند و در این مرحله با سرویس زنده آزموده نشده‌اند. "
         "اعلان‌های required و nullable عین قرارداد منتشرشده حفظ شده‌اند؛ "
-        "تعارض متن با اسکیما و نام نامشخص GetToken در گزارش تطبیق ثبت شده است."
+        "تعارض متن با اسکیما در گزارش تطبیق ثبت شده است."
     )
     return {
         "openapi": "3.1.0",
@@ -186,6 +195,7 @@ def v3_document(source, provenance):
         "externalDocs": {"url": "https://www.payam-resan.com/api/V3/", "description": "راهنمای Swagger رسمی نسخه ۳"},
         "x-source": {**provenance, "snapshot": "../../sources/v3/swagger.json", "verification": "published-swagger-only"},
         "x-sandbox-source": {"path": "../../sources/sandbox-servers.json", "verification": sandbox_servers()["verification"]},
+        "x-code-tables": {name: "codes/" + name for name in ("http-status.yaml", "error-codes.yaml", "status-codes.yaml", "template-status.yaml")},
         "servers": [
             {"url": "https://www.payam-resan.com/api/V3", "description": "سرور عملیاتی طبق مسیرهای Swagger"},
             {"url": sandbox_servers()["v3"], "description": "پایه آزمایشی با تأیید نگهدارنده؛ عملیات آن در این مرحله آزموده نشده‌اند"},
@@ -267,7 +277,73 @@ def v4_document(source, provenance):
             "تا روشن شدن قالب زمان، از آن به‌عنوان نمونه معتبر استفاده نکنید."
         )
     document["x-source"]["issues"] = "../../sources/v4/issues.json"
+    document["x-code-tables"] = {name: "codes/" + name for name in ("http-status.yaml", *V4_TABLE_SCHEMAS)}
     return document
+
+
+def code_tables(source, provenance, version):
+    """Extract published HTTP responses and V4 enums; never infer retry policies."""
+    metadata = {
+        "version": int(version[1:]),
+        "sources": {"api": provenance["url"], "captured": provenance["captured"],
+                    "sha256": provenance["sha256"], "verification": "published-swagger-only"},
+    }
+    http = {**copy.deepcopy(metadata), "guidance": [
+        "کد HTTP با کد خطا یا وضعیت تحویل متفاوت است؛ پاسخ 200 به‌تنهایی نشانه موفقیت نیست.",
+        "پاسخ default یک کد عددی HTTP نیست؛ برای خطاهای دیگری است که سند جداگانه نام نبرده است.",
+        "برای پاسخ 429 نام هدر زمان تلاش بعدی و اسکیمای بدنه منتشر نشده است؛ چیزی به آن افزوده نشده است.",
+        "ارجاع‌های اسکیما نسبت به سند مشخص‌شده در schema_document هستند، نه نام‌های مستعار توصیف محلی.",
+    ], "schema_document": provenance["url"], "operations": []}
+    for path, item in source["paths"].items():
+        for method, operation in item.items():
+            http["operations"].append({
+                "method": method.upper(), "path": path,
+                "operation_id": operation["operationId"],
+                "responses": {
+                    str(code): {
+                        "description": response["description"],
+                        "headers": copy.deepcopy(response.get("headers", {})),
+                        "content": {media: {"schema": copy.deepcopy(value.get("schema"))}
+                                    for media, value in response.get("content", {}).items()},
+                    }
+                    for code, response in operation["responses"].items()
+                },
+            })
+    tables = {"http-status.yaml": http}
+    if version != "v4":
+        return tables
+    # ApiErrorType publishes labels in info.description rather than in the enum.
+    info_labels = {(int(code), name): text for code, name, text in re.findall(
+        r"^\|\s*(-?\d+)\s*\|\s*`([^`]+)`\s*\|\s*(.*?)\s*\|\s*$",
+        source["info"]["description"], re.MULTILINE,
+    )}
+    for filename, schema_name in V4_TABLE_SCHEMAS.items():
+        schema = source["components"]["schemas"][schema_name]
+        rows = []
+        for i, code in enumerate(schema["enum"]):
+            name = schema.get("x-enumNames", [None] * len(schema["enum"]))[i]
+            labels = schema.get("x-enumDescriptions")
+            label = labels[i] if labels else info_labels.get((code, name))
+            if label is None:
+                raise ValueError(f"Missing published label for {schema_name} {code}")
+            row = {"code": code, "name": name, "fa": label,
+                   "in_api": True, "confirmed": False}
+            note = "متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است."
+            if filename == "error-codes.yaml":
+                row.update(cause=None, action=None, retry=None)
+                note += " علت تفصیلی، راهکار و سیاست retry منتشر نشده‌اند."
+            elif filename == "status-codes.yaml":
+                row.update(description=None, action=None, disposition=None)
+                note += " راهکار و سیاست توقف استعلام برای هر کد منتشر نشده‌اند؛ از V3 کپی نشده‌اند."
+            elif filename == "template-status.yaml":
+                row["sendable"] = None
+                note += " سیاست sendable به‌صورت یک فیلد مستقل در Swagger منتشر نشده است."
+            if name is None:
+                note += " نام عضو enum منتشر نشده است."
+            row["note"] = note
+            rows.append(row)
+        tables[filename] = {**copy.deepcopy(metadata), "schema": schema_name, "codes": rows}
+    return tables
 
 
 def main():
@@ -277,13 +353,18 @@ def main():
     args = parser.parse_args()
     source, provenance = read_source(args.version)
     document = (v3_document if args.version == "v3" else v4_document)(source, provenance)
-    destination = ROOT / "specs" / args.version / "openapi.yaml"
+    version_dir = ROOT / "specs" / args.version
+    outputs = {version_dir / "openapi.yaml": document}
+    outputs.update({version_dir / "codes" / name: table for name, table in code_tables(source, provenance, args.version).items()})
     if args.check:
-        if yaml.safe_load(destination.read_text()) != document:
-            sys.exit(f"{args.version}: specification differs from the captured Swagger reconciliation")
-        print(f"{args.version}: captured Swagger and specification agree")
+        for destination, expected in outputs.items():
+            if not destination.exists() or yaml.safe_load(destination.read_text()) != expected:
+                sys.exit(f"{destination.relative_to(ROOT)}: differs from the captured Swagger reconciliation")
+        print(f"{args.version}: captured Swagger, specification and code tables agree")
     else:
-        destination.write_text(yaml.dump(document, Dumper=Dumper, allow_unicode=True, sort_keys=False, width=100), encoding="utf-8")
+        for destination, value in outputs.items():
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            destination.write_text(yaml.dump(value, Dumper=Dumper, allow_unicode=True, sort_keys=False, width=100), encoding="utf-8")
 
 
 if __name__ == "__main__":

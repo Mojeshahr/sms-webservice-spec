@@ -4216,3 +4216,11 @@ tags:
   description: صندوق دریافت
 - name: دفترچه تلفن
   description: دفترچه تلفن
+x-code-tables:
+  http-status.yaml: codes/http-status.yaml
+  error-codes.yaml: codes/error-codes.yaml
+  status-codes.yaml: codes/status-codes.yaml
+  template-status.yaml: codes/template-status.yaml
+  campaign-status.yaml: codes/campaign-status.yaml
+  campaign-filter-status.yaml: codes/campaign-filter-status.yaml
+  campaign-recipient-status.yaml: codes/campaign-recipient-status.yaml

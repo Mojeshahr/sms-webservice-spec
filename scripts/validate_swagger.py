@@ -209,6 +209,76 @@ def validate_examples(document, label, known_issues=()):
     return checked, errors
 
 
+def compare_code_tables(source, provenance, document, version):
+    """Independently compare every operation's HTTP rows and all V4 enum rows."""
+    errors = []
+    directory = ROOT / "specs" / version
+    inventory_path = directory / "codes" / "http-status.yaml"
+    if not inventory_path.exists():
+        return [f"{version}: missing per-operation HTTP status table"]
+    inventory = yaml.safe_load(inventory_path.read_text())
+    rows = inventory.get("operations", [])
+    actual = {(row["path"], row["method"].lower()): row for row in rows}
+    published = operations(source)
+    if len(actual) != len(rows) or actual.keys() != published.keys():
+        errors.append(f"{version}: HTTP table has missing, duplicate or extra operations")
+    if inventory.get("schema_document") != provenance["url"]:
+        errors.append(f"{version}: HTTP schema references have the wrong source document")
+    for key in published.keys() & actual.keys():
+        expected = {
+            str(code): {
+                "description": response["description"],
+                "headers": response.get("headers", {}),
+                "content": {media: {"schema": content.get("schema")}
+                            for media, content in response.get("content", {}).items()},
+            }
+            for code, response in published[key]["responses"].items()
+        }
+        if actual[key]["responses"] != expected:
+            errors.append(f"{version}: {key}: HTTP responses differ from Swagger")
+        if actual[key]["operation_id"] != published[key]["operationId"]:
+            errors.append(f"{version}: {key}: HTTP operation ID differs from Swagger")
+    if version == "v4":
+        labels = {(int(code), name): text for code, name, text in re.findall(
+            r"^\|\s*(-?\d+)\s*\|\s*`([^`]+)`\s*\|\s*(.*?)\s*\|\s*$",
+            source["info"]["description"], re.MULTILINE,
+        )}
+        covered = set()
+        for name, relative in document.get("x-code-tables", {}).items():
+            if name == "http-status.yaml":
+                continue
+            path = directory / relative
+            if not path.exists():
+                errors.append(f"{version}: missing code table {relative}")
+                continue
+            table = yaml.safe_load(path.read_text())
+            schema_name = table.get("schema")
+            schema = source["components"]["schemas"].get(schema_name, {})
+            covered.add(schema_name)
+            enum = schema.get("enum", [])
+            names = schema.get("x-enumNames", [None] * len(enum))
+            descriptions = schema.get("x-enumDescriptions", [labels.get((code, member)) for code, member in zip(enum, names)])
+            expected = {code: (member, description) for code, member, description in zip(enum, names, descriptions)}
+            rows = table.get("codes", [])
+            actual = {row["code"]: (row.get("name"), row.get("fa")) for row in rows}
+            if len(actual) != len(rows) or actual != expected:
+                errors.append(f"{version}: {relative}: codes, names or labels differ from Swagger")
+            if table.get("sources", {}).get("sha256") != provenance["sha256"]:
+                errors.append(f"{version}: {relative}: wrong source hash")
+            for row in rows:
+                if row.get("confirmed") is not False:
+                    errors.append(f"{version}: {relative}: Swagger-only row claims independent confirmation")
+                for policy in ("retry", "disposition", "sendable"):
+                    if row.get(policy) is not None:
+                        errors.append(f"{version}: {relative}: unpublished {policy} requires separate evidence")
+        expected_schemas = {name for name, schema in source["components"]["schemas"].items() if "enum" in schema}
+        if covered != expected_schemas:
+            errors.append(f"{version}: enum tables do not cover every published enum")
+        print(f"{version}: all {len(covered)} published enum tables checked")
+    print(f"{version}: HTTP responses checked for all {len(published)} operations")
+    return errors
+
+
 def check_version(version):
     source, provenance = read_source(version)
     document = yaml.safe_load((ROOT / "specs" / version / "openapi.yaml").read_text())
@@ -219,6 +289,7 @@ def check_version(version):
     if expected != actual:
         errors.append(f"{version}: missing={sorted(expected - actual)}, extra={sorted(actual - expected)}")
     errors.extend(compare_contracts(convert_nullable(source), document, prefix, version))
+    errors.extend(compare_code_tables(source, provenance, document, version))
     issues_path = ROOT / "sources" / version / "issues.json"
     issues = json.loads(issues_path.read_text())["invalid_examples"] if issues_path.exists() else []
     source_count, source_errors = validate_examples(convert_nullable(source), version + " source", issues)

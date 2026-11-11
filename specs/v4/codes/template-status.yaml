@@ -1,0 +1,40 @@
+version: 4
+sources:
+  api: https://www.payam-resan.com/uapi/v4/swagger.json
+  captured: '2026-11-11'
+  sha256: 3406d26a3258370a7034ebdb8fa42f8b775938ecd2e0785991b3f8bf9e5ab968
+  verification: published-swagger-only
+schema: TokenListItemStatus
+codes:
+- code: 1
+  name: Pending
+  fa: در انتظار تأیید
+  in_api: true
+  confirmed: false
+  sendable: null
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. سیاست sendable
+    به‌صورت یک فیلد مستقل در Swagger منتشر نشده است.
+- code: 2
+  name: Approved
+  fa: تأییدشده
+  in_api: true
+  confirmed: false
+  sendable: null
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. سیاست sendable
+    به‌صورت یک فیلد مستقل در Swagger منتشر نشده است.
+- code: 3
+  name: Rejected
+  fa: ردشده
+  in_api: true
+  confirmed: false
+  sendable: null
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. سیاست sendable
+    به‌صورت یک فیلد مستقل در Swagger منتشر نشده است.
+- code: 4
+  name: RejectedPermanently
+  fa: رد قطعی
+  in_api: true
+  confirmed: false
+  sendable: null
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. سیاست sendable
+    به‌صورت یک فیلد مستقل در Swagger منتشر نشده است.

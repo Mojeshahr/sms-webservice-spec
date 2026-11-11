@@ -1,0 +1,250 @@
+version: 4
+sources:
+  api: https://www.payam-resan.com/uapi/v4/swagger.json
+  captured: "2026-11-11"
+  sha256: 3406d26a3258370a7034ebdb8fa42f8b775938ecd2e0785991b3f8bf9e5ab968
+  verification: published-swagger-only
+schema: ApiMessageStatus
+codes:
+  - code: 0
+    name: InQueue
+    fa: در صف سامانه
+    in_api: true
+    confirmed: false
+    description: null
+    action: null
+    disposition: null
+    note:
+      متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. راهکار و سیاست
+      توقف استعلام برای هر کد منتشر نشده‌اند؛ از V3 کپی نشده‌اند.
+  - code: 1
+    name: SentNoStatus
+    fa: ارسال شده، بدون وضعیت
+    in_api: true
+    confirmed: false
+    description: null
+    action: null
+    disposition: null
+    note:
+      متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. راهکار و سیاست
+      توقف استعلام برای هر کد منتشر نشده‌اند؛ از V3 کپی نشده‌اند.
+  - code: 2
+    name: SentInQueue
+    fa: ارسال شده، در صف
+    in_api: true
+    confirmed: false
+    description: null
+    action: null
+    disposition: null
+    note:
+      متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. راهکار و سیاست
+      توقف استعلام برای هر کد منتشر نشده‌اند؛ از V3 کپی نشده‌اند.
+  - code: 3
+    name: SentPendingToDeliver
+    fa: در انتظار تحویل گوشی
+    in_api: true
+    confirmed: false
+    description: null
+    action: null
+    disposition: null
+    note:
+      متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. راهکار و سیاست
+      توقف استعلام برای هر کد منتشر نشده‌اند؛ از V3 کپی نشده‌اند.
+  - code: 4
+    name: Delivered
+    fa: تحویل به گوشی
+    in_api: true
+    confirmed: false
+    description: null
+    action: null
+    disposition: null
+    note:
+      متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. راهکار و سیاست
+      توقف استعلام برای هر کد منتشر نشده‌اند؛ از V3 کپی نشده‌اند.
+  - code: 5
+    name: SentFailed
+    fa: نرسیده به گوشی
+    in_api: true
+    confirmed: false
+    description: null
+    action: null
+    disposition: null
+    note:
+      متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. راهکار و سیاست
+      توقف استعلام برای هر کد منتشر نشده‌اند؛ از V3 کپی نشده‌اند.
+  - code: 6
+    name: Failed
+    fa: خطا در ارسال
+    in_api: true
+    confirmed: false
+    description: null
+    action: null
+    disposition: null
+    note:
+      متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. راهکار و سیاست
+      توقف استعلام برای هر کد منتشر نشده‌اند؛ از V3 کپی نشده‌اند.
+  - code: 7
+    name: BlackList
+    fa: گیرنده مسدود
+    in_api: true
+    confirmed: false
+    description: null
+    action: null
+    disposition: null
+    note:
+      متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. راهکار و سیاست
+      توقف استعلام برای هر کد منتشر نشده‌اند؛ از V3 کپی نشده‌اند.
+  - code: 8
+    name: NotFound
+    fa: شناسه پیدا نشد
+    in_api: true
+    confirmed: false
+    description: null
+    action: null
+    disposition: null
+    note:
+      متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. راهکار و سیاست
+      توقف استعلام برای هر کد منتشر نشده‌اند؛ از V3 کپی نشده‌اند.
+  - code: 9
+    name: Expired
+    fa: منقضی
+    in_api: true
+    confirmed: false
+    description: null
+    action: null
+    disposition: null
+    note:
+      متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. راهکار و سیاست
+      توقف استعلام برای هر کد منتشر نشده‌اند؛ از V3 کپی نشده‌اند.
+  - code: 10
+    name: Unknown
+    fa: نامشخص
+    in_api: true
+    confirmed: false
+    description: null
+    action: null
+    disposition: null
+    note:
+      متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. راهکار و سیاست
+      توقف استعلام برای هر کد منتشر نشده‌اند؛ از V3 کپی نشده‌اند.
+  - code: 11
+    name: DeactiveDestination
+    fa: دریافت کننده نامعتبر
+    in_api: true
+    confirmed: false
+    description: null
+    action: null
+    disposition: null
+    note:
+      متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. راهکار و سیاست
+      توقف استعلام برای هر کد منتشر نشده‌اند؛ از V3 کپی نشده‌اند.
+  - code: 12
+    name: UserBlackList
+    fa: گیرنده در شماره‌های مسدود اکانت شماست
+    in_api: true
+    confirmed: false
+    description: null
+    action: null
+    disposition: null
+    note:
+      متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. راهکار و سیاست
+      توقف استعلام برای هر کد منتشر نشده‌اند؛ از V3 کپی نشده‌اند.
+  - code: 13
+    name: InvalidDestinationForOperator
+    fa: گیرنده نامعتبر
+    in_api: true
+    confirmed: false
+    description: null
+    action: null
+    disposition: null
+    note:
+      متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. راهکار و سیاست
+      توقف استعلام برای هر کد منتشر نشده‌اند؛ از V3 کپی نشده‌اند.
+  - code: 14
+    name: HasBlockWord
+    fa: متن بلاک
+    in_api: true
+    confirmed: false
+    description: null
+    action: null
+    disposition: null
+    note:
+      متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. راهکار و سیاست
+      توقف استعلام برای هر کد منتشر نشده‌اند؛ از V3 کپی نشده‌اند.
+  - code: 15
+    name: UnsubscribedByRecepient
+    fa: لغو دریافت توسط گیرنده
+    in_api: true
+    confirmed: false
+    description: null
+    action: null
+    disposition: null
+    note:
+      متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. راهکار و سیاست
+      توقف استعلام برای هر کد منتشر نشده‌اند؛ از V3 کپی نشده‌اند.
+  - code: 16
+    name: BlockedByRequester
+    fa: بلاک شده
+    in_api: true
+    confirmed: false
+    description: null
+    action: null
+    disposition: null
+    note:
+      متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. راهکار و سیاست
+      توقف استعلام برای هر کد منتشر نشده‌اند؛ از V3 کپی نشده‌اند.
+  - code: 17
+    name: DailyLimitReached
+    fa: اتمام سقف ارسال روزانه
+    in_api: true
+    confirmed: false
+    description: null
+    action: null
+    disposition: null
+    note:
+      متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. راهکار و سیاست
+      توقف استعلام برای هر کد منتشر نشده‌اند؛ از V3 کپی نشده‌اند.
+  - code: 18
+    name: ApiLimitReached
+    fa: اتمام سقف ارسال Api
+    in_api: true
+    confirmed: false
+    description: null
+    action: null
+    disposition: null
+    note:
+      متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. راهکار و سیاست
+      توقف استعلام برای هر کد منتشر نشده‌اند؛ از V3 کپی نشده‌اند.
+  - code: 19
+    name: NightlyLimitReached
+    fa: اتمام سقف ارسال شبانه
+    in_api: true
+    confirmed: false
+    description: null
+    action: null
+    disposition: null
+    note:
+      متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. راهکار و سیاست
+      توقف استعلام برای هر کد منتشر نشده‌اند؛ از V3 کپی نشده‌اند.
+  - code: 20
+    name: ShareLineLimitReached
+    fa: اتمام سقف خط اشتراکی
+    in_api: true
+    confirmed: false
+    description: null
+    action: null
+    disposition: null
+    note:
+      متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. راهکار و سیاست
+      توقف استعلام برای هر کد منتشر نشده‌اند؛ از V3 کپی نشده‌اند.
+  - code: 21
+    name: AccountNotAuthenticated
+    fa: حساب احراز نشده
+    in_api: true
+    confirmed: false
+    description: null
+    action: null
+    disposition: null
+    note:
+      متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. راهکار و سیاست
+      توقف استعلام برای هر کد منتشر نشده‌اند؛ از V3 کپی نشده‌اند.

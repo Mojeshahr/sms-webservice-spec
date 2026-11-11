@@ -1,0 +1,248 @@
+version: 4
+sources:
+  api: https://www.payam-resan.com/uapi/v4/swagger.json
+  captured: '2026-11-11'
+  sha256: 3406d26a3258370a7034ebdb8fa42f8b775938ecd2e0785991b3f8bf9e5ab968
+  verification: published-swagger-only
+schema: ApiErrorType
+codes:
+- code: 1
+  name: InvalidApiKey
+  fa: 1 — ApiKey نادرست است
+  in_api: true
+  confirmed: false
+  cause: null
+  action: null
+  retry: null
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. علت تفصیلی، راهکار
+    و سیاست retry منتشر نشده‌اند.
+- code: 2
+  name: ApiIsNotActive
+  fa: 2 — ارسال از وبسرویس برای این کاربر فعال نشده است
+  in_api: true
+  confirmed: false
+  cause: null
+  action: null
+  retry: null
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. علت تفصیلی، راهکار
+    و سیاست retry منتشر نشده‌اند.
+- code: 3
+  name: UserIsNotActive
+  fa: 3 — کاربر فعال نیست
+  in_api: true
+  confirmed: false
+  cause: null
+  action: null
+  retry: null
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. علت تفصیلی، راهکار
+    و سیاست retry منتشر نشده‌اند.
+- code: 4
+  name: ApiTemproryDeactive
+  fa: 4 — ارسال از طریق Api موقتا غیر فعال است
+  in_api: true
+  confirmed: false
+  cause: null
+  action: null
+  retry: null
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. علت تفصیلی، راهکار
+    و سیاست retry منتشر نشده‌اند.
+- code: 5
+  name: MethodIsDeactive
+  fa: 5 — ارسال از طریق این متد موقتا غیر فعال است
+  in_api: true
+  confirmed: false
+  cause: null
+  action: null
+  retry: null
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. علت تفصیلی، راهکار
+    و سیاست retry منتشر نشده‌اند.
+- code: 6
+  name: NoAuthntication
+  fa: 6 — احراز هویت حساب انجام نشده است
+  in_api: true
+  confirmed: false
+  cause: null
+  action: null
+  retry: null
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. علت تفصیلی، راهکار
+    و سیاست retry منتشر نشده‌اند.
+- code: 8
+  name: AccountInfoIsIncomplete
+  fa: 8 — اطلاعات هویتی کاربر به صورت کامل درج نشده است
+  in_api: true
+  confirmed: false
+  cause: null
+  action: null
+  retry: null
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. علت تفصیلی، راهکار
+    و سیاست retry منتشر نشده‌اند.
+- code: 9
+  name: InvalidParameters
+  fa: 9 — مقادیر ورودی نادرست است
+  in_api: true
+  confirmed: false
+  cause: null
+  action: null
+  retry: null
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. علت تفصیلی، راهکار
+    و سیاست retry منتشر نشده‌اند.
+- code: 10
+  name: IpIsNotValid
+  fa: 10 — آی پی درخواست دهنده در لیست آی پی های معتبر نیست
+  in_api: true
+  confirmed: false
+  cause: null
+  action: null
+  retry: null
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. علت تفصیلی، راهکار
+    و سیاست retry منتشر نشده‌اند.
+- code: 11
+  name: MalformattedApiKey
+  fa: 11 — فرمت ورودی ApiKey نادرست است
+  in_api: true
+  confirmed: false
+  cause: null
+  action: null
+  retry: null
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. علت تفصیلی، راهکار
+    و سیاست retry منتشر نشده‌اند.
+- code: 12
+  name: InvalidSender
+  fa: 12 — شماره ارسال کننده نادرست است
+  in_api: true
+  confirmed: false
+  cause: null
+  action: null
+  retry: null
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. علت تفصیلی، راهکار
+    و سیاست retry منتشر نشده‌اند.
+- code: 13
+  name: InvalidDestination
+  fa: 13 — شماره دریافت کننده باید با 9 یا 989 شروع شود
+  in_api: true
+  confirmed: false
+  cause: null
+  action: null
+  retry: null
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. علت تفصیلی، راهکار
+    و سیاست retry منتشر نشده‌اند.
+- code: 14
+  name: UnauthorizedMethod
+  fa: 14 — شما به این متد دسترسی ندارید
+  in_api: true
+  confirmed: false
+  cause: null
+  action: null
+  retry: null
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. علت تفصیلی، راهکار
+    و سیاست retry منتشر نشده‌اند.
+- code: 15
+  name: DailyLimitReached
+  fa: 15 — سقف ارسال روزانه به پایان رسید
+  in_api: true
+  confirmed: false
+  cause: null
+  action: null
+  retry: null
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. علت تفصیلی، راهکار
+    و سیاست retry منتشر نشده‌اند.
+- code: 16
+  name: ApiLimitReached
+  fa: 16 — سقف ارسال Api به پایان رسید
+  in_api: true
+  confirmed: false
+  cause: null
+  action: null
+  retry: null
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. علت تفصیلی، راهکار
+    و سیاست retry منتشر نشده‌اند.
+- code: 17
+  name: NightlyLimitReached
+  fa: 17 — سقف ارسال شبانه به پایان رسید
+  in_api: true
+  confirmed: false
+  cause: null
+  action: null
+  retry: null
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. علت تفصیلی، راهکار
+    و سیاست retry منتشر نشده‌اند.
+- code: 18
+  name: ShareLineLimitReached
+  fa: 18 — سقف ارسال خط اشتراکی به پایان رسید
+  in_api: true
+  confirmed: false
+  cause: null
+  action: null
+  retry: null
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. علت تفصیلی، راهکار
+    و سیاست retry منتشر نشده‌اند.
+- code: 19
+  name: CreditIsLow
+  fa: 19 — اعتبار حساب کافی نیست
+  in_api: true
+  confirmed: false
+  cause: null
+  action: null
+  retry: null
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. علت تفصیلی، راهکار
+    و سیاست retry منتشر نشده‌اند.
+- code: 20
+  name: OtpApiLimitReached
+  fa: 20 — سقف ارسال OTP وب‌سرویس به پایان رسید
+  in_api: true
+  confirmed: false
+  cause: null
+  action: null
+  retry: null
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. علت تفصیلی، راهکار
+    و سیاست retry منتشر نشده‌اند.
+- code: 21
+  name: DailyPartLimitReached
+  fa: 21 — سقف تعداد پارت ارسالی روزانه به پایان رسید
+  in_api: true
+  confirmed: false
+  cause: null
+  action: null
+  retry: null
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. علت تفصیلی، راهکار
+    و سیاست retry منتشر نشده‌اند.
+- code: 22
+  name: DailyCreditLimitReached
+  fa: 22 — سقف اعتبار مصرفی روزانه به پایان رسید
+  in_api: true
+  confirmed: false
+  cause: null
+  action: null
+  retry: null
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. علت تفصیلی، راهکار
+    و سیاست retry منتشر نشده‌اند.
+- code: 23
+  name: InvalidSendTime
+  fa: 23 — زمان ارسال زمان‌بندی‌شده نامعتبر است (خارج از بازه مجاز)
+  in_api: true
+  confirmed: false
+  cause: null
+  action: null
+  retry: null
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. علت تفصیلی، راهکار
+    و سیاست retry منتشر نشده‌اند.
+- code: 24
+  name: RecipientVoiceLimitReached
+  fa: 24 — سقف تماس صوتی کد یکبارمصرف برای این شماره پر شده است (فاصله‌ی دو تماس یا سقف روزانه)
+  in_api: true
+  confirmed: false
+  cause: null
+  action: null
+  retry: null
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. علت تفصیلی، راهکار
+    و سیاست retry منتشر نشده‌اند.
+- code: 100
+  name: InternalError
+  fa: 100 — خطا داخلی سیستم
+  in_api: true
+  confirmed: false
+  cause: null
+  action: null
+  retry: null
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. علت تفصیلی، راهکار
+    و سیاست retry منتشر نشده‌اند.

@@ -91,7 +91,7 @@ info:
 
 
 
-    این فایل با Swagger رسمی تطبیق داده شده است؛ درخواست‌ها و پاسخ‌های نمونه از همان سند آمده‌اند و در این مرحله با سرویس زنده آزموده نشده‌اند. اعلان‌های required و nullable عین قرارداد منتشرشده حفظ شده‌اند؛ تعارض متن با اسکیما و نام نامشخص GetToken در گزارش تطبیق ثبت شده است.
+    این فایل با Swagger رسمی تطبیق داده شده است؛ درخواست‌ها و پاسخ‌های نمونه از همان سند آمده‌اند و در این مرحله با سرویس زنده آزموده نشده‌اند. اعلان‌های required و nullable عین قرارداد منتشرشده حفظ شده‌اند؛ تعارض متن با اسکیما در گزارش تطبیق ثبت شده است.
   version: '3'
   contact:
     name: پشتیبانی پنل پیامکی پیام رسان
@@ -113,6 +113,11 @@ x-source:
 x-sandbox-source:
   path: ../../sources/sandbox-servers.json
   verification: Base URLs confirmed by the maintainer; no endpoint behavior was tested.
+x-code-tables:
+  http-status.yaml: codes/http-status.yaml
+  error-codes.yaml: codes/error-codes.yaml
+  status-codes.yaml: codes/status-codes.yaml
+  template-status.yaml: codes/template-status.yaml
 servers:
 - url: https://www.payam-resan.com/api/V3
   description: سرور عملیاتی طبق مسیرهای Swagger

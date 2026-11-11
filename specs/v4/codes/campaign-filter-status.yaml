@@ -1,0 +1,26 @@
+version: 4
+sources:
+  api: https://www.payam-resan.com/uapi/v4/swagger.json
+  captured: '2026-11-11'
+  sha256: 3406d26a3258370a7034ebdb8fa42f8b775938ecd2e0785991b3f8bf9e5ab968
+  verification: published-swagger-only
+schema: CampaignState
+codes:
+- code: 1
+  name: InProgress
+  fa: در جریان
+  in_api: true
+  confirmed: false
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است.
+- code: 2
+  name: NeedsAction
+  fa: نیازمند بررسی
+  in_api: true
+  confirmed: false
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است.
+- code: 3
+  name: Completed
+  fa: پایان‌یافته
+  in_api: true
+  confirmed: false
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است.

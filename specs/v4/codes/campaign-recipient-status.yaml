@@ -1,0 +1,232 @@
+version: 4
+sources:
+  api: https://www.payam-resan.com/uapi/v4/swagger.json
+  captured: '2026-11-11'
+  sha256: 3406d26a3258370a7034ebdb8fa42f8b775938ecd2e0785991b3f8bf9e5ab968
+  verification: published-swagger-only
+schema: SentMessageStatus
+codes:
+- code: 1
+  name: null
+  fa: در صف ارسال
+  in_api: true
+  confirmed: false
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. نام عضو enum منتشر
+    نشده است.
+- code: 10
+  name: null
+  fa: منقضی شد
+  in_api: true
+  confirmed: false
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. نام عضو enum منتشر
+    نشده است.
+- code: 11
+  name: null
+  fa: لغو دریافت
+  in_api: true
+  confirmed: false
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. نام عضو enum منتشر
+    نشده است.
+- code: 12
+  name: null
+  fa: شماره مسدود
+  in_api: true
+  confirmed: false
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. نام عضو enum منتشر
+    نشده است.
+- code: 13
+  name: null
+  fa: رد شد
+  in_api: true
+  confirmed: false
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. نام عضو enum منتشر
+    نشده است.
+- code: 14
+  name: null
+  fa: سقف ارسال
+  in_api: true
+  confirmed: false
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. نام عضو enum منتشر
+    نشده است.
+- code: 15
+  name: null
+  fa: اعتبار ناکافی
+  in_api: true
+  confirmed: false
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. نام عضو enum منتشر
+    نشده است.
+- code: 16
+  name: null
+  fa: ارسال نشد — خطای قیمت‌گذاری
+  in_api: true
+  confirmed: false
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. نام عضو enum منتشر
+    نشده است.
+- code: 17
+  name: null
+  fa: اعتبار نماینده ناکافی
+  in_api: true
+  confirmed: false
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. نام عضو enum منتشر
+    نشده است.
+- code: 18
+  name: null
+  fa: در انتظار بررسی
+  in_api: true
+  confirmed: false
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. نام عضو enum منتشر
+    نشده است.
+- code: 19
+  name: null
+  fa: در انتظار بررسی
+  in_api: true
+  confirmed: false
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. نام عضو enum منتشر
+    نشده است.
+- code: 20
+  name: null
+  fa: احراز هویت نشده
+  in_api: true
+  confirmed: false
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. نام عضو enum منتشر
+    نشده است.
+- code: 21
+  name: null
+  fa: ارسال نشد
+  in_api: true
+  confirmed: false
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. نام عضو enum منتشر
+    نشده است.
+- code: 22
+  name: null
+  fa: حساب مسدود
+  in_api: true
+  confirmed: false
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. نام عضو enum منتشر
+    نشده است.
+- code: 23
+  name: null
+  fa: خط غیرمجاز
+  in_api: true
+  confirmed: false
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. نام عضو enum منتشر
+    نشده است.
+- code: 24
+  name: null
+  fa: کاربر مسدود
+  in_api: true
+  confirmed: false
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. نام عضو enum منتشر
+    نشده است.
+- code: 25
+  name: null
+  fa: خارج از ساعت ارسال
+  in_api: true
+  confirmed: false
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. نام عضو enum منتشر
+    نشده است.
+- code: 26
+  name: null
+  fa: حساب نمایشی
+  in_api: true
+  confirmed: false
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. نام عضو enum منتشر
+    نشده است.
+- code: 27
+  name: null
+  fa: شماره نامعتبر
+  in_api: true
+  confirmed: false
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. نام عضو enum منتشر
+    نشده است.
+- code: 28
+  name: null
+  fa: حساب فعال نشده
+  in_api: true
+  confirmed: false
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. نام عضو enum منتشر
+    نشده است.
+- code: 29
+  name: null
+  fa: ارسال تکراری
+  in_api: true
+  confirmed: false
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. نام عضو enum منتشر
+    نشده است.
+- code: 30
+  name: null
+  fa: طول متن بیش از حد مجاز
+  in_api: true
+  confirmed: false
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. نام عضو enum منتشر
+    نشده است.
+- code: 100
+  name: null
+  fa: گیرنده مسدود
+  in_api: true
+  confirmed: false
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. نام عضو enum منتشر
+    نشده است.
+- code: 101
+  name: null
+  fa: متن رد شد
+  in_api: true
+  confirmed: false
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. نام عضو enum منتشر
+    نشده است.
+- code: 102
+  name: null
+  fa: لغو دریافت نزد اپراتور
+  in_api: true
+  confirmed: false
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. نام عضو enum منتشر
+    نشده است.
+- code: 103
+  name: null
+  fa: خط غیرفعال نزد اپراتور
+  in_api: true
+  confirmed: false
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. نام عضو enum منتشر
+    نشده است.
+- code: 104
+  name: null
+  fa: لینک برای این خط مجاز نیست
+  in_api: true
+  confirmed: false
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. نام عضو enum منتشر
+    نشده است.
+- code: 150
+  name: null
+  fa: رسیده به مخابرات
+  in_api: true
+  confirmed: false
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. نام عضو enum منتشر
+    نشده است.
+- code: 152
+  name: null
+  fa: تحویل شد
+  in_api: true
+  confirmed: false
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. نام عضو enum منتشر
+    نشده است.
+- code: 154
+  name: null
+  fa: تحویل نشد
+  in_api: true
+  confirmed: false
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. نام عضو enum منتشر
+    نشده است.
+- code: 155
+  name: null
+  fa: خطای اپراتور
+  in_api: true
+  confirmed: false
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. نام عضو enum منتشر
+    نشده است.
+- code: 156
+  name: null
+  fa: نامشخص
+  in_api: true
+  confirmed: false
+  note: متن از Swagger رسمی استخراج شده است؛ رفتار سرویس زنده مستقلاً سنجیده نشده است. نام عضو enum منتشر
+    نشده است.
