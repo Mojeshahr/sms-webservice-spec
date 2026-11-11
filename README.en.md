@@ -39,14 +39,17 @@ specs/
 │   └── codes/
 │       ├── error-codes.yaml      the ErrorCode values
 │       ├── status-codes.yaml     the StatusCode values
-│       └── template-status.yaml  the template approval states
+│       ├── template-status.yaml  the template approval states
+│       └── http-status.yaml      HTTP responses for every V3 operation
 └── v4/
-    └── openapi.yaml              the published V4 operations and models
+    ├── openapi.yaml              the published V4 operations and models
+    └── codes/                   HTTP responses and all six status/error enums
 sources/                         Swagger snapshots, hashes and upstream issues
 scripts/
 ├── validate.py                   structure and code-table consistency checks
 ├── sync_swagger.py               reproducible reconciliation from snapshots
-└── validate_swagger.py           operation coverage and schema/example checks
+├── validate_swagger.py           operation coverage and schema/example checks
+└── validate_readmes.py           Persian first-word checks on every README line
 ```
 
 A version is a folder, not a branch and not a tag. Older versions of the service
@@ -96,8 +99,9 @@ Three published V3 declarations that shape an integration:
 
 V3 contains 13 published operations across 11 paths, including GET and POST
 `SendTokenSingleConcatParam`. An optional `source-app` header attributes calls
-to an application; it is not a credential. `GetToken` is absent from the
-published V3 document and has not been invented as an alias.
+to an application; it is not a credential. `POST /api/V3/TokenList` accepts
+a JSON body containing `ApiKey` and lists templates with `Key`, `TextTemplate`,
+`VoiceTemplate`, and `Status` fields.
 
 All three V3 declarations are described in full in the `info` section of
 [`openapi.yaml`](specs/v3/openapi.yaml).
@@ -113,13 +117,21 @@ practically unusable.
 So the V3 numbers stay in the spec, the text lives in `specs/v3/codes/`, and
 [`scripts/validate.py`](scripts/validate.py) fails if the two drift apart.
 
-## V3 code-table coverage
+## V3 and V4 code-table coverage
 
 | Table | What it holds |
 |---|---|
 | [`error-codes.yaml`](specs/v3/codes/error-codes.yaml) | 20 error codes, each with a cause, a remedy and a `retry` class |
 | [`status-codes.yaml`](specs/v3/codes/status-codes.yaml) | 22 message states, `0` to `21`, each with a `disposition` |
 | [`template-status.yaml`](specs/v3/codes/template-status.yaml) | 3 template approval states |
+| [V3 HTTP responses](specs/v3/codes/http-status.yaml) | Per-operation responses for all 13 operations |
+| [V4 HTTP responses](specs/v4/codes/http-status.yaml) | Per-operation responses for all 26 operations: `200`, `429`, `default` |
+| [V4 error codes](specs/v4/codes/error-codes.yaml) | 24 published error codes and labels |
+| [V4 delivery statuses](specs/v4/codes/status-codes.yaml) | 22 message delivery statuses, 0–21 |
+| [V4 template states](specs/v4/codes/template-status.yaml) | 4 states, including permanently rejected (4) |
+| [V4 campaign progress](specs/v4/codes/campaign-status.yaml) | 6 progress states, 0–5 |
+| [V4 campaign filters](specs/v4/codes/campaign-filter-status.yaml) | 3 filter values, 1–3 |
+| [V4 campaign recipient statuses](specs/v4/codes/campaign-recipient-status.yaml) | 32 statuses, separate from message delivery-query codes |
 
 The table text follows the captured Swagger. Supplementary guidance and prior
 provider observations retain their historical provenance; they were not
@@ -128,6 +140,13 @@ retested against the service during this reconciliation.
 The `retry` class says whether repeating a request can help, and `disposition`
 says when a status polling loop should stop. Both exist so that a program can
 decide without guessing.
+
+HTTP status, API error codes and delivery statuses are different namespaces.
+`default` is not a numeric HTTP status. Swagger does not name the HTTP 429
+retry header or provide its body schema. Unpublished V4 retry, polling and
+sendability policies remain `null` with notes; they are not copied from V3.
+Swagger-only rows remain unconfirmed by independent service observation and
+produce explicit validation warnings.
 
 ## Two things your code has to handle
 
@@ -163,6 +182,7 @@ Check source agreement and every explicit example (PyYAML and jsonschema):
 python3 scripts/sync_swagger.py v3 --check
 python3 scripts/sync_swagger.py v4 --check
 python3 scripts/validate_swagger.py v3 v4
+python3 scripts/validate_readmes.py
 ```
 
 Three V4 campaign success examples have invalid timezone-free `date-time`

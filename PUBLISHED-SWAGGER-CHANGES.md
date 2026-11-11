@@ -87,19 +87,23 @@ invented. Escaping a literal semicolon inside a template value, maximum
 parameter length/count, and the handling of missing/extra values are not
 specified.
 
-### GetToken: unresolved name, not an undocumented alias
+### TokenList: published V3 template-list contract
 
-There is **no `GetToken` operation, path, operation ID, or schema** in the
-complete downloaded V3 document. There was none in the previous repository
-specification either. Consequently, endpoint, HTTP method, request shape,
-authentication, response, lifetime/refresh behavior, and error changes for a
-method with that exact name cannot be established. No endpoint was invented,
-no unrelated method was renamed, and no JWT/login-token behavior was assumed.
-Clarification has been requested from the maintainer.
+V3 publishes `POST /api/V3/TokenList` (`LegacyV3_TokenList`). It lists account
+templates and their approval status. Its required JSON body contains the
+required, nullable `ApiKey` property. The key needs `Send` permission and the
+account must have OTP access enabled. The optional `source-app` header is
+a string of at most 100 characters, not a credential.
 
-For comparison, the actually published `TokenList` operation retains its POST
-path, API-key body, and `Key`, `TextTemplate`, `VoiceTemplate`, `Status` result
-fields. Its updated documentation now includes:
+The JSON response uses `Success`, `ErrorCode`, `Error` and nullable `Result`.
+Each result item has nullable `Key`, `TextTemplate`, `VoiceTemplate`, and a
+`Status` enum: 1 `Pending`, 2 `Approved`, 3 `Rejected`. The published response
+properties are not declared required; nullable and optional remain distinct.
+HTTP declarations are `200`, `429` and `default`; HTTP 200 still requires
+checking `Success`. The latter two have no published body schema, and the
+429 description refers to a retry header without naming it.
+
+The updated documentation includes:
 
 - the new production hostname, `source-app`, HTTP 429 and `default`;
 - explicit nullable API key (still required), nullable `Key` and `TextTemplate`,
@@ -111,7 +115,6 @@ fields. Its updated documentation now includes:
 - removal of the old unverified-current claims that TokenList is exempt from
   credit checks or that this host's sandbox returns a particular mock list.
 
-These are `TokenList` changes; they are not asserted to be `GetToken` changes.
 `SendTokenSingle` also retains its GET/POST routes and `p1`–`p10` input names,
 while adopting the common response/header/schema changes. Template-key
 case-insensitivity and template-to-sender selection details from the previous
@@ -271,9 +274,9 @@ machine-enforced constraints.
 
 V4 actually publishes `POST /uapi/v4/GetToken` (`V4_GetToken`). Its purpose is
 **template listing**, not API-key creation, JWT issuance or login. In V3 the
-corresponding published operation is `POST /api/V3/TokenList`. The maintainer's
-reference to a V3 `GetToken` therefore remains a naming ambiguity, but the
-V4 operation is fully covered without inventing a V3 alias.
+corresponding published operation is `POST /api/V3/TokenList`. These are
+independently specified contracts; their request and response structures
+must not be interchanged.
 
 | Aspect | V3 TokenList | V4 GetToken |
 | --- | --- | --- |
@@ -405,8 +408,6 @@ No extra difference in credential acquisition was invented.
 
 ## Remaining ambiguities
 
-- A V3 method named GetToken cannot be reconciled without another authoritative
-  source or a correction of the intended name; V4 GetToken is documented.
 - Swagger prose calls template keys, group names and phonebook mobiles mandatory,
   while several corresponding fields are absent from required lists. V3 also
   declares a required API key nullable. Formal schema and prose are both
@@ -482,6 +483,104 @@ New:
 - `scripts/sync_swagger.py`: offline reproducible reconciliation and drift checks.
 - `scripts/validate_swagger.py`: coverage, references, schemas and explicit examples.
 
-No files inside existing version directories were moved or renamed. No commits,
-tags, branches, pull requests, pushes, history rewrites, permission changes,
-author-identity changes or assistant attribution were created.
+At the initial reconciliation stage, no files inside existing version directories
+were moved or renamed, and no commits or pushes had been made. The six subsequent
+commits were individually authorized and pushed separately. No history rewrite,
+permission change, author-identity change or assistant attribution was added.
+
+## Follow-up: Persian README formatting and V4 code-table parity
+
+Reviewed the live official V4 Swagger again on 11 November 2026. Its SHA-256
+is still `3406d26a3258370a7034ebdb8fa42f8b775938ecd2e0785991b3f8bf9e5ab968`,
+identical to the retained capture. No response code or enum was guessed from
+V3 or from a previous implementation.
+
+The earlier V4 OpenAPI already recorded `200`, `429`, and `default` for all
+26 published operations. The missing parity was the external code-reference
+tables and their baseline validation: V3 had enum tables, while V4 did not.
+These are different namespaces and are now documented separately:
+
+| Reference | V3 | V4 |
+| --- | --- | --- |
+| HTTP responses per operation | 13 operations | 26 operations |
+| API errors | 20 current codes plus one historical removed row | 24 codes |
+| Message delivery | 22 codes | 22 codes |
+| Template approval | 3 states | 4 states |
+| Campaign progress | not published | 6 states |
+| Campaign search filter | not published | 3 values |
+| Campaign recipient status | not published | 32 codes |
+
+New per-operation HTTP inventories are
+[`specs/v3/codes/http-status.yaml`](specs/v3/codes/http-status.yaml) and
+[`specs/v4/codes/http-status.yaml`](specs/v4/codes/http-status.yaml).
+Each retains every method, full source path, operation ID, HTTP response key,
+description, declared header and response media/schema reference. Schema
+references resolve against the explicitly named official `schema_document`.
+Every operation publishes HTTP 200 and 429 plus `default`; `default` is not a
+third numeric HTTP status. No 401, 403, 404 or 500 response declaration was
+invented, and no retry-header name or error body was inferred.
+
+All six V4 enums have separate tables:
+
+- [API errors](specs/v4/codes/error-codes.yaml): `ApiErrorType`, 24 codes.
+- [Delivery statuses](specs/v4/codes/status-codes.yaml): `ApiMessageStatus`, 22 codes.
+- [Template states](specs/v4/codes/template-status.yaml): `TokenListItemStatus`, 4 states.
+- [Campaign progress](specs/v4/codes/campaign-status.yaml): `CampaignProgressStatus`, 6 states.
+- [Campaign filters](specs/v4/codes/campaign-filter-status.yaml): `CampaignState`, 3 values.
+- [Campaign recipients](specs/v4/codes/campaign-recipient-status.yaml): `SentMessageStatus`, 32 codes.
+
+Names and Persian labels come from the enum metadata or, for `ApiErrorType`,
+the error table in Swagger's info description. That table's numeric label
+prefixes are preserved. Campaign recipient enum names are absent in Swagger,
+so their `name` values remain null. Unpublished detailed causes/actions,
+retry policies, polling dispositions and explicit sendability policies remain
+null with notes. They were not copied from V3 or inferred from labels.
+
+The generated V4 rows intentionally have `confirmed: false`: publication in
+Swagger is not independent observation of the running service. The baseline
+validator now checks all six V4 enums rather than skipping them because their
+schema names differ from V3. It returns **zero errors and 92 warnings**:
+91 unconfirmed Swagger-only rows plus the existing removed V3 error-code
+warning. These warnings are disclosed, not suppressed; strict mode continues
+to fail on warnings as designed.
+
+The Persian first-word rule is applied to every physical README line, including
+wrapped prose, tables, diagrams and code comments. Both READMEs are checked
+after removing Markdown/HTML formatting; Latin-only code remains untouched.
+The new `scripts/validate_readmes.py` is also called by the required baseline
+validator, and the rule is recorded in AGENTS.md and CONTRIBUTING.md. A
+regression check found 30 violations in the previously committed Persian
+README and zero in the corrected file. Both current READMEs pass.
+
+`sync_swagger.py` now writes/checks the HTTP and V4 enum tables as well as the
+OpenAPI outputs. `validate_swagger.py` independently compares every HTTP row
+and every enum code, name and label with the captured source. It also detects
+missing/extra enum tables and unsupported confirmation/policy claims. Focused
+regression checks confirmed that deleting one operation's HTTP 429 response
+or changing an enum label causes validation failure.
+
+Validation for this follow-up: exact source/output agreement, all 39 published
+operations, all 91 V4 enum rows, all 210 active examples and both README checks
+pass. Redocly 2.77.0 validates V3 and V4 without warnings. The three original
+V4 timestamp example defects remain preserved and explicitly reported. No API
+operation was called and no endpoint behavior was newly claimed as tested.
+This follow-up remains uncommitted and unpushed pending approval.
+
+## Token-list naming correction and current validation
+
+Both official Swagger JSON documents were fetched again on 2026-11-11 and
+match the saved captures byte for byte. V3 uses `POST /api/V3/TokenList`;
+V4 uses `POST /uapi/v4/GetToken`. Earlier report wording treating the intended
+V3 name as unresolved was incorrect and has been removed. V3-specific prose
+now describes `TokenList`; V4 retains its independently published name.
+The operation schemas and source examples already use these correct names.
+The V4 HTTP inventory correctly records `V4_GetToken` and its own response
+schema; it must not be renamed to the V3 method. No service operation was called.
+
+V3 reconciliation and both README checks pass. Baseline validation reports
+0 errors and 92 provenance warnings. Before committing, delivery-status code
+11 in [`status-codes.yaml`](specs/v4/codes/status-codes.yaml) was aligned with
+the captured and freshly fetched Swagger label `دریافت کننده نامعتبر`.
+Full V3 and V4 reconciliation now passes. The three previously recorded
+campaign timestamp defects remain upstream issues. Redocly lint passes for
+both specifications. These are Swagger-based checks, not service tests.

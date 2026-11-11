@@ -13,8 +13,14 @@ lives here is the description itself, for tools and code generators.
 
 Generating a client, or building the V3 error and status tables into an
 application. `specs/v3/openapi.yaml` has thirteen published operations across eleven paths;
-`specs/v3/codes/` has three tables the spec's enums refer to.
+`specs/v3/codes/` has three enum tables and a per-operation HTTP response table.
 `specs/v4/openapi.yaml` records 26 published operations across 24 paths.
+`specs/v4/codes/` has the same HTTP response inventory plus all six published
+enum tables: errors, message delivery, templates, campaign progress, campaign
+filters and campaign recipients. HTTP status is distinct from every API enum;
+`default` is not a numeric HTTP code. Do not copy V3 retry/polling policies to V4.
+Unpublished policies remain null with a note. V4 Swagger-only rows have
+`confirmed: false` and produce explicit validation warnings, not errors.
 The former 25 sandbox definitions are preserved in
 `sources/v4/previous-sandbox.json`, explicitly as historical evidence, not a
 current published contract. Never silently discard them or infer their current
@@ -28,7 +34,9 @@ V3 `/api/V3SandBox` and V4 `/uapi/v4SandBox`. The V4 Swagger capture still
 contains the obsolete `/uapi/v4/sandbox` address; never restore that as current
 guidance. V4 `SendMultiple` is production-only according to Swagger.
 `scripts/sync_swagger.py <v3|v4> --check` detects drift; omit `--check` only to
-regenerate from a reviewed snapshot. `scripts/validate_swagger.py v3 v4` checks
+regenerate from a reviewed snapshot, including the HTTP/V4 enum tables.
+`scripts/validate_swagger.py v3 v4` checks every operation's HTTP declarations,
+all six V4 enum tables, and
 coverage, references and examples using PyYAML and jsonschema. Three upstream
 V4 campaign success examples omit a timezone: their exact originals are kept
 under `x-invalid-source-examples`, with hash-bound issues recorded separately.
@@ -36,6 +44,17 @@ Never guess a timezone or weaken a validator to make an example pass.
 
 A version is a folder, not a branch and not a tag. Nothing inside an existing
 version folder is ever moved or renamed.
+
+## Persian README line starts
+
+Every physical README line containing Persian text must have a Persian first
+word after Markdown/HTML formatting is removed. This includes table rows,
+wrapped prose, diagrams and code comments. English identifiers, URLs, paths
+and numbers cannot precede the first Persian word on such a line. Keep pure
+code/path lines free of Persian trailing comments or put the comments on their
+own Persian-leading lines. Check every README, including the English file.
+`python3 scripts/validate_readmes.py` enforces this rule; the baseline
+`scripts/validate.py` also runs it. Do not weaken the check to pass a document.
 
 ## Three behaviours any generated client must encode
 
