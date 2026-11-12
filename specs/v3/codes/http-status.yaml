@@ -1,114 +1,70 @@
 version: 3
 sources:
-  api: https://www.payam-resan.com/api/V3/swagger.json
-  captured: '2026-11-11'
-  sha256: 7f3d7b1e7c476d1d6c45ed95d341363357c7f2ecf62d67f52312af4617179f7a
-  verification: published-swagger-only
+  specification: ../openapi.yaml
 guidance:
 - کد HTTP با کد خطا یا وضعیت تحویل متفاوت است؛ پاسخ 200 به‌تنهایی نشانه موفقیت نیست.
 - پاسخ default یک کد عددی HTTP نیست؛ برای خطاهای دیگری است که سند جداگانه نام نبرده است.
-- برای پاسخ 429 نام هدر زمان تلاش بعدی و اسکیمای بدنه منتشر نشده است؛ چیزی به آن افزوده نشده است.
 - ارجاع‌های اسکیما نسبت به سند مشخص‌شده در schema_document هستند، نه نام‌های مستعار توصیف محلی.
-schema_document: https://www.payam-resan.com/api/V3/swagger.json
+schema_document: ../openapi.yaml
 operations:
 - method: GET
-  path: /api/V3/Send
-  operation_id: LegacyV3_Send
+  path: /Send
+  operation_id: Send
   responses:
     '200':
-      description: 'ابتدا Success را بررسی کنید: نتیجه در Result و خطا در ErrorCode و Error است.'
+      description: پاسخ سامانه. موفقیت را از فیلد `Success` بخوانید.
       headers: {}
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/LegacyApiResponseOfIEnumerableOfLegacySendResponseRecipient'
-    '429':
-      description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
-      headers: {}
-      content: {}
-    default:
-      description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
-      headers: {}
-      content: {}
+            $ref: '#/components/schemas/SendResponse'
 - method: POST
-  path: /api/V3/SendBulk
-  operation_id: LegacyV3_SendBulk
+  path: /SendBulk
+  operation_id: SendBulk
   responses:
     '200':
-      description: 'ابتدا Success را بررسی کنید: نتیجه در Result و خطا در ErrorCode و Error است.'
+      description: پاسخ سامانه. موفقیت را از فیلد `Success` بخوانید.
       headers: {}
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/LegacyApiResponseOfIEnumerableOfLegacySendResponseRecipient'
-    '429':
-      description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
-      headers: {}
-      content: {}
-    default:
-      description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
-      headers: {}
-      content: {}
+            $ref: '#/components/schemas/SendResponse'
 - method: POST
-  path: /api/V3/SendMultiple
-  operation_id: LegacyV3_SendMultiple
+  path: /SendMultiple
+  operation_id: SendMultiple
   responses:
     '200':
-      description: 'ابتدا Success را بررسی کنید: نتیجه در Result و خطا در ErrorCode و Error است.'
+      description: پاسخ سامانه. موفقیت را از فیلد `Success` بخوانید.
       headers: {}
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/LegacyApiResponseOfIEnumerableOfLegacySendResponseRecipient'
-    '429':
-      description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
-      headers: {}
-      content: {}
-    default:
-      description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
-      headers: {}
-      content: {}
+            $ref: '#/components/schemas/SendResponse'
 - method: GET
-  path: /api/V3/SendTokenSingle
-  operation_id: LegacyV3_SendTokenSingleGet
+  path: /SendTokenSingle
+  operation_id: SendTokenSingleByQuery
   responses:
     '200':
-      description: 'ابتدا Success را بررسی کنید: نتیجه در Result و خطا در ErrorCode و Error است.'
+      description: پاسخ سامانه. موفقیت را از فیلد `Success` بخوانید.
       headers: {}
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/LegacyApiResponseOfIEnumerableOfLegacyOtpResponseRecipient'
-    '429':
-      description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
-      headers: {}
-      content: {}
-    default:
-      description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
-      headers: {}
-      content: {}
+            $ref: '#/components/schemas/TokenResponse'
 - method: POST
-  path: /api/V3/SendTokenSingle
-  operation_id: LegacyV3_SendTokenSingle
+  path: /SendTokenSingle
+  operation_id: SendTokenSingle
   responses:
     '200':
-      description: 'ابتدا Success را بررسی کنید: نتیجه در Result و خطا در ErrorCode و Error است.'
+      description: پاسخ سامانه. موفقیت را از فیلد `Success` بخوانید.
       headers: {}
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/LegacyApiResponseOfIEnumerableOfLegacyOtpResponseRecipient'
-    '429':
-      description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
-      headers: {}
-      content: {}
-    default:
-      description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
-      headers: {}
-      content: {}
+            $ref: '#/components/schemas/TokenResponse'
 - method: GET
-  path: /api/V3/SendTokenSingleConcatParam
-  operation_id: LegacyV3_SendTokenSingleConcatParamGet
+  path: /SendTokenSingleConcatParam
+  operation_id: SendTokenSingleConcatParamByQuery
   responses:
     '200':
       description: 'ابتدا Success را بررسی کنید: نتیجه در Result و خطا در ErrorCode و Error است.'
@@ -116,7 +72,7 @@ operations:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/LegacyApiResponseOfIEnumerableOfLegacyOtpResponseRecipient'
+            $ref: '#/components/schemas/SendTokenSingleConcatParamResponse'
     '429':
       description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
       headers: {}
@@ -126,8 +82,8 @@ operations:
       headers: {}
       content: {}
 - method: POST
-  path: /api/V3/SendTokenSingleConcatParam
-  operation_id: LegacyV3_SendTokenSingleConcatParam
+  path: /SendTokenSingleConcatParam
+  operation_id: SendTokenSingleConcatParam
   responses:
     '200':
       description: 'ابتدا Success را بررسی کنید: نتیجه در Result و خطا در ErrorCode و Error است.'
@@ -135,7 +91,7 @@ operations:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/LegacyApiResponseOfIEnumerableOfLegacyOtpResponseRecipient'
+            $ref: '#/components/schemas/SendTokenSingleConcatParamResponse'
     '429':
       description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
       headers: {}
@@ -145,116 +101,68 @@ operations:
       headers: {}
       content: {}
 - method: POST
-  path: /api/V3/SendTokenMulti
-  operation_id: LegacyV3_SendTokenMulti
+  path: /SendTokenMulti
+  operation_id: SendTokenMulti
   responses:
     '200':
-      description: 'ابتدا Success را بررسی کنید: نتیجه در Result و خطا در ErrorCode و Error است.'
+      description: پاسخ سامانه. موفقیت را از فیلد `Success` بخوانید.
       headers: {}
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/LegacyApiResponseOfIEnumerableOfLegacyOtpResponseRecipient'
-    '429':
-      description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
-      headers: {}
-      content: {}
-    default:
-      description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
-      headers: {}
-      content: {}
+            $ref: '#/components/schemas/TokenResponse'
 - method: POST
-  path: /api/V3/TokenList
-  operation_id: LegacyV3_TokenList
+  path: /TokenList
+  operation_id: TokenList
   responses:
     '200':
-      description: 'ابتدا Success را بررسی کنید: نتیجه در Result و خطا در ErrorCode و Error است.'
+      description: پاسخ سامانه. موفقیت را از فیلد `Success` بخوانید.
       headers: {}
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/LegacyApiResponseOfIEnumerableOfLegacyTokenListDetail'
-    '429':
-      description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
-      headers: {}
-      content: {}
-    default:
-      description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
-      headers: {}
-      content: {}
+            $ref: '#/components/schemas/TokenListResponse'
 - method: POST
-  path: /api/V3/StatusById
-  operation_id: LegacyV3_StatusById
+  path: /StatusById
+  operation_id: StatusById
   responses:
     '200':
-      description: 'ابتدا Success را بررسی کنید: نتیجه در Result و خطا در ErrorCode و Error است.'
+      description: پاسخ سامانه. موفقیت را از فیلد `Success` بخوانید.
       headers: {}
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/LegacyApiResponseOfIEnumerableOfLegacyStatusResponseItem'
-    '429':
-      description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
-      headers: {}
-      content: {}
-    default:
-      description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
-      headers: {}
-      content: {}
+            $ref: '#/components/schemas/StatusResponse'
 - method: POST
-  path: /api/V3/StatusByUserTraceId
-  operation_id: LegacyV3_StatusByUserTraceId
+  path: /StatusByUserTraceId
+  operation_id: StatusByUserTraceId
   responses:
     '200':
-      description: 'ابتدا Success را بررسی کنید: نتیجه در Result و خطا در ErrorCode و Error است.'
+      description: پاسخ سامانه. موفقیت را از فیلد `Success` بخوانید.
       headers: {}
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/LegacyApiResponseOfIEnumerableOfLegacyStatusResponseItem'
-    '429':
-      description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
-      headers: {}
-      content: {}
-    default:
-      description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
-      headers: {}
-      content: {}
+            $ref: '#/components/schemas/StatusResponse'
 - method: POST
-  path: /api/V3/AccountInfo
-  operation_id: LegacyV3_AccountInfo
+  path: /AccountInfo
+  operation_id: AccountInfo
   responses:
     '200':
-      description: 'ابتدا Success را بررسی کنید: نتیجه در Result و خطا در ErrorCode و Error است.'
+      description: پاسخ سامانه. موفقیت را از فیلد `Success` بخوانید.
       headers: {}
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/LegacyApiResponseOfLegacyAccountDetail'
-    '429':
-      description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
-      headers: {}
-      content: {}
-    default:
-      description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
-      headers: {}
-      content: {}
+            $ref: '#/components/schemas/AccountInfoResponse'
 - method: POST
-  path: /api/V3/GetInbox
-  operation_id: LegacyV3_GetInbox
+  path: /GetInbox
+  operation_id: GetInbox
   responses:
     '200':
-      description: 'ابتدا Success را بررسی کنید: نتیجه در Result و خطا در ErrorCode و Error است.'
+      description: پاسخ سامانه. موفقیت را از فیلد `Success` بخوانید.
       headers: {}
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/LegacyApiResponseOfIEnumerableOfLegacyInboxResponseItem'
-    '429':
-      description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
-      headers: {}
-      content: {}
-    default:
-      description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
-      headers: {}
-      content: {}
+            $ref: '#/components/schemas/InboxResponse'

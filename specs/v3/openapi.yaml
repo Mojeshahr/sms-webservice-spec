@@ -1,651 +1,321 @@
+# مرجع رسمی وب‌سرویس پنل پیامکی پیام رسان، نسخه ۳.
+#
+# این فایل منبع حقیقت است. مستندات سایت، نمونه‌کدهای هر زبان و سرور MCP
+# همگی از همین‌جا مشتق می‌شوند؛ هیچ‌کدام نباید دستی با API هم‌گام شوند.
+#
+# پایه: swagger 2.0 منتشرشده روی https://www.payam-resan.com/api/V3/swagger.json
+# اختلاف‌های شناخته‌شده بین آن swagger و مستندات فعلی در README ثبت شده است.
 openapi: 3.1.0
-x-generator: NSwag v14.4.0.0 (NJsonSchema v11.3.2.0 (Newtonsoft.Json v13.0.0.0))
+
 info:
-  title: راهنمای وب‌سرویس پیامک V3
-  description: |-
-    کلید `ApiKey` در POST داخل JSON و در GET داخل نشانی است. HTTP 200 همیشه به معنی موفقیت نیست؛ `Success` را بررسی کنید و خطا را از `ErrorCode` و `Error` بخوانید.
+  title: وب‌سرویس پنل پیامکی پیام رسان
+  summary: ارسال، دریافت و گزارش‌گیری پیامک
+  version: "3"
+  description: |
+    رابط برنامه‌نویسی [پنل پیامکی پیام رسان](https://payam-resan.com).
 
-    برای تست بدون ارسال و هزینه، پایهٔ `/api/V3` را با `/api/V3SandBox` جایگزین کنید. اگر کلید تست تنظیم شده است، همان را بفرستید.
+    ## احراز هویت
 
-    <details><summary><strong>نکات اتصال</strong></summary>
+    هر درخواست به یک `ApiKey` نیاز دارد که از پنل کاربری گرفته می‌شود.
+    کلید بخشی از پارامترهای خود درخواست است، نه یک هدر:
 
-    از HTTPS و ترجیحاً POST استفاده کنید. شماره‌های فرستنده و الگوها را از متدهای اطلاعات حساب و فهرست الگوها بگیرید.
+    - در متدهای `GET` به‌صورت پارامتر query
+    - در متدهای `POST` به‌صورت یک فیلد در بدنه JSON
 
-    مجوز لازم کنار هر متد آمده است. کلید باید فعال و IP شما مجاز باشد. سقف ارسال و هزینه به تنظیمات حساب بستگی دارد.
+    چون کلید در متدهای `GET` داخل نشانی می‌نشیند، در لاگ وب‌سرور، تاریخچه
+    مرورگر و هدر `Referer` ثبت می‌شود. برای همین در محیط عملیاتی متدهای
+    `POST` ترجیح دارند و کلید هرگز نباید در کد سمت کاربر قرار بگیرد.
 
-    پذیرش درخواست به معنی تحویل نیست. پس از قطع ارتباط، پیش از ارسال دوباره وضعیت را با شناسهٔ پیگیری بررسی کنید.
+    ## پاکت پاسخ
 
-    شناسه‌ها عددی و اعتبار طبق واحد نمایش نسخهٔ قدیمی است. کدهای خطای V3 با V4 تفاوت دارند. نام فیلد فرستندهٔ پیام دریافتی `Form` است.
+    همه متدها با کد وضعیت `200` پاسخ می‌دهند، حتی وقتی درخواست ناموفق است.
+    موفقیت را باید از فیلد `Success` خواند، نه از کد وضعیت HTTP:
 
-    خطاهای HTTP مثل 429 یا 5xx ممکن است قالب پاسخ دیگری داشته باشند.
+    - `Success` تنها نشانه معتبر موفقیت است
+    - `ErrorCode` و `Error` علت شکست را می‌گویند و فقط وقتی معنا دارند که
+      `Success` برابر `false` باشد
+    - `Result` بار مفید پاسخ است و شکلش در هر متد فرق می‌کند
 
-    </details>
+    فهرست کامل مقادیر `ErrorCode` در `codes/error-codes.yaml` و فهرست
+    وضعیت‌های پیامک در `codes/status-codes.yaml` است.
 
-    <details><summary><strong>کدهای خطا</strong></summary>
+    ## قالب شماره‌ها
 
-    | کد | نام | توضیح |
-    | --- | --- | --- |
-    | 1 | `InvalidApiKey` | ApiKey نادرست است |
-    | 2 | `ApiIsNotActive` | ارسال از وبسرویس برای این کاربر فعال نشده است. |
-    | 3 | `UserIsNotActive` | کاربر فعال نیست. |
-    | 4 | `ApiTemproryDeactive` | ارسال از طریق Api موقتا غیر فعال است. |
-    | 5 | `MethodIsDeactive` | ارسال از طریق این متد موقتا غیر فعال است. |
-    | 6 | `NoAuthntication` | احراز هویت حساب انجام نشده است. |
-    | 8 | `AccountInfoIsIncomplete` | اطلاعات هویتی کاربر به صورت کامل درج نشده است. |
-    | 9 | `InvalidParameters` | مقادیر ورودی نادرست است. |
-    | 10 | `IpIsNotValid` | آی پی درخواست دهنده در لیست آی پی های معتبر نیست |
-    | 11 | `MalformattedApiKey` | فرمت ورودی ApiKey نادرست است |
-    | 12 | `InvalidSender` | شماره ارسال کننده نادرست است |
-    | 13 | `InvalidDestination` | شماره دریافت کننده باید با 9 یا 989 شروع شود |
-    | 14 | `UnauthorizedMethod` | شما به این متد دسترسی ندارید |
-    | 15 | `DailyLimitReached` | سقف ارسال روزانه به پایان رسید |
-    | 16 | `ApiLimitReached` | سقف ارسال Api به پایان رسید |
-    | 17 | `NightlyLimitReached` | سقف ارسال شبانه به پایان رسید |
-    | 18 | `ShareLineLimitReached` | سقف ارسال خط اشتراکی به پایان رسید |
-    | 19 | `CreditIsLow` | اعتبار حساب کافی نیست |
-    | 20 | `TooManyRequests` | تعداد درخواست بیش از حد مجاز است |
-    | 100 | `InternalError` | خطای داخلی سیستم |
+    - شماره گیرنده بدون صفر ابتدایی: `9121112222` یا با کد کشور `989121112222`
+    - شماره فرستنده یکی از خطوط فعال حساب، مانند `30004040`
+    - سقف گیرنده در هر درخواست: ۹۹ شماره
 
-    </details>
+    ## سرور آزمایشی
 
+    یک سرور آزمایشی هم هست که مثل سرور عملیاتی جواب می‌دهد ولی پیامکی
+    نمی‌فرستد و اعتباری مصرف نمی‌کند. برای ساختن و آزمودن ادغام، پیش از
+    اینکه به شماره واقعی چیزی برود، همان را به کار ببرید. تنها تفاوت در
+    نشانی است:
 
-    <details><summary><strong>وضعیت تحویل پیامک</strong></summary>
+    ```
+    https://www.payam-resan.com/api/V3SandBox/
+    ```
 
-    | کد | نام | توضیح |
-    | --- | --- | --- |
-    | 0 | `InQueue` | در صف سامانه |
-    | 1 | `SentNoStatus` | ارسال شده، بدون وضعیت |
-    | 2 | `SentInQueue` | ارسال شده، در صف |
-    | 3 | `SentPendingToDeliver` | در انتظار تحویل گوشی |
-    | 4 | `Delivered` | تحویل به گوشی |
-    | 5 | `SentFailed` | نرسیده به گوشی |
-    | 6 | `Failed` | خطا در ارسال |
-    | 7 | `BlackList` | گیرنده مسدود |
-    | 8 | `NotFound` | شناسه پیدا نشد |
-    | 9 | `Expired` | منقضی |
-    | 10 | `Unknown` | نامشخص |
-    | 11 | `DeactiveDestination` | دریافت کننده نامعتبر |
-    | 12 | `UserBlackList` | گیرنده در لیست سیاه اکانت شماست |
-    | 13 | `InvalidDestinationForOperator` | گیرنده نامعتبر |
-    | 14 | `HasBlockWord` | متن بلاک |
-    | 15 | `UnsubscribedByRecepient` | لغو دریافت توسط گیرنده |
-    | 16 | `BlockedByRequester` | بلاک شده |
-    | 17 | `DailyLimitReached` | اتمام سقف ارسال روزانه |
-    | 18 | `ApiLimitReached` | اتمام سقف ارسال Api |
-    | 19 | `NightlyLimitReached` | اتمام سقف ارسال شبانه |
-    | 20 | `ShareLineLimitReached` | اتمام سقف خط اشتراکی |
-    | 21 | `AccountNotAuthenticated` | حساب احراز نشده |
+    دو نکته که در آزمون واقعی معلوم شد:
 
-    </details>
+    - متد `TokenList` روی سرور آزمایشی پیاده شده و برای آزمودن پاسخ،
+      فهرستی ساختگی از قالب‌ها برمی‌گرداند. این فهرست، قالب‌های واقعی
+      حساب نیست؛ برای گرفتن فهرست واقعی قالب‌ها سرور عملیاتی را صدا بزنید.
+      این متد از بررسی اعتبار معاف است و چیزی نمی‌فرستد.
+    - **مسیر ناموجود پاکت پاسخ ندارد.** قاعده «همیشه `200`» برای متدهای
+      موجود برقرار است؛ نشانی اشتباه `404` می‌گیرد با بدنه‌ای که فقط یک
+      فیلد `Message` دارد و نه `Success`. کدی که مستقیم سراغ `Success`
+      برود، اینجا به‌جای پیام خطای خوانا به استثنا می‌خورد.
 
-
-    <details><summary><strong>وضعیت تأیید الگو</strong></summary>
-
-    | کد | نام | توضیح |
-    | --- | --- | --- |
-    | 1 | `Pending` | در انتظار تأیید |
-    | 2 | `Approved` | تأییدشده |
-    | 3 | `Rejected` | ردشده |
-
-    </details>
-
-
-
-    این فایل با Swagger رسمی تطبیق داده شده است؛ درخواست‌ها و پاسخ‌های نمونه از همان سند آمده‌اند و در این مرحله با سرویس زنده آزموده نشده‌اند. اعلان‌های required و nullable عین قرارداد منتشرشده حفظ شده‌اند؛ تعارض متن با اسکیما در گزارش تطبیق ثبت شده است.
-  version: '3'
   contact:
     name: پشتیبانی پنل پیامکی پیام رسان
     url: https://payam-resan.com
   license:
     name: MIT
     identifier: MIT
-externalDocs:
-  url: https://www.payam-resan.com/api/V3/
-  description: راهنمای Swagger رسمی نسخه ۳
-x-source:
-  url: https://www.payam-resan.com/api/V3/swagger.json
-  ui_url: https://www.payam-resan.com/api/V3/
-  captured: '2026-11-11'
-  sha256: 7f3d7b1e7c476d1d6c45ed95d341363357c7f2ecf62d67f52312af4617179f7a
-  source_openapi: 3.0.0
-  snapshot: ../../sources/v3/swagger.json
-  verification: published-swagger-only
-x-sandbox-source:
-  path: ../../sources/sandbox-servers.json
-  verification: Base URLs confirmed by the maintainer; no endpoint behavior was tested.
-x-code-tables:
-  http-status.yaml: codes/http-status.yaml
-  error-codes.yaml: codes/error-codes.yaml
-  status-codes.yaml: codes/status-codes.yaml
-  template-status.yaml: codes/template-status.yaml
+
 servers:
-- url: https://www.payam-resan.com/api/V3
-  description: سرور عملیاتی طبق مسیرهای Swagger
-- url: https://www.payam-resan.com/api/V3SandBox
-  description: پایه آزمایشی با تأیید نگهدارنده؛ عملیات آن در این مرحله آزموده نشده‌اند
+  - url: https://www.payam-resan.com/api/V3
+    description: سرور عملیاتی
+  - url: https://www.payam-resan.com/api/V3SandBox
+    description: >-
+      سرور آزمایشی. مثل سرور عملیاتی پاسخ می‌دهد ولی پیامکی نمی‌فرستد و
+      اعتباری مصرف نمی‌کند. متد TokenList فهرستی ساختگی از قالب‌ها برمی‌گرداند.
+
 tags:
-- name: ارسال
-  description: ارسال پیامک
-- name: قالب
-  description: کد تأیید و الگوها
-- name: گزارش
-  description: گزارش تحویل
-- name: حساب
-  description: اطلاعات حساب
-- name: دریافت
-  description: صندوق دریافت
+  - name: ارسال
+    description: ارسال متن آزاد به یک یا چند گیرنده.
+  - name: قالب
+    description: ارسال با قالب از پیش تعریف‌شده، مسیر معمول رمز یک‌بارمصرف.
+  - name: گزارش
+    description: پی‌گیری وضعیت پیامک‌های ارسال‌شده.
+  - name: حساب
+    description: اعتبار و خطوط فعال.
+  - name: دریافت
+    description: پیامک‌های رسیده به خطوط حساب.
+
 paths:
+
   /Send:
     get:
-      tags:
-      - ارسال
-      summary: ارسال یک متن؛ شماره گیرندگان را در نشانی با ویرگول جدا کنید.
-      description: |-
-        مجوز لازم برای کلید: `Send`.
-
-        در این متد، `ApiKey` در پارامترهای نشانی است. در صورت امکان از نسخهٔ POST استفاده کنید.
       operationId: Send
+      tags: [ارسال]
+      summary: ارسال یک متن به یک یا چند شماره
+      description: |
+        ساده‌ترین متد ارسال. یک متن را با یک درخواست `GET` به حداکثر ۹۹ گیرنده
+        می‌فرستد.
+
+        گیرندگان یک رشته جداشده با کاما هستند، نه آرایه.
+
+        متن پیامک را دقیقاً **یک بار** باید url-encode کرد. کتابخانه‌های HTTP
+        هر زبان این کار را هنگام ساختن query string خودشان انجام می‌دهند؛
+        اگر متن را پیش از آن هم encode کنید، پیامک با نویسه‌های `%D8` روی
+        گوشی گیرنده ظاهر می‌شود.
+
+        برای ارسال عملیاتی `SendBulk` ترجیح دارد: کلید را از نشانی بیرون
+        می‌برد و برای هر گیرنده شناسه پی‌گیری اختصاصی می‌پذیرد.
       parameters:
-      - name: ApiKey
-        in: query
-        required: true
-        description: کلید API حساب؛ در صورت امکان از نسخهٔ POST استفاده کنید.
-        schema:
-          type:
-          - string
-          - 'null'
-        x-position: 1
-        example: YOUR_API_KEY
-      - name: Text
-        in: query
-        schema:
-          type:
-          - string
-          - 'null'
-        x-position: 2
-        example: پیام نمونه
-      - name: Sender
-        in: query
-        schema:
-          type: integer
-          format: int64
-        x-position: 3
-        example: 3000123456
-      - name: Recipients
-        in: query
-        schema:
-          type:
-          - string
-          - 'null'
-        x-position: 4
-        example: '989120000001'
-      - name: source-app
-        in: header
-        description: نام اختیاری برنامهٔ شما برای ثبت در گزارش درخواست‌ها؛ حداکثر ۱۰۰ نویسه. این مقدار
-          کلید دسترسی نیست.
-        schema:
-          type: string
-          maxLength: 100
+        - name: ApiKey
+          in: query
+          required: true
+          description: کلید اختصاصی حساب، از پنل کاربری.
+          schema: { $ref: '#/components/schemas/ApiKey' }
+        - name: Text
+          in: query
+          required: true
+          description: متن پیامک.
+          schema: { type: string }
+          example: کد تأیید شما ۱۲۳۴۵۶ است
+        - name: Sender
+          in: query
+          required: true
+          description: یکی از خطوط فعال حساب.
+          schema: { type: integer, format: int64 }
+          example: 30004040
+        - name: Recipients
+          in: query
+          required: true
+          description: شماره‌های گیرنده، جداشده با کاما. حداکثر ۹۹ شماره.
+          schema: { type: string }
+          example: 9121112222,9121113333
       responses:
         '200':
-          description: 'ابتدا Success را بررسی کنید: نتیجه در Result و خطا در ErrorCode و Error است.'
+          description: پاسخ سامانه. موفقیت را از فیلد `Success` بخوانید.
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/SendResponse'
-              examples:
-                success:
-                  summary: پاسخ موفق
-                  value:
-                    Success: true
-                    ErrorCode: null
-                    Error: null
-                    Result:
-                    - Id: 123456789012345
-                      UserTraceId: 10001
-                invalid-key:
-                  summary: کلید نامعتبر
-                  value:
-                    Success: false
-                    ErrorCode: 1
-                    Error: ApiKey نادرست است
-                    Result: null
-                invalid-input:
-                  summary: ورودی نامعتبر
-                  value:
-                    Success: false
-                    ErrorCode: 9
-                    Error: مقادیر ورودی نادرست است
-                    Result: null
-                insufficient-credit:
-                  summary: اعتبار ناکافی
-                  value:
-                    Success: false
-                    ErrorCode: 19
-                    Error: اعتبار حساب کافی نیست
-                    Result: null
-        '429':
-          description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
-        default:
-          description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
-      x-source-operation-id: LegacyV3_Send
-      x-source-tags:
-      - ارسال پیامک
+              schema: { $ref: '#/components/schemas/SendResponse' }
+
   /SendBulk:
     post:
-      tags:
-      - ارسال
-      summary: ارسال یک متن به چند گیرنده با پاسخ V3.
-      description: 'مجوز لازم برای کلید: `Send`.'
       operationId: SendBulk
-      parameters:
-      - name: source-app
-        in: header
-        description: نام اختیاری برنامهٔ شما برای ثبت در گزارش درخواست‌ها؛ حداکثر ۱۰۰ نویسه. این مقدار
-          کلید دسترسی نیست.
-        schema:
-          type: string
-          maxLength: 100
+      tags: [ارسال]
+      summary: ارسال یک متن به چند گیرنده با شناسه پی‌گیری
+      description: |
+        یک متن واحد به چند گیرنده، و برای هر گیرنده یک `UserTraceId` که خودتان
+        تعیین می‌کنید. بعداً با همان شناسه و متد `StatusByUserTraceId` می‌توانید
+        وضعیت را بگیرید، بدون اینکه لازم باشد `Id` سامانه را نگه دارید.
+
+        روش پیشنهادی برای ارسال عملیاتی.
       requestBody:
-        x-name: req
-        description: کلید، شمارهٔ فرستنده و کلید الگو را با اطلاعات حساب خود جایگزین کنید.
+        required: true
         content:
           application/json:
-            schema:
-              $ref: '#/components/schemas/SendBulkRequest'
-            examples:
-              request:
-                summary: نمونهٔ درخواست
-                value:
-                  ApiKey: YOUR_API_KEY
-                  Sender: 3000123456
-                  Text: پیام نمونه
-                  Recipients:
-                  - Destination: 989120000001
-                    UserTraceId: 10001
-        required: true
-        x-position: 1
+            schema: { $ref: '#/components/schemas/SendBulkRequest' }
       responses:
         '200':
-          description: 'ابتدا Success را بررسی کنید: نتیجه در Result و خطا در ErrorCode و Error است.'
+          description: پاسخ سامانه. موفقیت را از فیلد `Success` بخوانید.
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/SendResponse'
-              examples:
-                success:
-                  summary: پاسخ موفق
-                  value:
-                    Success: true
-                    ErrorCode: null
-                    Error: null
-                    Result:
-                    - Id: 123456789012345
-                      UserTraceId: 10001
-                invalid-key:
-                  summary: کلید نامعتبر
-                  value:
-                    Success: false
-                    ErrorCode: 1
-                    Error: ApiKey نادرست است
-                    Result: null
-                invalid-input:
-                  summary: ورودی نامعتبر
-                  value:
-                    Success: false
-                    ErrorCode: 9
-                    Error: مقادیر ورودی نادرست است
-                    Result: null
-                insufficient-credit:
-                  summary: اعتبار ناکافی
-                  value:
-                    Success: false
-                    ErrorCode: 19
-                    Error: اعتبار حساب کافی نیست
-                    Result: null
-        '429':
-          description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
-        default:
-          description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
-      x-source-operation-id: LegacyV3_SendBulk
-      x-source-tags:
-      - ارسال پیامک
+              schema: { $ref: '#/components/schemas/SendResponse' }
+
   /SendMultiple:
     post:
-      tags:
-      - ارسال
-      summary: ارسال متن و خط فرستنده متفاوت برای هر گیرنده.
-      description: 'مجوز لازم برای کلید: `Send`.'
       operationId: SendMultiple
-      parameters:
-      - name: source-app
-        in: header
-        description: نام اختیاری برنامهٔ شما برای ثبت در گزارش درخواست‌ها؛ حداکثر ۱۰۰ نویسه. این مقدار
-          کلید دسترسی نیست.
-        schema:
-          type: string
-          maxLength: 100
+      tags: [ارسال]
+      summary: ارسال متن‌های متفاوت به گیرندگان متفاوت
+      description: |
+        هر گیرنده متن و خط فرستنده خودش را دارد. برای پیام‌های شخصی‌سازی‌شده
+        که با یک قالب ثابت پوشش داده نمی‌شوند.
+
+        برخلاف `SendBulk`، اینجا `Text` و `Sender` در سطح هر گیرنده تعریف
+        می‌شوند، نه در سطح درخواست.
       requestBody:
-        x-name: req
-        description: کلید، شمارهٔ فرستنده و کلید الگو را با اطلاعات حساب خود جایگزین کنید.
+        required: true
         content:
           application/json:
-            schema:
-              $ref: '#/components/schemas/SendMultipleRequest'
-            examples:
-              request:
-                summary: نمونهٔ درخواست
-                value:
-                  ApiKey: YOUR_API_KEY
-                  Recipients:
-                  - Sender: 3000123456
-                    Text: پیام نمونه
-                    Destination: 989120000001
-                    UserTraceId: 10001
-        required: true
-        x-position: 1
+            schema: { $ref: '#/components/schemas/SendMultipleRequest' }
       responses:
         '200':
-          description: 'ابتدا Success را بررسی کنید: نتیجه در Result و خطا در ErrorCode و Error است.'
+          description: پاسخ سامانه. موفقیت را از فیلد `Success` بخوانید.
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/SendResponse'
-              examples:
-                success:
-                  summary: پاسخ موفق
-                  value:
-                    Success: true
-                    ErrorCode: null
-                    Error: null
-                    Result:
-                    - Id: 123456789012345
-                      UserTraceId: 10001
-                invalid-key:
-                  summary: کلید نامعتبر
-                  value:
-                    Success: false
-                    ErrorCode: 1
-                    Error: ApiKey نادرست است
-                    Result: null
-                invalid-input:
-                  summary: ورودی نامعتبر
-                  value:
-                    Success: false
-                    ErrorCode: 9
-                    Error: مقادیر ورودی نادرست است
-                    Result: null
-                insufficient-credit:
-                  summary: اعتبار ناکافی
-                  value:
-                    Success: false
-                    ErrorCode: 19
-                    Error: اعتبار حساب کافی نیست
-                    Result: null
-        '429':
-          description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
-        default:
-          description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
-      x-source-operation-id: LegacyV3_SendMultiple
-      x-source-tags:
-      - ارسال پیامک
+              schema: { $ref: '#/components/schemas/SendResponse' }
+
   /SendTokenSingle:
     get:
-      tags:
-      - قالب
-      summary: ارسال قالب با پارامترهای p1 تا p10 در نشانی؛ POST پیشنهاد می‌شود.
-      description: |-
-        مجوز لازم برای کلید: `Send`. دسترسی OTP حساب نیز باید فعال باشد.
-
-        در این متد، `ApiKey` در پارامترهای نشانی است. در صورت امکان از نسخهٔ POST استفاده کنید.
       operationId: SendTokenSingleByQuery
+      tags: [قالب]
+      summary: ارسال قالب به یک شماره
+      description: |
+        مسیر معمول رمز یک‌بارمصرف. یک قالبِ تأییدشده را با پارامترهایش به یک
+        شماره واحد می‌فرستد. خط فرستنده را سامانه از روی خود قالب انتخاب
+        می‌کند، پس `Sender` ورودی ندارد.
+
+        جای‌گاه‌های قالب `{1}` تا `{10}` به‌ترتیب با `p1` تا `p10` پر می‌شوند.
+        فقط به تعداد جای‌گاه‌های قالب پارامتر بفرستید.
+
+        کلید قالب را از متد `TokenList` یا از پنل کاربری بگیرید.
+
+        همین متد واریانت `POST` هم دارد، که برای محیط عملیاتی ترجیح دارد چون
+        کلید و مقدار رمز یک‌بارمصرف را از نشانی بیرون می‌برد.
       parameters:
-      - name: ApiKey
-        in: query
-        required: true
-        description: کلید API حساب؛ در صورت امکان از نسخهٔ POST استفاده کنید.
-        schema:
-          type:
-          - string
-          - 'null'
-        x-position: 1
-        example: YOUR_API_KEY
-      - name: TemplateKey
-        in: query
-        description: کلید قالب تأییدشده رمز یک‌بارمصرف حساب؛ الزامی.
-        schema:
-          type:
-          - string
-          - 'null'
-        x-position: 2
-        example: YOUR_APPROVED_TEMPLATE
-      - name: Destination
-        in: query
-        description: شماره موبایل گیرنده، فقط با رقم.
-        schema:
-          type: integer
-          format: int64
-        x-position: 3
-        example: 989120000001
-      - name: p1
-        in: query
-        description: مقدار پارامتر اول قالب؛ اختیاری.
-        schema:
-          type:
-          - string
-          - 'null'
-        x-position: 4
-        example: '123456'
-      - name: p2
-        in: query
-        description: مقدار پارامتر دوم قالب؛ اختیاری.
-        schema:
-          type:
-          - string
-          - 'null'
-        x-position: 5
-      - name: p3
-        in: query
-        description: مقدار پارامتر سوم قالب؛ اختیاری.
-        schema:
-          type:
-          - string
-          - 'null'
-        x-position: 6
-      - name: p4
-        in: query
-        description: مقدار پارامتر چهارم قالب؛ اختیاری.
-        schema:
-          type:
-          - string
-          - 'null'
-        x-position: 7
-      - name: p5
-        in: query
-        description: مقدار پارامتر پنجم قالب؛ اختیاری.
-        schema:
-          type:
-          - string
-          - 'null'
-        x-position: 8
-      - name: p6
-        in: query
-        description: مقدار پارامتر ششم قالب؛ اختیاری.
-        schema:
-          type:
-          - string
-          - 'null'
-        x-position: 9
-      - name: p7
-        in: query
-        description: مقدار پارامتر هفتم قالب؛ اختیاری.
-        schema:
-          type:
-          - string
-          - 'null'
-        x-position: 10
-      - name: p8
-        in: query
-        description: مقدار پارامتر هشتم قالب؛ اختیاری.
-        schema:
-          type:
-          - string
-          - 'null'
-        x-position: 11
-      - name: p9
-        in: query
-        description: مقدار پارامتر نهم قالب؛ اختیاری.
-        schema:
-          type:
-          - string
-          - 'null'
-        x-position: 12
-      - name: p10
-        in: query
-        description: مقدار پارامتر دهم قالب؛ اختیاری.
-        schema:
-          type:
-          - string
-          - 'null'
-        x-position: 13
-      - name: source-app
-        in: header
-        description: نام اختیاری برنامهٔ شما برای ثبت در گزارش درخواست‌ها؛ حداکثر ۱۰۰ نویسه. این مقدار
-          کلید دسترسی نیست.
-        schema:
-          type: string
-          maxLength: 100
+        - name: ApiKey
+          in: query
+          required: true
+          description: کلید اختصاصی حساب، از پنل کاربری.
+          schema: { $ref: '#/components/schemas/ApiKey' }
+        - name: TemplateKey
+          in: query
+          required: true
+          description: کلید قالبِ تأییدشده. یک عبارت انگلیسی است و به بزرگ و کوچک بودن حروف حساس نیست.
+          schema: { type: string }
+          example: verifycode
+        - name: Destination
+          in: query
+          required: true
+          description: شماره گیرنده.
+          schema: { type: integer, format: int64 }
+          example: 9121112222
+        - name: p1
+          in: query
+          required: false
+          description: مقدار جای‌گاه {1} در قالب.
+          schema: { type: string }
+          # فقط همین یکی مقدار نمونه دارد، تا نمونه تولیدشده یک قالب
+          # تک‌جای‌گاهی مثل verifycode را نشان بدهد. اگر p2 تا p10 هم نمونه
+          # بگیرند، هر ده‌تا در نمونه‌های صفحه ظاهر می‌شوند.
+          example: '123456'
+        - name: p2
+          in: query
+          required: false
+          description: مقدار جای‌گاه {2} در قالب.
+          schema: { type: string }
+        - name: p3
+          in: query
+          required: false
+          description: مقدار جای‌گاه {3} در قالب.
+          schema: { type: string }
+        - name: p4
+          in: query
+          required: false
+          description: مقدار جای‌گاه {4} در قالب.
+          schema: { type: string }
+        - name: p5
+          in: query
+          required: false
+          description: مقدار جای‌گاه {5} در قالب.
+          schema: { type: string }
+        - name: p6
+          in: query
+          required: false
+          description: مقدار جای‌گاه {6} در قالب.
+          schema: { type: string }
+        - name: p7
+          in: query
+          required: false
+          description: مقدار جای‌گاه {7} در قالب.
+          schema: { type: string }
+        - name: p8
+          in: query
+          required: false
+          description: مقدار جای‌گاه {8} در قالب.
+          schema: { type: string }
+        - name: p9
+          in: query
+          required: false
+          description: مقدار جای‌گاه {9} در قالب.
+          schema: { type: string }
+        - name: p10
+          in: query
+          required: false
+          description: مقدار جای‌گاه {10} در قالب.
+          schema: { type: string }
       responses:
         '200':
-          description: 'ابتدا Success را بررسی کنید: نتیجه در Result و خطا در ErrorCode و Error است.'
+          description: پاسخ سامانه. موفقیت را از فیلد `Success` بخوانید.
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/TokenResponse'
-              examples:
-                success:
-                  summary: پاسخ موفق
-                  value:
-                    Success: true
-                    ErrorCode: null
-                    Error: null
-                    Result:
-                    - UserTraceId: 10001
-                      Id: 123456789012345
-                      Sender: 3000123456
-                      FinalText: 'کد تأیید شما: 123456'
-                invalid-key:
-                  summary: کلید نامعتبر
-                  value:
-                    Success: false
-                    ErrorCode: 1
-                    Error: ApiKey نادرست است
-                    Result: null
-                invalid-input:
-                  summary: ورودی نامعتبر
-                  value:
-                    Success: false
-                    ErrorCode: 9
-                    Error: مقادیر ورودی نادرست است
-                    Result: null
-                insufficient-credit:
-                  summary: اعتبار ناکافی
-                  value:
-                    Success: false
-                    ErrorCode: 19
-                    Error: اعتبار حساب کافی نیست
-                    Result: null
-        '429':
-          description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
-        default:
-          description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
-      x-source-operation-id: LegacyV3_SendTokenSingleGet
-      x-source-tags:
-      - کد تأیید و الگوها
+              schema: { $ref: '#/components/schemas/TokenResponse' }
     post:
-      tags:
-      - قالب
-      summary: ارسال قالب با پارامترهای p1 تا p10.
-      description: 'مجوز لازم برای کلید: `Send`. دسترسی OTP حساب نیز باید فعال باشد.'
       operationId: SendTokenSingle
-      parameters:
-      - name: source-app
-        in: header
-        description: نام اختیاری برنامهٔ شما برای ثبت در گزارش درخواست‌ها؛ حداکثر ۱۰۰ نویسه. این مقدار
-          کلید دسترسی نیست.
-        schema:
-          type: string
-          maxLength: 100
+      tags: [قالب]
+      summary: ارسال قالب به یک شماره با بدنه JSON
+      description: |
+        همان `SendTokenSingle` با ورودی در بدنه درخواست. برای رمز یک‌بارمصرف
+        این واریانت ترجیح دارد، چون نه کلید حساب و نه خود رمز در نشانی و
+        لاگ وب‌سرور ثبت نمی‌شوند.
       requestBody:
-        x-name: req
-        description: کلید، شمارهٔ فرستنده و کلید الگو را با اطلاعات حساب خود جایگزین کنید.
+        required: true
         content:
           application/json:
-            schema:
-              $ref: '#/components/schemas/SendTokenSingleRequest'
-            examples:
-              request:
-                summary: نمونهٔ درخواست
-                value:
-                  ApiKey: YOUR_API_KEY
-                  TemplateKey: YOUR_APPROVED_TEMPLATE
-                  Destination: 989120000001
-                  p1: '123456'
-        required: true
-        x-position: 1
+            schema: { $ref: '#/components/schemas/SendTokenSingleRequest' }
       responses:
         '200':
-          description: 'ابتدا Success را بررسی کنید: نتیجه در Result و خطا در ErrorCode و Error است.'
+          description: پاسخ سامانه. موفقیت را از فیلد `Success` بخوانید.
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/TokenResponse'
-              examples:
-                success:
-                  summary: پاسخ موفق
-                  value:
-                    Success: true
-                    ErrorCode: null
-                    Error: null
-                    Result:
-                    - UserTraceId: 10001
-                      Id: 123456789012345
-                      Sender: 3000123456
-                      FinalText: 'کد تأیید شما: 123456'
-                invalid-key:
-                  summary: کلید نامعتبر
-                  value:
-                    Success: false
-                    ErrorCode: 1
-                    Error: ApiKey نادرست است
-                    Result: null
-                invalid-input:
-                  summary: ورودی نامعتبر
-                  value:
-                    Success: false
-                    ErrorCode: 9
-                    Error: مقادیر ورودی نادرست است
-                    Result: null
-                insufficient-credit:
-                  summary: اعتبار ناکافی
-                  value:
-                    Success: false
-                    ErrorCode: 19
-                    Error: اعتبار حساب کافی نیست
-                    Result: null
-        '429':
-          description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
-        default:
-          description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
-      x-source-operation-id: LegacyV3_SendTokenSingle
-      x-source-tags:
-      - کد تأیید و الگوها
+              schema: { $ref: '#/components/schemas/TokenResponse' }
+
   /SendTokenSingleConcatParam:
     get:
       tags:
       - قالب
-      summary: ارسال قالب با پارامتر p جداشده با ; در نشانی؛ POST پیشنهاد می‌شود.
+      summary: ارسال قالب با پارامترهای جداشده با نقطه‌ویرگول
       description: |-
+        ارسال قالب به یک گیرنده با پارامترهای مرتب‌شده در یک رشته `p`. جداکننده مقدارها نقطه‌ویرگول `;` است؛ به‌جای فیلدهای جداگانه `p1` تا `p10`، مقدارها در همین رشته فرستاده می‌شوند.
+
+        وجود پارامتر `ApiKey` در query الزامی است؛ اسکیمای مقدار آن `string` یا `null` است.
+
         مجوز لازم برای کلید: `Send`. دسترسی OTP حساب نیز باید فعال باشد.
 
         در این متد، `ApiKey` در پارامترهای نشانی است. در صورت امکان از نسخهٔ POST استفاده کنید.
@@ -689,8 +359,8 @@ paths:
         example: 123456;علی
       - name: source-app
         in: header
-        description: نام اختیاری برنامهٔ شما برای ثبت در گزارش درخواست‌ها؛ حداکثر ۱۰۰ نویسه. این مقدار
-          کلید دسترسی نیست.
+        description: نام اختیاری برنامهٔ شما برای ثبت در گزارش درخواست‌ها؛ حداکثر ۱۰۰ نویسه. این مقدار کلید
+          دسترسی نیست.
         schema:
           type: string
           maxLength: 100
@@ -700,7 +370,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TokenResponse'
+                $ref: '#/components/schemas/SendTokenSingleConcatParamResponse'
               examples:
                 success:
                   summary: پاسخ موفق
@@ -739,19 +409,22 @@ paths:
         default:
           description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
       x-source-operation-id: LegacyV3_SendTokenSingleConcatParamGet
-      x-source-tags:
-      - کد تأیید و الگوها
     post:
       tags:
       - قالب
-      summary: ارسال قالب با پارامتر p جداشده با ;.
-      description: 'مجوز لازم برای کلید: `Send`. دسترسی OTP حساب نیز باید فعال باشد.'
+      summary: ارسال قالب با پارامترهای جداشده با نقطه‌ویرگول با بدنه JSON
+      description: |-
+        ارسال قالب به یک گیرنده با پارامترهای مرتب‌شده در یک رشته `p`. جداکننده مقدارها نقطه‌ویرگول `;` است؛ به‌جای فیلدهای جداگانه `p1` تا `p10`، مقدارها در همین رشته فرستاده می‌شوند.
+
+        بدنه JSON الزامی است و باید فیلد `ApiKey` داشته باشد؛ اسکیمای مقدار این فیلد `string` یا `null` است.
+
+        مجوز لازم برای کلید: `Send`. دسترسی OTP حساب نیز باید فعال باشد.
       operationId: SendTokenSingleConcatParam
       parameters:
       - name: source-app
         in: header
-        description: نام اختیاری برنامهٔ شما برای ثبت در گزارش درخواست‌ها؛ حداکثر ۱۰۰ نویسه. این مقدار
-          کلید دسترسی نیست.
+        description: نام اختیاری برنامهٔ شما برای ثبت در گزارش درخواست‌ها؛ حداکثر ۱۰۰ نویسه. این مقدار کلید
+          دسترسی نیست.
         schema:
           type: string
           maxLength: 100
@@ -778,7 +451,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TokenResponse'
+                $ref: '#/components/schemas/SendTokenSingleConcatParamResponse'
               examples:
                 success:
                   summary: پاسخ موفق
@@ -817,632 +490,763 @@ paths:
         default:
           description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
       x-source-operation-id: LegacyV3_SendTokenSingleConcatParam
-      x-source-tags:
-      - کد تأیید و الگوها
+
   /SendTokenMulti:
     post:
-      tags:
-      - قالب
-      summary: ارسال قالب با پارامترهای مخصوص هر گیرنده.
-      description: 'مجوز لازم برای کلید: `Send`. دسترسی OTP حساب نیز باید فعال باشد.'
       operationId: SendTokenMulti
-      parameters:
-      - name: source-app
-        in: header
-        description: نام اختیاری برنامهٔ شما برای ثبت در گزارش درخواست‌ها؛ حداکثر ۱۰۰ نویسه. این مقدار
-          کلید دسترسی نیست.
-        schema:
-          type: string
-          maxLength: 100
+      tags: [قالب]
+      summary: ارسال یک قالب به چند گیرنده با مقادیر متفاوت
+      description: |
+        یک قالب واحد، چند گیرنده، و برای هر گیرنده مجموعه پارامترهای خودش.
+        پارامترها اینجا آرایه‌اند (`Parameters`)، نه `p1` تا `p10`، و ترتیب
+        آرایه همان ترتیب جای‌گاه‌های `{1}`، `{2}`، … است.
       requestBody:
-        x-name: req
-        description: کلید، شمارهٔ فرستنده و کلید الگو را با اطلاعات حساب خود جایگزین کنید.
+        required: true
         content:
           application/json:
-            schema:
-              $ref: '#/components/schemas/SendTokenMultiRequest'
-            examples:
-              request:
-                summary: نمونهٔ درخواست
-                value:
-                  ApiKey: YOUR_API_KEY
-                  TemplateKey: YOUR_APPROVED_TEMPLATE
-                  Recipients:
-                  - Destination: 989120000001
-                    UserTraceId: 10001
-                    Parameters:
-                    - '123456'
-        required: true
-        x-position: 1
+            schema: { $ref: '#/components/schemas/SendTokenMultiRequest' }
       responses:
         '200':
-          description: 'ابتدا Success را بررسی کنید: نتیجه در Result و خطا در ErrorCode و Error است.'
+          description: پاسخ سامانه. موفقیت را از فیلد `Success` بخوانید.
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/TokenResponse'
-              examples:
-                success:
-                  summary: پاسخ موفق
-                  value:
-                    Success: true
-                    ErrorCode: null
-                    Error: null
-                    Result:
-                    - UserTraceId: 10001
-                      Id: 123456789012345
-                      Sender: 3000123456
-                      FinalText: 'کد تأیید شما: 123456'
-                invalid-key:
-                  summary: کلید نامعتبر
-                  value:
-                    Success: false
-                    ErrorCode: 1
-                    Error: ApiKey نادرست است
-                    Result: null
-                invalid-input:
-                  summary: ورودی نامعتبر
-                  value:
-                    Success: false
-                    ErrorCode: 9
-                    Error: مقادیر ورودی نادرست است
-                    Result: null
-                insufficient-credit:
-                  summary: اعتبار ناکافی
-                  value:
-                    Success: false
-                    ErrorCode: 19
-                    Error: اعتبار حساب کافی نیست
-                    Result: null
-        '429':
-          description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
-        default:
-          description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
-      x-source-operation-id: LegacyV3_SendTokenMulti
-      x-source-tags:
-      - کد تأیید و الگوها
+              schema: { $ref: '#/components/schemas/TokenResponse' }
+
   /TokenList:
     post:
-      tags:
-      - قالب
-      summary: فهرست قالب‌های حساب و وضعیت تأیید آن‌ها.
-      description: 'مجوز لازم برای کلید: `Send`. دسترسی OTP حساب نیز باید فعال باشد.'
       operationId: TokenList
-      parameters:
-      - name: source-app
-        in: header
-        description: نام اختیاری برنامهٔ شما برای ثبت در گزارش درخواست‌ها؛ حداکثر ۱۰۰ نویسه. این مقدار
-          کلید دسترسی نیست.
-        schema:
-          type: string
-          maxLength: 100
+      tags: [قالب]
+      summary: فهرست قالب‌های تعریف‌شده
+      description: |
+        قالب‌های حساب را با کلید، متن و وضعیت تأییدشان برمی‌گرداند. برای پیدا
+        کردن `TemplateKey` که متدهای ارسال قالب لازم دارند. روی سرور آزمایشی
+        فهرستی ساختگی برمی‌گردد که برای آزمودن ادغام است، نه قالب‌های واقعی حساب.
       requestBody:
-        x-name: req
-        description: کلید، شمارهٔ فرستنده و کلید الگو را با اطلاعات حساب خود جایگزین کنید.
+        required: true
         content:
           application/json:
-            schema:
-              $ref: '#/components/schemas/ApiKeyOnlyRequest'
-            examples:
-              request:
-                summary: نمونهٔ درخواست
-                value:
-                  ApiKey: YOUR_API_KEY
-        required: true
-        x-position: 1
+            schema: { $ref: '#/components/schemas/ApiKeyOnlyRequest' }
       responses:
         '200':
-          description: 'ابتدا Success را بررسی کنید: نتیجه در Result و خطا در ErrorCode و Error است.'
+          description: پاسخ سامانه. موفقیت را از فیلد `Success` بخوانید.
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/TokenListResponse'
-              examples:
-                success:
-                  summary: پاسخ موفق
-                  value:
-                    Success: true
-                    ErrorCode: null
-                    Error: null
-                    Result:
-                    - Key: YOUR_APPROVED_TEMPLATE
-                      TextTemplate: 'کد تأیید شما: {1}'
-                      VoiceTemplate: null
-                      Status: 2
-                invalid-key:
-                  summary: کلید نامعتبر
-                  value:
-                    Success: false
-                    ErrorCode: 1
-                    Error: ApiKey نادرست است
-                    Result: null
-                invalid-input:
-                  summary: ورودی نامعتبر
-                  value:
-                    Success: false
-                    ErrorCode: 9
-                    Error: مقادیر ورودی نادرست است
-                    Result: null
-        '429':
-          description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
-        default:
-          description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
-      x-source-operation-id: LegacyV3_TokenList
-      x-source-tags:
-      - کد تأیید و الگوها
+              schema: { $ref: '#/components/schemas/TokenListResponse' }
+
   /StatusById:
     post:
-      tags:
-      - گزارش
-      summary: دریافت وضعیت تحویل با شناسه عددی پیام V3.
-      description: دریافت وضعیت تحویل با شناسه عددی پیام V3.
       operationId: StatusById
-      parameters:
-      - name: source-app
-        in: header
-        description: نام اختیاری برنامهٔ شما برای ثبت در گزارش درخواست‌ها؛ حداکثر ۱۰۰ نویسه. این مقدار
-          کلید دسترسی نیست.
-        schema:
-          type: string
-          maxLength: 100
+      tags: [گزارش]
+      summary: وضعیت پیامک با شناسه سامانه
+      description: |
+        وضعیت یک یا چند پیامک را با `Id`هایی که متدهای ارسال برگردانده‌اند
+        می‌گیرد.
+
+        وضعیت پیامک بلافاصله نهایی نیست: پیامک از `۰` (در صف سامانه) شروع
+        می‌شود و تا `۴` (تحویل به گوشی) چند مرحله جلو می‌رود. برای گزارش
+        تحویل، فاصله چند دقیقه‌ای بین ارسال و استعلام لازم است.
+
+        فهرست کامل مقادیر در `codes/status-codes.yaml`.
       requestBody:
-        x-name: req
-        description: کلید، شمارهٔ فرستنده و کلید الگو را با اطلاعات حساب خود جایگزین کنید.
+        required: true
         content:
           application/json:
-            schema:
-              $ref: '#/components/schemas/StatusByIdRequest'
-            examples:
-              request:
-                summary: نمونهٔ درخواست
-                value:
-                  ApiKey: YOUR_API_KEY
-                  Ids:
-                  - 1
-        required: true
-        x-position: 1
+            schema: { $ref: '#/components/schemas/StatusByIdRequest' }
       responses:
         '200':
-          description: 'ابتدا Success را بررسی کنید: نتیجه در Result و خطا در ErrorCode و Error است.'
+          description: پاسخ سامانه. موفقیت را از فیلد `Success` بخوانید.
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-              examples:
-                success:
-                  summary: پاسخ موفق
-                  value:
-                    Success: true
-                    ErrorCode: null
-                    Error: null
-                    Result:
-                    - Id: 123456789012345
-                      UserTraceId: 10001
-                      StatusCode: 4
-                      Status: تحویل به گوشی
-                invalid-key:
-                  summary: کلید نامعتبر
-                  value:
-                    Success: false
-                    ErrorCode: 1
-                    Error: ApiKey نادرست است
-                    Result: null
-                invalid-input:
-                  summary: ورودی نامعتبر
-                  value:
-                    Success: false
-                    ErrorCode: 9
-                    Error: مقادیر ورودی نادرست است
-                    Result: null
-        '429':
-          description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
-        default:
-          description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
-      x-source-operation-id: LegacyV3_StatusById
-      x-source-tags:
-      - گزارش تحویل
-      x-description-source: summary; published description is empty
+              schema: { $ref: '#/components/schemas/StatusResponse' }
+
   /StatusByUserTraceId:
     post:
-      tags:
-      - گزارش
-      summary: دریافت وضعیت تحویل با شناسه پیگیری شما.
-      description: دریافت وضعیت تحویل با شناسه پیگیری شما.
       operationId: StatusByUserTraceId
-      parameters:
-      - name: source-app
-        in: header
-        description: نام اختیاری برنامهٔ شما برای ثبت در گزارش درخواست‌ها؛ حداکثر ۱۰۰ نویسه. این مقدار
-          کلید دسترسی نیست.
-        schema:
-          type: string
-          maxLength: 100
+      tags: [گزارش]
+      summary: وضعیت پیامک با شناسه پی‌گیری خودتان
+      description: |
+        همان `StatusById`، اما با شناسه‌هایی که خودتان هنگام ارسال تعیین
+        کرده‌اید. اگر `UserTraceId` را کلید رکورد پایگاه داده خودتان بگذارید،
+        دیگر لازم نیست `Id` سامانه را ذخیره کنید.
       requestBody:
-        x-name: req
-        description: کلید، شمارهٔ فرستنده و کلید الگو را با اطلاعات حساب خود جایگزین کنید.
+        required: true
         content:
           application/json:
-            schema:
-              $ref: '#/components/schemas/StatusByUserTraceIdRequest'
-            examples:
-              request:
-                summary: نمونهٔ درخواست
-                value:
-                  ApiKey: YOUR_API_KEY
-                  UserTraceIds:
-                  - 10001
-        required: true
-        x-position: 1
+            schema: { $ref: '#/components/schemas/StatusByUserTraceIdRequest' }
       responses:
         '200':
-          description: 'ابتدا Success را بررسی کنید: نتیجه در Result و خطا در ErrorCode و Error است.'
+          description: پاسخ سامانه. موفقیت را از فیلد `Success` بخوانید.
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-              examples:
-                success:
-                  summary: پاسخ موفق
-                  value:
-                    Success: true
-                    ErrorCode: null
-                    Error: null
-                    Result:
-                    - Id: 123456789012345
-                      UserTraceId: 10001
-                      StatusCode: 4
-                      Status: تحویل به گوشی
-                invalid-key:
-                  summary: کلید نامعتبر
-                  value:
-                    Success: false
-                    ErrorCode: 1
-                    Error: ApiKey نادرست است
-                    Result: null
-                invalid-input:
-                  summary: ورودی نامعتبر
-                  value:
-                    Success: false
-                    ErrorCode: 9
-                    Error: مقادیر ورودی نادرست است
-                    Result: null
-        '429':
-          description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
-        default:
-          description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
-      x-source-operation-id: LegacyV3_StatusByUserTraceId
-      x-source-tags:
-      - گزارش تحویل
-      x-description-source: summary; published description is empty
+              schema: { $ref: '#/components/schemas/StatusResponse' }
+
   /AccountInfo:
     post:
-      tags:
-      - حساب
-      summary: دریافت اعتبار و خطوط مجاز با پاسخ V3.
-      description: دریافت اعتبار و خطوط مجاز با پاسخ V3.
       operationId: AccountInfo
-      parameters:
-      - name: source-app
-        in: header
-        description: نام اختیاری برنامهٔ شما برای ثبت در گزارش درخواست‌ها؛ حداکثر ۱۰۰ نویسه. این مقدار
-          کلید دسترسی نیست.
-        schema:
-          type: string
-          maxLength: 100
+      tags: [حساب]
+      summary: اعتبار و خطوط فعال حساب
+      description: |
+        اعتبار باقی‌مانده و فهرست خطوط قابل استفاده به‌عنوان `Sender`.
+
+        سبک‌ترین متد سرویس، و مناسب‌ترین فراخوانی برای آزمودن درستی کلید:
+        چیزی ارسال نمی‌کند و اعتباری مصرف نمی‌کند.
       requestBody:
-        x-name: req
-        description: کلید، شمارهٔ فرستنده و کلید الگو را با اطلاعات حساب خود جایگزین کنید.
+        required: true
         content:
           application/json:
-            schema:
-              $ref: '#/components/schemas/ApiKeyOnlyRequest'
-            examples:
-              request:
-                summary: نمونهٔ درخواست
-                value:
-                  ApiKey: YOUR_API_KEY
-        required: true
-        x-position: 1
+            schema: { $ref: '#/components/schemas/ApiKeyOnlyRequest' }
       responses:
         '200':
-          description: 'ابتدا Success را بررسی کنید: نتیجه در Result و خطا در ErrorCode و Error است.'
+          description: پاسخ سامانه. موفقیت را از فیلد `Success` بخوانید.
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/AccountInfoResponse'
-              examples:
-                success:
-                  summary: پاسخ موفق
-                  value:
-                    Success: true
-                    ErrorCode: null
-                    Error: null
-                    Result:
-                      Credit: 1000000
-                      AvailableSenders:
-                      - 3000123456
-                invalid-key:
-                  summary: کلید نامعتبر
-                  value:
-                    Success: false
-                    ErrorCode: 1
-                    Error: ApiKey نادرست است
-                    Result: null
-                invalid-input:
-                  summary: ورودی نامعتبر
-                  value:
-                    Success: false
-                    ErrorCode: 9
-                    Error: مقادیر ورودی نادرست است
-                    Result: null
-        '429':
-          description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
-        default:
-          description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
-      x-source-operation-id: LegacyV3_AccountInfo
-      x-source-tags:
-      - اطلاعات حساب
-      x-description-source: summary; published description is empty
+              schema: { $ref: '#/components/schemas/AccountInfoResponse' }
+
   /GetInbox:
     post:
-      tags:
-      - دریافت
-      summary: دریافت پیام‌های ورودی خوانده‌نشده؛ پیام‌ها خوانده‌شده می‌شوند. فیلد فرستنده Form است.
-      description: دریافت پیام‌های ورودی خوانده‌نشده؛ پیام‌ها خوانده‌شده می‌شوند. فیلد فرستنده Form است.
       operationId: GetInbox
-      parameters:
-      - name: source-app
-        in: header
-        description: نام اختیاری برنامهٔ شما برای ثبت در گزارش درخواست‌ها؛ حداکثر ۱۰۰ نویسه. این مقدار
-          کلید دسترسی نیست.
-        schema:
-          type: string
-          maxLength: 100
+      tags: [دریافت]
+      summary: پیامک‌های رسیده به خطوط حساب
+      description: |
+        پیامک‌هایی را که کاربران به خطوط حساب شما فرستاده‌اند برمی‌گرداند.
+
+        این متد یک استعلام است، نه webhook: سامانه چیزی به سرور شما نمی‌فرستد
+        و باید خودتان دوره‌ای فراخوانی کنید.
+
+        فیلد فرستنده در پاسخ `Form` نام دارد. این غلط املایی در خود سرویس است
+        و به‌عمد اصلاح نشده تا مستندات با پاسخ واقعی یکی بماند؛ در کد خودتان
+        دنبال `From` نگردید.
       requestBody:
-        x-name: req
-        description: کلید، شمارهٔ فرستنده و کلید الگو را با اطلاعات حساب خود جایگزین کنید.
+        required: true
         content:
           application/json:
-            schema:
-              $ref: '#/components/schemas/ApiKeyOnlyRequest'
-            examples:
-              request:
-                summary: نمونهٔ درخواست
-                value:
-                  ApiKey: YOUR_API_KEY
-        required: true
-        x-position: 1
+            schema: { $ref: '#/components/schemas/ApiKeyOnlyRequest' }
       responses:
         '200':
-          description: 'ابتدا Success را بررسی کنید: نتیجه در Result و خطا در ErrorCode و Error است.'
+          description: پاسخ سامانه. موفقیت را از فیلد `Success` بخوانید.
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/InboxResponse'
-              examples:
-                success:
-                  summary: پاسخ موفق
-                  value:
-                    Success: true
-                    ErrorCode: null
-                    Error: null
-                    Result:
-                    - Id: 123456789012345
-                      Text: پاسخ نمونه
-                      Form: 989120000001
-                      To: 3000123456
-                      Time: '2026-01-01 10:30:00'
-                invalid-key:
-                  summary: کلید نامعتبر
-                  value:
-                    Success: false
-                    ErrorCode: 1
-                    Error: ApiKey نادرست است
-                    Result: null
-                invalid-input:
-                  summary: ورودی نامعتبر
-                  value:
-                    Success: false
-                    ErrorCode: 9
-                    Error: مقادیر ورودی نادرست است
-                    Result: null
-        '429':
-          description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
-        default:
-          description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
-      x-source-operation-id: LegacyV3_GetInbox
-      x-source-tags:
-      - صندوق دریافت
-      x-description-source: summary; published description is empty
+              schema: { $ref: '#/components/schemas/InboxResponse' }
+
 components:
+
   schemas:
-    SendResponse:
-      description: پاسخ V3 شامل Success، ErrorCode، Error و Result است؛ در موفقیت Error برابر null است.
-      allOf:
-      - $ref: '#/components/schemas/ResponseEnvelope'
-      - type: object
-        properties:
-          Result:
-            type:
-            - array
-            - 'null'
-            description: نتیجه درخواست؛ در خطا برای داده‌ها null و برای نتیجه بولی false است.
-            items:
-              $ref: '#/components/schemas/SentMessage'
-      unevaluatedProperties: false
+
+    ApiKey:
+      type: string
+      description: |
+        کلید اختصاصی حساب. از پنل کاربری پیام رسان گرفته می‌شود و شکل آن
+        شش رقم شناسه کاربری، یک خط تیره، و دست‌کم پانزده نویسه حرف و عدد
+        است. طول بخش دوم ثابت نیست؛ کلیدهای بلندتر هم صادر می‌شوند، پس
+        در کد خودتان طول ثابت فرض نکنید.
+
+        کلید یک راز است: در مخزن کد، در فایل کامپایل‌شده اپلیکیشن موبایل و
+        در جاوااسکریپت سمت مرورگر نباید قرار بگیرد. جای آن متغیر محیطی است.
+      examples:
+        - 123456-XXXXXXXXXXXXXXX
+
     ErrorCode:
-      type: integer
-      description: کدهای خطای V3؛ کد 20 یعنی تعداد درخواست بیش از حد مجاز و با V4 متفاوت است.
-      x-enumNames:
-      - InvalidApiKey
-      - ApiIsNotActive
-      - UserIsNotActive
-      - ApiTemproryDeactive
-      - MethodIsDeactive
-      - NoAuthntication
-      - AccountInfoIsIncomplete
-      - InvalidParameters
-      - IpIsNotValid
-      - MalformattedApiKey
-      - InvalidSender
-      - InvalidDestination
-      - UnauthorizedMethod
-      - DailyLimitReached
-      - ApiLimitReached
-      - NightlyLimitReached
-      - ShareLineLimitReached
-      - CreditIsLow
-      - TooManyRequests
-      - InternalError
-      enum:
-      - 1
-      - 2
-      - 3
-      - 4
-      - 5
-      - 6
-      - 8
-      - 9
-      - 10
-      - 11
-      - 12
-      - 13
-      - 14
-      - 15
-      - 16
-      - 17
-      - 18
-      - 19
-      - 20
-      - 100
-      x-enumDescriptions:
-      - ApiKey نادرست است
-      - ارسال از وبسرویس برای این کاربر فعال نشده است.
-      - کاربر فعال نیست.
-      - ارسال از طریق Api موقتا غیر فعال است.
-      - ارسال از طریق این متد موقتا غیر فعال است.
-      - احراز هویت حساب انجام نشده است.
-      - اطلاعات هویتی کاربر به صورت کامل درج نشده است.
-      - مقادیر ورودی نادرست است.
-      - آی پی درخواست دهنده در لیست آی پی های معتبر نیست
-      - فرمت ورودی ApiKey نادرست است
-      - شماره ارسال کننده نادرست است
-      - شماره دریافت کننده باید با 9 یا 989 شروع شود
-      - شما به این متد دسترسی ندارید
-      - سقف ارسال روزانه به پایان رسید
-      - سقف ارسال Api به پایان رسید
-      - سقف ارسال شبانه به پایان رسید
-      - سقف ارسال خط اشتراکی به پایان رسید
-      - اعتبار حساب کافی نیست
-      - تعداد درخواست بیش از حد مجاز است
-      - خطای داخلی سیستم
+      description: |
+        علت شکست درخواست. فقط وقتی معنا دارد که `Success` برابر `false` باشد.
+        شرح و راهکار هر کد در `codes/error-codes.yaml`.
+
+        ### تلاش دوباره
+
+        فهرست بسته است. هر کد ناشناخته‌ای را مثل `100` رفتار کنید.
+
+        | دسته | کدها | کار |
+        |---|---|---|
+        | با تأخیر فزاینده | `4`، `5`، `20`، `100` | backoff نمایی |
+        | پس از ریست سقف | `15`، `16`، `17`، `18` | تا بازه بعدی صبر کنید |
+        | هرگز | بقیه | تا اصلاح نکنید بی‌فایده است |
+
+        تکرار خطای دسته «هرگز» فقط سهمیه نرخ را می‌سوزاند و در نهایت به
+        کد `20` می‌رسد.
+
+        ### پس از timeout یا کد ۱۰۰
+
+        کورکورانه دوباره نفرستید؛ ممکن است پیامک ثبت شده باشد. اگر هنگام
+        ارسال `UserTraceId` یکتا داده باشید، `StatusByUserTraceId` می‌گوید
+        ثبت شده یا نه. این تنها راه امن است، و دلیل اصلی اینکه چرا باید
+        همیشه `UserTraceId` بفرستید.
+
+        ### دو استثنا
+
+        دو متد `AccountInfo` و `TokenList` از بررسی اعتبار معاف‌اند و حتی با
+        اعتبار صفر هم پاسخ می‌دهند، پس برای آزمودن کلید همیشه امن‌اند.
+      oneOf:
+        - type: 'null'
+        - type: integer
+          format: int32
+          enum: [1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 100]
+
+    ResponseEnvelope:
+      type: object
+      description: |
+        پاکت مشترک همه پاسخ‌ها.
+
+        سه فیلد از چهار فیلد nullable هستند و کدامشان پر باشد به `Success`
+        بستگی دارد:
+
+        | `Success` | `ErrorCode` | `Error` | `Result` |
+        |---|---|---|---|
+        | `true` | `null` | `null` | پر |
+        | `false` | عدد | متن فارسی | `null` |
+
+        `ErrorCode` در حالت موفق `null` است، نه `0`.
+      properties:
+        Success:
+          type: boolean
+          description: |
+            یگانه نشانه معتبر موفقیت. کد وضعیت HTTP در هر حالت `200` است و
+            نباید مبنای تصمیم قرار بگیرد.
+        ErrorCode:
+          $ref: '#/components/schemas/ErrorCode'
+        Error:
+          type: [string, 'null']
+          readOnly: true
+          description: شرح فارسی خطا، متناظر با `ErrorCode`.
+
+    ApiKeyOnlyRequest:
+      type: object
+      required: [ApiKey]
+      properties:
+        ApiKey:
+          $ref: '#/components/schemas/ApiKey'
+
+    # ---------- ارسال ----------
+
     SentMessage:
       type: object
-      additionalProperties: false
+      description: یک گیرنده در پاسخ متدهای ارسال متن.
       properties:
         Id:
           type: integer
-          description: شناسه عددی پیام در سامانه.
           format: int64
+          description: شناسه سامانه. ورودی `StatusById`.
         UserTraceId:
-          type:
-          - integer
-          - 'null'
-          description: شناسه پیگیری عددی دلخواه شما؛ اختیاری و در پاسخ ارسال بازگردانده می‌شود.
-          format: int64
-    SendBulkRequest:
-      type: object
-      additionalProperties: false
-      required:
-      - ApiKey
-      properties:
-        ApiKey:
-          $ref: '#/components/schemas/ApiKey'
-        Text:
-          type:
-          - string
-          - 'null'
-          description: متن پیام.
-        Sender:
           type: integer
-          description: شماره خط فرستنده؛ خطوط مجاز را از اطلاعات حساب بگیرید.
           format: int64
-        Recipients:
-          type:
-          - array
-          - 'null'
-          description: گیرندگان پیام؛ دست‌کم یک گیرنده لازم است.
-          items:
-            $ref: '#/components/schemas/SendBulkRecipient'
+          description: شناسه پی‌گیری که خودتان فرستاده‌اید. ورودی `StatusByUserTraceId`.
+
+    SendResponse:
+      allOf:
+        - $ref: '#/components/schemas/ResponseEnvelope'
+        - type: object
+          properties:
+            Result:
+              type: [array, 'null']
+              description: یک درایه به‌ازای هر گیرنده، به همان ترتیب درخواست.
+              items:
+                $ref: '#/components/schemas/SentMessage'
+
     SendBulkRecipient:
       type: object
-      additionalProperties: false
+      required: [Destination]
       properties:
         Destination:
           type: integer
-          description: شماره موبایل گیرنده، فقط با رقم.
           format: int64
+          description: شماره گیرنده، بدون صفر ابتدایی.
+          examples: [9121112222]
         UserTraceId:
-          type:
-          - integer
-          - 'null'
-          description: شناسه پیگیری عددی دلخواه شما؛ اختیاری و در پاسخ ارسال بازگردانده می‌شود.
+          type: integer
           format: int64
+          description: شناسه دلخواه شما برای این گیرنده، برای گزارش‌گیری بعدی.
+          examples: [45001]
+
+    SendBulkRequest:
+      type: object
+      required: [ApiKey, Text, Sender, Recipients]
+      properties:
+        ApiKey:
+          $ref: '#/components/schemas/ApiKey'
+        Text:
+          type: string
+          description: متن پیامک، یکسان برای همه گیرندگان.
+          examples: [کد تأیید شما ۱۲۳۴۵۶ است]
+        Sender:
+          type: integer
+          format: int64
+          description: یکی از خطوط فعال حساب.
+          examples: [30004040]
+        Recipients:
+          type: array
+          description: حداکثر ۹۹ گیرنده.
+          maxItems: 99
+          items:
+            $ref: '#/components/schemas/SendBulkRecipient'
+
+    SendMultipleRecipient:
+      type: object
+      required: [Sender, Text, Destination]
+      properties:
+        Sender:
+          type: integer
+          format: int64
+          description: خط فرستنده برای همین گیرنده.
+          examples: [30004040]
+        Text:
+          type: string
+          description: متن اختصاصی همین گیرنده.
+          examples: [سفارش شما ارسال شد]
+        Destination:
+          type: integer
+          format: int64
+          description: شماره گیرنده، بدون صفر ابتدایی.
+          examples: [9121112222]
+        UserTraceId:
+          type: integer
+          format: int64
+          description: شناسه دلخواه شما برای این گیرنده.
+          examples: [45001]
+
     SendMultipleRequest:
+      type: object
+      required: [ApiKey, Recipients]
+      properties:
+        ApiKey:
+          $ref: '#/components/schemas/ApiKey'
+        Recipients:
+          type: array
+          description: حداکثر ۹۹ گیرنده. متن و خط فرستنده در سطح هر گیرنده تعریف می‌شود، نه در سطح درخواست.
+          maxItems: 99
+          items:
+            $ref: '#/components/schemas/SendMultipleRecipient'
+
+    # ---------- قالب ----------
+
+    TokenSentMessage:
+      type: object
+      description: یک گیرنده در پاسخ متدهای ارسال قالب.
+      properties:
+        UserTraceId:
+          type: integer
+          format: int64
+          description: |
+            شناسه پی‌گیری که خودتان فرستاده‌اید. ورودی `StatusByUserTraceId`.
+
+            در `SendTokenSingle` مقدارش `null` است، چون آن متد چنین فیلدی
+            در ورودی ندارد. اگر شناسه پی‌گیری لازم دارید، `SendTokenMulti`
+            را حتی برای یک گیرنده هم می‌شود به کار برد.
+        Id:
+          type: integer
+          format: int64
+          description: شناسه سامانه. ورودی `StatusById`.
+        Sender:
+          type: integer
+          format: int64
+          description: |
+            خطی که سامانه از روی قالب انتخاب کرده است.
+
+            لزوماً یکی از خطوط `AvailableSenders` در پاسخ `AccountInfo`
+            نیست؛ قالب می‌تواند به خط دیگری بسته باشد.
+        FinalText:
+          type: string
+          description: متن نهایی پس از جای‌گذاری پارامترها در قالب.
+
+    TokenResponse:
+      allOf:
+        - $ref: '#/components/schemas/ResponseEnvelope'
+        - type: object
+          properties:
+            Result:
+              type: [array, 'null']
+              items:
+                $ref: '#/components/schemas/TokenSentMessage'
+
+    SendTokenSingleRequest:
+      type: object
+      required: [ApiKey, TemplateKey, Destination]
+      properties:
+        ApiKey:
+          $ref: '#/components/schemas/ApiKey'
+        TemplateKey:
+          type: string
+          description: کلید قالبِ تأییدشده. یک عبارت انگلیسی است و به بزرگ و کوچک بودن حروف حساس نیست. از `TokenList` گرفته می‌شود.
+          examples: [verifycode]
+        Destination:
+          type: integer
+          format: int64
+          description: شماره گیرنده، بدون صفر ابتدایی.
+          examples: [9121112222]
+        p1:
+          type: string
+          description: مقدار جای‌گاه {1} در قالب.
+          # مثل واریانت GET، فقط جای‌گاه اول مقدار نمونه دارد.
+          examples: ['123456']
+        p2:
+          type: string
+          description: مقدار جای‌گاه {2} در قالب.
+        p3:
+          type: string
+          description: مقدار جای‌گاه {3} در قالب.
+        p4:
+          type: string
+          description: مقدار جای‌گاه {4} در قالب.
+        p5:
+          type: string
+          description: مقدار جای‌گاه {5} در قالب.
+        p6:
+          type: string
+          description: مقدار جای‌گاه {6} در قالب.
+        p7:
+          type: string
+          description: مقدار جای‌گاه {7} در قالب.
+        p8:
+          type: string
+          description: مقدار جای‌گاه {8} در قالب.
+        p9:
+          type: string
+          description: مقدار جای‌گاه {9} در قالب.
+        p10:
+          type: string
+          description: مقدار جای‌گاه {10} در قالب.
+
+    TokenRecipient:
+      type: object
+      required: [Destination]
+      properties:
+        Destination:
+          type: integer
+          format: int64
+          description: شماره گیرنده، بدون صفر ابتدایی.
+          examples: [9121112222]
+        UserTraceId:
+          type: integer
+          format: int64
+          description: شناسه دلخواه شما برای این گیرنده.
+          examples: [45001]
+        Parameters:
+          type: array
+          description: |
+            مقادیر جای‌گاه‌های قالب. جایگزین `p1` تا `p10` در واریانت
+            تک‌گیرنده.
+
+            درایه اول به `{1}` می‌نشیند، دومی به `{2}` و همین‌طور تا آخر.
+            ترتیب از **شماره** جای‌گاه می‌آید، نه از جایی که در متن قالب
+            دیده می‌شود. در قالبی که متنش با `{2}` شروع شود و `{1}` بعد
+            بیاید، باز هم درایه اول آرایه در `{1}` می‌نشیند.
+          examples:
+            - ["BARCODE-AAA", "شیراز"]
+          items:
+            type: string
+
+    SendTokenMultiRequest:
+      type: object
+      required: [ApiKey, TemplateKey, Recipients]
+      properties:
+        ApiKey:
+          $ref: '#/components/schemas/ApiKey'
+        TemplateKey:
+          type: string
+          description: کلید قالب، مشترک بین همه گیرندگان. یک عبارت انگلیسی است و به بزرگ و کوچک بودن حروف حساس نیست.
+          # قالبی با دو جای‌گاه، تا نمونه شکل آرایه Parameters را نشان بدهد.
+          examples: [postcode]
+        Recipients:
+          type: array
+          description: حداکثر ۹۹ گیرنده، هر کدام با مقادیر قالب خودش.
+          maxItems: 99
+          items:
+            $ref: '#/components/schemas/TokenRecipient'
+
+    TokenListDetail:
+      type: object
+      properties:
+        Key:
+          type: string
+          description: همان `TemplateKey` که متدهای ارسال قالب می‌خواهند.
+        TextTemplate:
+          type: string
+          description: متن قالب، با جای‌گاه‌های `{1}`، `{2}`، … .
+        VoiceTemplate:
+          type: [string, 'null']
+          description: قالب تماس صوتی، اگر تعریف شده باشد.
+        Status:
+          type: integer
+          format: int32
+          description: |
+            وضعیت تأیید قالب. فقط مقدار `2` قابل ارسال است.
+
+            پنل کاربری چهار حالت نشان می‌دهد و بین «رد شده، قابل ویرایش» و
+            «رد شده، غیر قابل ویرایش» فرق می‌گذارد، ولی API برای هر دو `3`
+            برمی‌گرداند. اگر برنامه‌تان باید این دو را از هم جدا کند، از
+            این متد نمی‌شود.
+
+            شرح مقادیر در `codes/template-status.yaml`.
+          enum: [1, 2, 3]
+
+    TokenListResponse:
+      allOf:
+        - $ref: '#/components/schemas/ResponseEnvelope'
+        - type: object
+          properties:
+            Result:
+              type: [array, 'null']
+              items:
+                $ref: '#/components/schemas/TokenListDetail'
+
+    # ---------- گزارش ----------
+
+    StatusByIdRequest:
+      type: object
+      required: [ApiKey, Ids]
+      properties:
+        ApiKey:
+          $ref: '#/components/schemas/ApiKey'
+        Ids:
+          type: array
+          description: شناسه‌های سامانه، از پاسخ متدهای ارسال.
+          items:
+            type: integer
+            format: int64
+            examples: [9903211]
+
+    StatusByUserTraceIdRequest:
+      type: object
+      required: [ApiKey, UserTraceIds]
+      properties:
+        ApiKey:
+          $ref: '#/components/schemas/ApiKey'
+        UserTraceIds:
+          type: array
+          description: شناسه‌های پی‌گیری که خودتان هنگام ارسال تعیین کرده‌اید.
+          items:
+            type: integer
+            format: int64
+            examples: [45001]
+
+    StatusItem:
+      type: object
+      properties:
+        Id:
+          type: integer
+          format: int64
+          description: شناسه سامانه، همان که متد ارسال برگردانده است.
+        UserTraceId:
+          type: integer
+          format: int64
+          description: |
+            شناسه پی‌گیری که هنگام ارسال تعیین کرده‌اید.
+
+            اگر پیامک بدون شناسه پی‌گیری فرستاده شده باشد، اینجا برابر
+            `Id` سامانه برمی‌گردد، نه `null`. پس نبودن شناسه را از روی
+            این فیلد تشخیص ندهید.
+        StatusCode:
+          type: integer
+          format: int32
+          description: |
+            وضعیت پیامک. شرح و راهکار هر مقدار در `codes/status-codes.yaml`.
+
+            منطق برنامه را روی همین عدد بنویسید، نه روی متن `Status`.
+
+            ### حلقه استعلام کِی بایستد
+
+            | دسته | کدها | یعنی |
+            |---|---|---|
+            | هنوز در راه | `0`، `1`، `2`، `3`، `10` | بعداً دوباره استعلام کنید |
+            | نهایی | `4`، `5`، `6`، `7`، `9`، `11` تا `16` | دیگر تغییر نمی‌کند، بایستید |
+            | ارسال نشد | `17` تا `21` | مانع را رفع و دوباره بفرستید |
+            | شناسه نیست | `8` | این شناسه در حساب شما نیست |
+
+            وضعیت «هنوز در راه» را دوباره **استعلام** کنید، نه دوباره
+            **ارسال**. فاصله استعلام‌ها را کمتر از چند دقیقه نگذارید،
+            وگرنه به `ErrorCode` برابر `20` می‌خورید.
+
+            کد `1` ممکن است هرگز جلو نرود: بعضی خطوط اصلاً رسید تحویل
+            ندارند و پیامک در همان وضعیت می‌ماند.
+          enum: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]
+        Status:
+          type: string
+          readOnly: true
+          description: شرح فارسی وضعیت، متناظر با `StatusCode`.
+
+    StatusResponse:
+      allOf:
+        - $ref: '#/components/schemas/ResponseEnvelope'
+        - type: object
+          properties:
+            Result:
+              type: [array, 'null']
+              items:
+                $ref: '#/components/schemas/StatusItem'
+
+    # ---------- حساب ----------
+
+    AccountDetail:
+      type: object
+      properties:
+        Credit:
+          type: number
+          format: double
+          description: اعتبار باقی‌مانده حساب.
+        AvailableSenders:
+          type: array
+          description: خطوطی که می‌توانند `Sender` باشند.
+          items:
+            type: integer
+            format: int64
+
+    AccountInfoResponse:
+      allOf:
+        - $ref: '#/components/schemas/ResponseEnvelope'
+        - type: object
+          properties:
+            Result:
+              oneOf:
+                - $ref: '#/components/schemas/AccountDetail'
+                - type: 'null'
+
+    # ---------- دریافت ----------
+
+    InboxItem:
+      type: object
+      properties:
+        Id:
+          type: integer
+          format: int32
+          description: شناسه پیامک دریافتی.
+        Text:
+          type: string
+          description: متن پیامکی که کاربر فرستاده است.
+        Form:
+          type: integer
+          format: int64
+          description: |
+            شماره فرستنده. نام فیلد در خود سرویس `Form` است، نه `From`.
+        To:
+          type: integer
+          format: int64
+          description: خط حساب شما که پیامک به آن رسیده است.
+        Time:
+          type: string
+          description: زمان دریافت، به‌صورت رشته و آن‌طور که سامانه برمی‌گرداند.
+
+    InboxResponse:
+      allOf:
+        - $ref: '#/components/schemas/ResponseEnvelope'
+        - type: object
+          properties:
+            Result:
+              type: [array, 'null']
+              items:
+                $ref: '#/components/schemas/InboxItem'
+
+    SendTokenSingleConcatParamRequest:
       type: object
       additionalProperties: false
       required:
       - ApiKey
       properties:
         ApiKey:
-          $ref: '#/components/schemas/ApiKey'
-        Recipients:
-          type:
-          - array
-          - 'null'
-          description: گیرندگان پیام؛ دست‌کم یک گیرنده لازم است.
-          items:
-            anyOf:
-            - $ref: '#/components/schemas/SendMultipleRecipient'
-            - type: 'null'
-    SendMultipleRecipient:
-      type: object
-      additionalProperties: false
-      properties:
-        Sender:
-          type: integer
-          description: شماره خط فرستنده؛ خطوط مجاز را از اطلاعات حساب بگیرید.
-          format: int64
-        Text:
           type:
           - string
           - 'null'
-          description: متن پیام.
+          description: کلید API حساب؛ الزامی است و با توکن ورود پنل تفاوت دارد.
+          example: YOUR_API_KEY
+        TemplateKey:
+          type:
+          - string
+          - 'null'
+          description: کلید قالب تأییدشده رمز یک‌بارمصرف حساب؛ الزامی.
         Destination:
           type: integer
           description: شماره موبایل گیرنده، فقط با رقم.
           format: int64
-        UserTraceId:
+        p:
           type:
-          - integer
+          - string
           - 'null'
-          description: شناسه پیگیری عددی دلخواه شما؛ اختیاری و در پاسخ ارسال بازگردانده می‌شود.
-          format: int64
-    TokenResponse:
+          description: پارامترهای قالب به ترتیب و با جداکننده ;.
+    SendTokenSingleConcatParamResponse:
+      type: object
       description: پاسخ V3 شامل Success، ErrorCode، Error و Result است؛ در موفقیت Error برابر null است.
-      allOf:
-      - $ref: '#/components/schemas/ResponseEnvelope'
-      - type: object
-        properties:
-          Result:
-            type:
-            - array
-            - 'null'
-            description: نتیجه درخواست؛ در خطا برای داده‌ها null و برای نتیجه بولی false است.
-            items:
-              $ref: '#/components/schemas/TokenSentMessage'
-      unevaluatedProperties: false
-    TokenSentMessage:
+      additionalProperties: false
+      properties:
+        Success:
+          type: boolean
+          description: موفق بودن درخواست؛ دریافت HTTP 200 به‌تنهایی نشانه موفقیت نیست.
+        ErrorCode:
+          description: کد خطا؛ در پاسخ موفق null است.
+          anyOf:
+          - type: integer
+            description: کدهای خطای V3؛ کد 20 یعنی تعداد درخواست بیش از حد مجاز و با V4 متفاوت است.
+            x-enumNames:
+            - InvalidApiKey
+            - ApiIsNotActive
+            - UserIsNotActive
+            - ApiTemproryDeactive
+            - MethodIsDeactive
+            - NoAuthntication
+            - AccountInfoIsIncomplete
+            - InvalidParameters
+            - IpIsNotValid
+            - MalformattedApiKey
+            - InvalidSender
+            - InvalidDestination
+            - UnauthorizedMethod
+            - DailyLimitReached
+            - ApiLimitReached
+            - NightlyLimitReached
+            - ShareLineLimitReached
+            - CreditIsLow
+            - TooManyRequests
+            - InternalError
+            enum:
+            - 1
+            - 2
+            - 3
+            - 4
+            - 5
+            - 6
+            - 8
+            - 9
+            - 10
+            - 11
+            - 12
+            - 13
+            - 14
+            - 15
+            - 16
+            - 17
+            - 18
+            - 19
+            - 20
+            - 100
+            x-enumDescriptions:
+            - ApiKey نادرست است
+            - ارسال از وبسرویس برای این کاربر فعال نشده است.
+            - کاربر فعال نیست.
+            - ارسال از طریق Api موقتا غیر فعال است.
+            - ارسال از طریق این متد موقتا غیر فعال است.
+            - احراز هویت حساب انجام نشده است.
+            - اطلاعات هویتی کاربر به صورت کامل درج نشده است.
+            - مقادیر ورودی نادرست است.
+            - آی پی درخواست دهنده در لیست آی پی های معتبر نیست
+            - فرمت ورودی ApiKey نادرست است
+            - شماره ارسال کننده نادرست است
+            - شماره دریافت کننده باید با 9 یا 989 شروع شود
+            - شما به این متد دسترسی ندارید
+            - سقف ارسال روزانه به پایان رسید
+            - سقف ارسال Api به پایان رسید
+            - سقف ارسال شبانه به پایان رسید
+            - سقف ارسال خط اشتراکی به پایان رسید
+            - اعتبار حساب کافی نیست
+            - تعداد درخواست بیش از حد مجاز است
+            - خطای داخلی سیستم
+          - type: 'null'
+        Error:
+          type:
+          - string
+          - 'null'
+        Result:
+          type:
+          - array
+          - 'null'
+          description: نتیجه درخواست؛ در خطا برای داده‌ها null و برای نتیجه بولی false است.
+          items:
+            $ref: '#/components/schemas/SendTokenSingleConcatParamRecipient'
+    SendTokenSingleConcatParamRecipient:
       type: object
       additionalProperties: false
       properties:
@@ -1461,414 +1265,6 @@ components:
           description: شماره خط فرستنده؛ خطوط مجاز را از اطلاعات حساب بگیرید.
           format: int64
         FinalText:
-          type:
-          - string
-          - 'null'
-    SendTokenSingleRequest:
-      type: object
-      description: پارامترهای قالب برای یک گیرنده؛ نام فیلدها p1 تا p10 است.
-      additionalProperties: false
-      required:
-      - ApiKey
-      properties:
-        ApiKey:
-          $ref: '#/components/schemas/ApiKey'
-        TemplateKey:
-          type:
-          - string
-          - 'null'
-          description: کلید قالب تأییدشده رمز یک‌بارمصرف حساب؛ الزامی.
-        Destination:
-          type: integer
-          description: شماره موبایل گیرنده، فقط با رقم.
-          format: int64
-        p1:
-          type:
-          - string
-          - 'null'
-          description: مقدار پارامتر اول قالب؛ اختیاری.
-        p2:
-          type:
-          - string
-          - 'null'
-          description: مقدار پارامتر دوم قالب؛ اختیاری.
-        p3:
-          type:
-          - string
-          - 'null'
-          description: مقدار پارامتر سوم قالب؛ اختیاری.
-        p4:
-          type:
-          - string
-          - 'null'
-          description: مقدار پارامتر چهارم قالب؛ اختیاری.
-        p5:
-          type:
-          - string
-          - 'null'
-          description: مقدار پارامتر پنجم قالب؛ اختیاری.
-        p6:
-          type:
-          - string
-          - 'null'
-          description: مقدار پارامتر ششم قالب؛ اختیاری.
-        p7:
-          type:
-          - string
-          - 'null'
-          description: مقدار پارامتر هفتم قالب؛ اختیاری.
-        p8:
-          type:
-          - string
-          - 'null'
-          description: مقدار پارامتر هشتم قالب؛ اختیاری.
-        p9:
-          type:
-          - string
-          - 'null'
-          description: مقدار پارامتر نهم قالب؛ اختیاری.
-        p10:
-          type:
-          - string
-          - 'null'
-          description: مقدار پارامتر دهم قالب؛ اختیاری.
-    SendTokenSingleConcatParamRequest:
-      type: object
-      additionalProperties: false
-      required:
-      - ApiKey
-      properties:
-        ApiKey:
-          $ref: '#/components/schemas/ApiKey'
-        TemplateKey:
-          type:
-          - string
-          - 'null'
-          description: کلید قالب تأییدشده رمز یک‌بارمصرف حساب؛ الزامی.
-        Destination:
-          type: integer
-          description: شماره موبایل گیرنده، فقط با رقم.
-          format: int64
-        p:
-          type:
-          - string
-          - 'null'
-          description: پارامترهای قالب به ترتیب و با جداکننده ;.
-    SendTokenMultiRequest:
-      type: object
-      additionalProperties: false
-      required:
-      - ApiKey
-      properties:
-        ApiKey:
-          $ref: '#/components/schemas/ApiKey'
-        TemplateKey:
-          type:
-          - string
-          - 'null'
-          description: کلید قالب تأییدشده رمز یک‌بارمصرف حساب؛ الزامی.
-        Recipients:
-          type:
-          - array
-          - 'null'
-          description: گیرندگان پیام؛ دست‌کم یک گیرنده لازم است.
-          items:
-            $ref: '#/components/schemas/TokenRecipient'
-    TokenRecipient:
-      type: object
-      additionalProperties: false
-      properties:
-        Destination:
-          type: integer
-          description: شماره موبایل گیرنده، فقط با رقم.
-          format: int64
-        UserTraceId:
-          type:
-          - integer
-          - 'null'
-          description: شناسه پیگیری عددی دلخواه شما؛ اختیاری و در پاسخ ارسال بازگردانده می‌شود.
-          format: int64
-        Parameters:
-          type:
-          - array
-          - 'null'
-          items:
-            type: string
-    TokenListResponse:
-      description: پاسخ V3 شامل Success، ErrorCode، Error و Result است؛ در موفقیت Error برابر null است.
-      allOf:
-      - $ref: '#/components/schemas/ResponseEnvelope'
-      - type: object
-        properties:
-          Result:
-            type:
-            - array
-            - 'null'
-            description: نتیجه درخواست؛ در خطا برای داده‌ها null و برای نتیجه بولی false است.
-            items:
-              $ref: '#/components/schemas/TokenListDetail'
-      unevaluatedProperties: false
-    TokenListDetail:
-      type: object
-      additionalProperties: false
-      properties:
-        Key:
-          type:
-          - string
-          - 'null'
-          description: کلید قالب برای قرار دادن در TemplateKey.
-        TextTemplate:
-          type:
-          - string
-          - 'null'
-          description: متن قالب همراه با جای پارامترها.
-        VoiceTemplate:
-          type:
-          - string
-          - 'null'
-          description: متن قالب صوتی V3، در صورت وجود.
-        Status:
-          type: integer
-          description: ''
-          x-enumNames:
-          - Pending
-          - Approved
-          - Rejected
-          enum:
-          - 1
-          - 2
-          - 3
-          x-enumDescriptions:
-          - در انتظار تأیید
-          - تأییدشده
-          - ردشده
-    ApiKeyOnlyRequest:
-      type: object
-      additionalProperties: false
-      required:
-      - ApiKey
-      properties:
-        ApiKey:
-          $ref: '#/components/schemas/ApiKey'
-    StatusResponse:
-      description: پاسخ V3 شامل Success، ErrorCode، Error و Result است؛ در موفقیت Error برابر null است.
-      allOf:
-      - $ref: '#/components/schemas/ResponseEnvelope'
-      - type: object
-        properties:
-          Result:
-            type:
-            - array
-            - 'null'
-            description: نتیجه درخواست؛ در خطا برای داده‌ها null و برای نتیجه بولی false است.
-            items:
-              $ref: '#/components/schemas/StatusItem'
-      unevaluatedProperties: false
-    StatusItem:
-      type: object
-      additionalProperties: false
-      properties:
-        Id:
-          type: integer
-          description: شناسه عددی پیام در سامانه.
-          format: int64
-        UserTraceId:
-          type:
-          - integer
-          - 'null'
-          description: شناسه پیگیری عددی دلخواه شما؛ اختیاری و در پاسخ ارسال بازگردانده می‌شود.
-          format: int64
-        StatusCode:
-          type: integer
-          description: کد وضعیت تحویل؛ جدول همین نسخه را ببینید.
-          x-enumNames:
-          - InQueue
-          - SentNoStatus
-          - SentInQueue
-          - SentPendingToDeliver
-          - Delivered
-          - SentFailed
-          - Failed
-          - BlackList
-          - NotFound
-          - Expired
-          - Unknown
-          - DeactiveDestination
-          - UserBlackList
-          - InvalidDestinationForOperator
-          - HasBlockWord
-          - UnsubscribedByRecepient
-          - BlockedByRequester
-          - DailyLimitReached
-          - ApiLimitReached
-          - NightlyLimitReached
-          - ShareLineLimitReached
-          - AccountNotAuthenticated
-          enum:
-          - 0
-          - 1
-          - 2
-          - 3
-          - 4
-          - 5
-          - 6
-          - 7
-          - 8
-          - 9
-          - 10
-          - 11
-          - 12
-          - 13
-          - 14
-          - 15
-          - 16
-          - 17
-          - 18
-          - 19
-          - 20
-          - 21
-          x-enumDescriptions:
-          - در صف سامانه
-          - ارسال شده، بدون وضعیت
-          - ارسال شده، در صف
-          - در انتظار تحویل گوشی
-          - تحویل به گوشی
-          - نرسیده به گوشی
-          - خطا در ارسال
-          - گیرنده مسدود
-          - شناسه پیدا نشد
-          - منقضی
-          - نامشخص
-          - دریافت کننده نامعتبر
-          - گیرنده در لیست سیاه اکانت شماست
-          - گیرنده نامعتبر
-          - متن بلاک
-          - لغو دریافت توسط گیرنده
-          - بلاک شده
-          - اتمام سقف ارسال روزانه
-          - اتمام سقف ارسال Api
-          - اتمام سقف ارسال شبانه
-          - اتمام سقف خط اشتراکی
-          - حساب احراز نشده
-        Status:
-          type: string
-    StatusByIdRequest:
-      type: object
-      additionalProperties: false
-      required:
-      - ApiKey
-      properties:
-        ApiKey:
-          $ref: '#/components/schemas/ApiKey'
-        Ids:
-          type:
-          - array
-          - 'null'
-          description: شناسه پیام‌های همین حساب، دریافتی از پاسخ ارسال.
-          items:
-            type: integer
-            format: int64
-    StatusByUserTraceIdRequest:
-      type: object
-      additionalProperties: false
-      required:
-      - ApiKey
-      properties:
-        ApiKey:
-          $ref: '#/components/schemas/ApiKey'
-        UserTraceIds:
-          type:
-          - array
-          - 'null'
-          description: شناسه‌های پیگیری دلخواه شما برای جست‌وجو در همین حساب.
-          items:
-            type: integer
-            format: int64
-    AccountInfoResponse:
-      description: پاسخ V3 شامل Success، ErrorCode، Error و Result است؛ در موفقیت Error برابر null است.
-      allOf:
-      - $ref: '#/components/schemas/ResponseEnvelope'
-      - type: object
-        properties:
-          Result:
-            description: نتیجه درخواست؛ در خطا برای داده‌ها null و برای نتیجه بولی false است.
-            anyOf:
-            - $ref: '#/components/schemas/AccountDetail'
-            - type: 'null'
-      unevaluatedProperties: false
-    AccountDetail:
-      type: object
-      additionalProperties: false
-      properties:
-        Credit:
-          type: number
-          description: اعتبار حساب با واحد تعیین‌شده برای V3.
-          format: decimal
-        AvailableSenders:
-          type:
-          - array
-          - 'null'
-          description: خطوط فرستنده مجاز این کلید؛ یکی را در Sender قرار دهید.
-          items:
-            type: integer
-            format: int64
-    InboxResponse:
-      description: پاسخ V3 شامل Success، ErrorCode، Error و Result است؛ در موفقیت Error برابر null است.
-      allOf:
-      - $ref: '#/components/schemas/ResponseEnvelope'
-      - type: object
-        properties:
-          Result:
-            type:
-            - array
-            - 'null'
-            description: نتیجه درخواست؛ در خطا برای داده‌ها null و برای نتیجه بولی false است.
-            items:
-              $ref: '#/components/schemas/InboxItem'
-      unevaluatedProperties: false
-    InboxItem:
-      type: object
-      description: پیام ورودی V3؛ نام فیلد فرستنده طبق قرارداد این نسخه Form است.
-      additionalProperties: false
-      properties:
-        Id:
-          type: integer
-          description: شناسه عددی پیام در سامانه.
-          format: int64
-        Text:
-          type:
-          - string
-          - 'null'
-          description: متن پیام.
-        Form:
-          type: integer
-          description: شماره فرستنده؛ نام Form بخشی از قرارداد V3 است.
-          format: int64
-        To:
-          type: integer
-          format: int64
-        Time:
-          type:
-          - string
-          - 'null'
-    ApiKey:
-      type:
-      - string
-      - 'null'
-      description: کلید API حساب؛ الزامی است و با توکن ورود پنل تفاوت دارد.
-      example: YOUR_API_KEY
-    ResponseEnvelope:
-      type: object
-      properties:
-        Success:
-          type: boolean
-          description: موفق بودن درخواست؛ دریافت HTTP 200 به‌تنهایی نشانه موفقیت نیست.
-        ErrorCode:
-          description: کد خطا؛ در پاسخ موفق null است.
-          anyOf:
-          - $ref: '#/components/schemas/ErrorCode'
-          - type: 'null'
-        Error:
           type:
           - string
           - 'null'
