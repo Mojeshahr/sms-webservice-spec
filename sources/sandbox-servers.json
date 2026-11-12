@@ -1,7 +1,0 @@
-{
-  "confirmed_by": "maintainer",
-  "confirmed_on": "2026-11-11",
-  "verification": "Base URLs confirmed by the maintainer; no endpoint behavior was tested.",
-  "v3": "https://www.payam-resan.com/api/V3SandBox",
-  "v4": "https://www.payam-resan.com/uapi/v4SandBox"
-}
