@@ -1,507 +1,563 @@
+# پاسخ‌های HTTP هر عملیات نسخه ۴؛ مستقل از کدهای خطای API و وضعیت پیام.
+
 version: 4
 sources:
   api: https://www.payam-resan.com/uapi/v4/swagger.json
-  captured: '2026-11-11'
+  captured: '2026-11-12'
   sha256: 3406d26a3258370a7034ebdb8fa42f8b775938ecd2e0785991b3f8bf9e5ab968
-  verification: published-swagger-only
+  verification: published-swagger-and-approved-v3-policy-review
+  policy_reference: ../../v3/codes/error-codes.yaml
+schema_document: ../openapi.yaml
 guidance:
-- کد HTTP با کد خطا یا وضعیت تحویل متفاوت است؛ پاسخ 200 به‌تنهایی نشانه موفقیت نیست.
-- پاسخ default یک کد عددی HTTP نیست؛ برای خطاهای دیگری است که سند جداگانه نام نبرده است.
-- برای پاسخ 429 نام هدر زمان تلاش بعدی و اسکیمای بدنه منتشر نشده است؛ چیزی به آن افزوده نشده است.
-- ارجاع‌های اسکیما نسبت به سند مشخص‌شده در schema_document هستند، نه نام‌های مستعار توصیف محلی.
-schema_document: https://www.payam-resan.com/uapi/v4/swagger.json
+  - کد HTTP از کد خطای API و وضعیت تحویل جداست؛ دریافت 200 به‌تنهایی نشانه موفقیت نیست.
+  - پاسخ default کد عددی HTTP نیست و خطاهای دیگری را پوشش می‌دهد.
+  - ارجاع‌های اسکیما نسبت به سند مشخص‌شده در schema_document هستند.
+  - در پاسخ HTTP 429 زمان تلاش بعدی را از هدر پاسخ بخوانید و نرخ فراخوانی را با backoff نمایی
+    کاهش دهید؛ کد خطای API شماره 20 در نسخه ۴ مربوط به سهمیه ارسال OTP است، نه محدودیت نرخ درخواست.
 operations:
-- method: POST
-  path: /uapi/v4/campaign/draft
-  operation_id: V4Campaign_CreateDraft
-  responses:
-    '200':
-      description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است.'
-      headers: {}
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ApiResponseOfApiCampaignDraftResponse'
-    '429':
-      description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
-      headers: {}
-      content: {}
-    default:
-      description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
-      headers: {}
-      content: {}
-- method: POST
-  path: /uapi/v4/campaign/draft/finalize
-  operation_id: V4Campaign_FinalizeDraft
-  responses:
-    '200':
-      description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است.'
-      headers: {}
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ApiResponseOfApiCampaignSubmitResponse'
-    '429':
-      description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
-      headers: {}
-      content: {}
-    default:
-      description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
-      headers: {}
-      content: {}
-- method: POST
-  path: /uapi/v4/campaign/submit
-  operation_id: V4Campaign_Submit
-  responses:
-    '200':
-      description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است.'
-      headers: {}
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ApiResponseOfApiCampaignSubmitResponse'
-    '429':
-      description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
-      headers: {}
-      content: {}
-    default:
-      description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
-      headers: {}
-      content: {}
-- method: POST
-  path: /uapi/v4/campaign/get
-  operation_id: V4Campaign_Get
-  responses:
-    '200':
-      description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است.'
-      headers: {}
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ApiResponseOfApiCampaignInfoResponse'
-    '429':
-      description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
-      headers: {}
-      content: {}
-    default:
-      description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
-      headers: {}
-      content: {}
-- method: POST
-  path: /uapi/v4/campaign/search
-  operation_id: V4Campaign_Search
-  responses:
-    '200':
-      description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است.'
-      headers: {}
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ApiResponseOfApiPagedResponseOfApiCampaignInfoResponse'
-    '429':
-      description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
-      headers: {}
-      content: {}
-    default:
-      description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
-      headers: {}
-      content: {}
-- method: POST
-  path: /uapi/v4/campaign/recipients
-  operation_id: V4Campaign_Recipients
-  responses:
-    '200':
-      description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است.'
-      headers: {}
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ApiResponseOfApiPagedResponseOfApiCampaignRecipientItem'
-    '429':
-      description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
-      headers: {}
-      content: {}
-    default:
-      description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
-      headers: {}
-      content: {}
-- method: POST
-  path: /uapi/v4/Send
-  operation_id: V4_SendSingle
-  responses:
-    '200':
-      description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است.'
-      headers: {}
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ApiResponseOfListOfSendResponseItem'
-    '429':
-      description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
-      headers: {}
-      content: {}
-    default:
-      description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
-      headers: {}
-      content: {}
-- method: POST
-  path: /uapi/v4/SendBulk
-  operation_id: V4_SendBulk
-  responses:
-    '200':
-      description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است.'
-      headers: {}
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ApiResponseOfListOfSendResponseItem'
-    '429':
-      description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
-      headers: {}
-      content: {}
-    default:
-      description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
-      headers: {}
-      content: {}
-- method: POST
-  path: /uapi/v4/SendMultiple
-  operation_id: V4_SendMultiple
-  responses:
-    '200':
-      description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است.'
-      headers: {}
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ApiResponseOfListOfSendResponseItem'
-    '429':
-      description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
-      headers: {}
-      content: {}
-    default:
-      description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
-      headers: {}
-      content: {}
-- method: POST
-  path: /uapi/v4/SendOtp
-  operation_id: V4_SendOtp
-  responses:
-    '200':
-      description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است.'
-      headers: {}
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ApiResponseOfListOfOtpResponseItem'
-    '429':
-      description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
-      headers: {}
-      content: {}
-    default:
-      description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
-      headers: {}
-      content: {}
-- method: POST
-  path: /uapi/v4/SendVoiceOtp
-  operation_id: V4_SendVoiceOtp
-  responses:
-    '200':
-      description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است.'
-      headers: {}
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ApiResponseOfListOfOtpResponseItem'
-    '429':
-      description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
-      headers: {}
-      content: {}
-    default:
-      description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
-      headers: {}
-      content: {}
-- method: POST
-  path: /uapi/v4/SendTokenMulti
-  operation_id: V4_SendTokenMulti
-  responses:
-    '200':
-      description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است.'
-      headers: {}
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ApiResponseOfListOfOtpResponseItem'
-    '429':
-      description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
-      headers: {}
-      content: {}
-    default:
-      description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
-      headers: {}
-      content: {}
-- method: POST
-  path: /uapi/v4/SendTokenSingle
-  operation_id: V4_SendTokenSingle
-  responses:
-    '200':
-      description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است.'
-      headers: {}
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ApiResponseOfListOfOtpResponseItem'
-    '429':
-      description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
-      headers: {}
-      content: {}
-    default:
-      description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
-      headers: {}
-      content: {}
-- method: GET
-  path: /uapi/v4/SendTokenSingle
-  operation_id: V4_SendTokenSingleByQuery
-  responses:
-    '200':
-      description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است.'
-      headers: {}
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ApiResponseOfListOfOtpResponseItem'
-    '429':
-      description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
-      headers: {}
-      content: {}
-    default:
-      description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
-      headers: {}
-      content: {}
-- method: GET
-  path: /uapi/v4/SendTokenSingleConcatParam
-  operation_id: V4_SendTokenSingleConcatByQuery
-  responses:
-    '200':
-      description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است.'
-      headers: {}
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ApiResponseOfListOfOtpResponseItem'
-    '429':
-      description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
-      headers: {}
-      content: {}
-    default:
-      description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
-      headers: {}
-      content: {}
-- method: POST
-  path: /uapi/v4/SendTokenSingleConcatParam
-  operation_id: V4_SendTokenSingleConcat
-  responses:
-    '200':
-      description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است.'
-      headers: {}
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ApiResponseOfListOfOtpResponseItem'
-    '429':
-      description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
-      headers: {}
-      content: {}
-    default:
-      description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
-      headers: {}
-      content: {}
-- method: POST
-  path: /uapi/v4/GetToken
-  operation_id: V4_GetToken
-  responses:
-    '200':
-      description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است.'
-      headers: {}
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ApiResponseOfListOfTokenListItem'
-    '429':
-      description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
-      headers: {}
-      content: {}
-    default:
-      description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
-      headers: {}
-      content: {}
-- method: POST
-  path: /uapi/v4/StatusById
-  operation_id: V4_StatusById
-  responses:
-    '200':
-      description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است.'
-      headers: {}
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ApiResponseOfListOfStatusResponseItem'
-    '429':
-      description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
-      headers: {}
-      content: {}
-    default:
-      description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
-      headers: {}
-      content: {}
-- method: POST
-  path: /uapi/v4/StatusByUserTraceId
-  operation_id: V4_StatusByUserTraceId
-  responses:
-    '200':
-      description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است.'
-      headers: {}
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ApiResponseOfListOfStatusResponseItem'
-    '429':
-      description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
-      headers: {}
-      content: {}
-    default:
-      description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
-      headers: {}
-      content: {}
-- method: POST
-  path: /uapi/v4/GetAccountInfo
-  operation_id: V4_GetAccountInfo
-  responses:
-    '200':
-      description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است.'
-      headers: {}
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ApiResponseOfAccountDetail'
-    '429':
-      description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
-      headers: {}
-      content: {}
-    default:
-      description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
-      headers: {}
-      content: {}
-- method: POST
-  path: /uapi/v4/GetInbox
-  operation_id: V4_GetInbox
-  responses:
-    '200':
-      description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است.'
-      headers: {}
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ApiResponseOfListOfInboxResponseItem'
-    '429':
-      description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
-      headers: {}
-      content: {}
-    default:
-      description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
-      headers: {}
-      content: {}
-- method: POST
-  path: /uapi/v4/phonebook/groups
-  operation_id: V4_PhonebookGroups
-  responses:
-    '200':
-      description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است.'
-      headers: {}
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ApiResponseOfListOfPhonebookGroupItem'
-    '429':
-      description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
-      headers: {}
-      content: {}
-    default:
-      description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
-      headers: {}
-      content: {}
-- method: POST
-  path: /uapi/v4/phonebook/group
-  operation_id: V4_CreatePhonebookGroup
-  responses:
-    '200':
-      description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است.'
-      headers: {}
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ApiResponseOfCreatePhonebookGroupResult'
-    '429':
-      description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
-      headers: {}
-      content: {}
-    default:
-      description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
-      headers: {}
-      content: {}
-- method: POST
-  path: /uapi/v4/phonebook/group-with-contacts
-  operation_id: V4_CreatePhonebookGroupWithContacts
-  responses:
-    '200':
-      description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است.'
-      headers: {}
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ApiResponseOfCreatePhonebookGroupWithContactsResult'
-    '429':
-      description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
-      headers: {}
-      content: {}
-    default:
-      description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
-      headers: {}
-      content: {}
-- method: POST
-  path: /uapi/v4/phonebook/contacts
-  operation_id: V4_UpsertPhonebookContacts
-  responses:
-    '200':
-      description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است.'
-      headers: {}
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ApiResponseOfUpsertPhonebookContactsResult'
-    '429':
-      description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
-      headers: {}
-      content: {}
-    default:
-      description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
-      headers: {}
-      content: {}
-- method: POST
-  path: /uapi/v4/phonebook/contacts/remove
-  operation_id: V4_RemovePhonebookContacts
-  responses:
-    '200':
-      description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error است.'
-      headers: {}
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ApiResponseOfRemovePhonebookContactsResult'
-    '429':
-      description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
-      headers: {}
-      content: {}
-    default:
-      description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته باشد.
-      headers: {}
-      content: {}
+  - method: POST
+    path: /Send
+    operation_id: V4_SendSingle
+    responses:
+      '200':
+        description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error
+          است.'
+        headers: {}
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiResponseOfListOfSendResponseItem'
+      '429':
+        description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
+        headers: {}
+        content: {}
+      default:
+        description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته
+          باشد.
+        headers: {}
+        content: {}
+  - method: POST
+    path: /SendBulk
+    operation_id: V4_SendBulk
+    responses:
+      '200':
+        description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error
+          است.'
+        headers: {}
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiResponseOfListOfSendResponseItem'
+      '429':
+        description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
+        headers: {}
+        content: {}
+      default:
+        description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته
+          باشد.
+        headers: {}
+        content: {}
+  - method: POST
+    path: /SendMultiple
+    operation_id: V4_SendMultiple
+    responses:
+      '200':
+        description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error
+          است.'
+        headers: {}
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiResponseOfListOfSendResponseItem'
+      '429':
+        description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
+        headers: {}
+        content: {}
+      default:
+        description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته
+          باشد.
+        headers: {}
+        content: {}
+  - method: POST
+    path: /SendOtp
+    operation_id: V4_SendOtp
+    responses:
+      '200':
+        description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error
+          است.'
+        headers: {}
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiResponseOfListOfOtpResponseItem'
+      '429':
+        description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
+        headers: {}
+        content: {}
+      default:
+        description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته
+          باشد.
+        headers: {}
+        content: {}
+  - method: POST
+    path: /SendVoiceOtp
+    operation_id: V4_SendVoiceOtp
+    responses:
+      '200':
+        description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error
+          است.'
+        headers: {}
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiResponseOfListOfOtpResponseItem'
+      '429':
+        description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
+        headers: {}
+        content: {}
+      default:
+        description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته
+          باشد.
+        headers: {}
+        content: {}
+  - method: POST
+    path: /SendTokenMulti
+    operation_id: V4_SendTokenMulti
+    responses:
+      '200':
+        description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error
+          است.'
+        headers: {}
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiResponseOfListOfOtpResponseItem'
+      '429':
+        description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
+        headers: {}
+        content: {}
+      default:
+        description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته
+          باشد.
+        headers: {}
+        content: {}
+  - method: GET
+    path: /SendTokenSingle
+    operation_id: V4_SendTokenSingleByQuery
+    responses:
+      '200':
+        description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error
+          است.'
+        headers: {}
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiResponseOfListOfOtpResponseItem'
+      '429':
+        description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
+        headers: {}
+        content: {}
+      default:
+        description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته
+          باشد.
+        headers: {}
+        content: {}
+  - method: POST
+    path: /SendTokenSingle
+    operation_id: V4_SendTokenSingle
+    responses:
+      '200':
+        description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error
+          است.'
+        headers: {}
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiResponseOfListOfOtpResponseItem'
+      '429':
+        description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
+        headers: {}
+        content: {}
+      default:
+        description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته
+          باشد.
+        headers: {}
+        content: {}
+  - method: GET
+    path: /SendTokenSingleConcatParam
+    operation_id: V4_SendTokenSingleConcatByQuery
+    responses:
+      '200':
+        description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error
+          است.'
+        headers: {}
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiResponseOfListOfOtpResponseItem'
+      '429':
+        description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
+        headers: {}
+        content: {}
+      default:
+        description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته
+          باشد.
+        headers: {}
+        content: {}
+  - method: POST
+    path: /SendTokenSingleConcatParam
+    operation_id: V4_SendTokenSingleConcat
+    responses:
+      '200':
+        description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error
+          است.'
+        headers: {}
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiResponseOfListOfOtpResponseItem'
+      '429':
+        description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
+        headers: {}
+        content: {}
+      default:
+        description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته
+          باشد.
+        headers: {}
+        content: {}
+  - method: POST
+    path: /GetToken
+    operation_id: V4_GetToken
+    responses:
+      '200':
+        description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error
+          است.'
+        headers: {}
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiResponseOfListOfTokenListItem'
+      '429':
+        description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
+        headers: {}
+        content: {}
+      default:
+        description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته
+          باشد.
+        headers: {}
+        content: {}
+  - method: POST
+    path: /StatusById
+    operation_id: V4_StatusById
+    responses:
+      '200':
+        description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error
+          است.'
+        headers: {}
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiResponseOfListOfStatusResponseItem'
+      '429':
+        description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
+        headers: {}
+        content: {}
+      default:
+        description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته
+          باشد.
+        headers: {}
+        content: {}
+  - method: POST
+    path: /StatusByUserTraceId
+    operation_id: V4_StatusByUserTraceId
+    responses:
+      '200':
+        description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error
+          است.'
+        headers: {}
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiResponseOfListOfStatusResponseItem'
+      '429':
+        description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
+        headers: {}
+        content: {}
+      default:
+        description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته
+          باشد.
+        headers: {}
+        content: {}
+  - method: POST
+    path: /GetAccountInfo
+    operation_id: V4_GetAccountInfo
+    responses:
+      '200':
+        description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error
+          است.'
+        headers: {}
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiResponseOfAccountDetail'
+      '429':
+        description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
+        headers: {}
+        content: {}
+      default:
+        description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته
+          باشد.
+        headers: {}
+        content: {}
+  - method: POST
+    path: /GetInbox
+    operation_id: V4_GetInbox
+    responses:
+      '200':
+        description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error
+          است.'
+        headers: {}
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiResponseOfListOfInboxResponseItem'
+      '429':
+        description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
+        headers: {}
+        content: {}
+      default:
+        description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته
+          باشد.
+        headers: {}
+        content: {}
+  - method: POST
+    path: /phonebook/groups
+    operation_id: V4_PhonebookGroups
+    responses:
+      '200':
+        description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error
+          است.'
+        headers: {}
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiResponseOfListOfPhonebookGroupItem'
+      '429':
+        description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
+        headers: {}
+        content: {}
+      default:
+        description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته
+          باشد.
+        headers: {}
+        content: {}
+  - method: POST
+    path: /phonebook/group
+    operation_id: V4_CreatePhonebookGroup
+    responses:
+      '200':
+        description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error
+          است.'
+        headers: {}
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiResponseOfCreatePhonebookGroupResult'
+      '429':
+        description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
+        headers: {}
+        content: {}
+      default:
+        description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته
+          باشد.
+        headers: {}
+        content: {}
+  - method: POST
+    path: /phonebook/group-with-contacts
+    operation_id: V4_CreatePhonebookGroupWithContacts
+    responses:
+      '200':
+        description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error
+          است.'
+        headers: {}
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiResponseOfCreatePhonebookGroupWithContactsResult'
+      '429':
+        description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
+        headers: {}
+        content: {}
+      default:
+        description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته
+          باشد.
+        headers: {}
+        content: {}
+  - method: POST
+    path: /phonebook/contacts
+    operation_id: V4_UpsertPhonebookContacts
+    responses:
+      '200':
+        description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error
+          است.'
+        headers: {}
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiResponseOfUpsertPhonebookContactsResult'
+      '429':
+        description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
+        headers: {}
+        content: {}
+      default:
+        description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته
+          باشد.
+        headers: {}
+        content: {}
+  - method: POST
+    path: /phonebook/contacts/remove
+    operation_id: V4_RemovePhonebookContacts
+    responses:
+      '200':
+        description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error
+          است.'
+        headers: {}
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiResponseOfRemovePhonebookContactsResult'
+      '429':
+        description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
+        headers: {}
+        content: {}
+      default:
+        description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته
+          باشد.
+        headers: {}
+        content: {}
+  - method: POST
+    path: /campaign/draft
+    operation_id: V4Campaign_CreateDraft
+    responses:
+      '200':
+        description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error
+          است.'
+        headers: {}
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiResponseOfApiCampaignDraftResponse'
+      '429':
+        description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
+        headers: {}
+        content: {}
+      default:
+        description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته
+          باشد.
+        headers: {}
+        content: {}
+  - method: POST
+    path: /campaign/draft/finalize
+    operation_id: V4Campaign_FinalizeDraft
+    responses:
+      '200':
+        description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error
+          است.'
+        headers: {}
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiResponseOfApiCampaignSubmitResponse'
+      '429':
+        description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
+        headers: {}
+        content: {}
+      default:
+        description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته
+          باشد.
+        headers: {}
+        content: {}
+  - method: POST
+    path: /campaign/submit
+    operation_id: V4Campaign_Submit
+    responses:
+      '200':
+        description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error
+          است.'
+        headers: {}
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiResponseOfApiCampaignSubmitResponse'
+      '429':
+        description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
+        headers: {}
+        content: {}
+      default:
+        description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته
+          باشد.
+        headers: {}
+        content: {}
+  - method: POST
+    path: /campaign/get
+    operation_id: V4Campaign_Get
+    responses:
+      '200':
+        description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error
+          است.'
+        headers: {}
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiResponseOfApiCampaignInfoResponse'
+      '429':
+        description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
+        headers: {}
+        content: {}
+      default:
+        description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته
+          باشد.
+        headers: {}
+        content: {}
+  - method: POST
+    path: /campaign/search
+    operation_id: V4Campaign_Search
+    responses:
+      '200':
+        description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error
+          است.'
+        headers: {}
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiResponseOfApiPagedResponseOfApiCampaignInfoResponse'
+      '429':
+        description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
+        headers: {}
+        content: {}
+      default:
+        description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته
+          باشد.
+        headers: {}
+        content: {}
+  - method: POST
+    path: /campaign/recipients
+    operation_id: V4Campaign_Recipients
+    responses:
+      '200':
+        description: 'ابتدا success را بررسی کنید: نتیجه در result و خطا در errorCode و error
+          است.'
+        headers: {}
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiResponseOfApiPagedResponseOfApiCampaignRecipientItem'
+      '429':
+        description: تعداد درخواست بیش از حد مجاز است؛ زمان تلاش بعدی را از هدر پاسخ بخوانید.
+        headers: {}
+        content: {}
+      default:
+        description: خطای ارتباط یا سرور؛ قالب پاسخ ممکن است با پاسخ معمول وب‌سرویس تفاوت داشته
+          باشد.
+        headers: {}
+        content: {}
