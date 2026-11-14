@@ -1,146 +1,112 @@
-# Working with this repository
+# Working with our API reference
 
-This is the machine-readable description of the Payam Resan SMS web service,
-an Iranian SMS provider. It is the source that the documentation site, the
-per-language example repositories and the MCP server derive from.
+We own and develop the Payam Resan SMS web service. Our product and engineering
+teams maintain this repository as the authoritative machine-readable contract
+for our documentation site, language examples, client generators and MCP server.
 
-It is not a client library and not a guide. If someone wants working code,
-send them to their language's repository at <https://github.com/Mojeshahr>; if
-they want something to read, send them to <https://docs.payam-resan.com>. What
-lives here is the description itself, for tools and code generators.
+## Source and scope
 
-## What you would use this for
+Use our development team's approved documentation and each version's Swagger
+together. Swagger is incomplete and must not replace verified team knowledge.
+Use each version's Swagger independently for additions:
+- V3: https://www.payam-resan.com/api/V3/swagger.json
+- V4: https://www.payam-resan.com/uapi/v4/swagger.json
 
-Generating a client, or building the V3 error and status tables into an
-application. `specs/v3/openapi.yaml` has thirteen published operations across eleven paths;
-`specs/v3/codes/` has three enum tables and a per-operation HTTP response table.
-`specs/v4/openapi.yaml` records 26 published operations across 24 paths.
-`specs/v4/codes/` has the same HTTP response inventory plus all six published
-enum tables: errors, message delivery, templates, campaign progress, campaign
-filters and campaign recipients. HTTP status is distinct from every API enum;
-`default` is not a numeric HTTP code. Do not copy V3 retry/polling policies to V4.
-Unpublished policies remain null with a note. V4 Swagger-only rows have
-`confirmed: false` and produce explicit validation warnings, not errors.
-The former 25 sandbox definitions are preserved in
-`sources/v4/previous-sandbox.json`, explicitly as historical evidence, not a
-current published contract. Never silently discard them or infer their current
-behavior from the production schema. Both specifications record Swagger claims,
-not newly observed live behavior. Four operations in each version use the
-published summary because the longer description is empty.
+V3 publishes 13 operations across 11 paths; V4 publishes 26 across 24.
+Specifications and code tables are maintained directly under `specs/v3/`
+and `specs/v4/`. Update these files in place. Do not add source-copy
+directories, approval manifests, generators or test directories.
+Preserve V3 descriptions, constraints, examples, code rows, retry rules,
+polling policies, template/panel mappings and confirmed metadata.
+An omission in Swagger is not grounds to remove approved information.
 
-`sources/` holds exact Swagger captures, provenance hashes and upstream issues.
-`sources/sandbox-servers.json` records maintainer-confirmed sandbox bases:
-V3 `/api/V3SandBox` and V4 `/uapi/v4SandBox`. The V4 Swagger capture still
-contains the obsolete `/uapi/v4/sandbox` address; never restore that as current
-guidance. V4 `SendMultiple` is production-only according to Swagger.
-`scripts/sync_swagger.py <v3|v4> --check` detects drift; omit `--check` only to
-regenerate from a reviewed snapshot, including the HTTP/V4 enum tables.
-`scripts/validate_swagger.py v3 v4` checks every operation's HTTP declarations,
-all six V4 enum tables, and
-coverage, references and examples using PyYAML and jsonschema. Three upstream
-V4 campaign success examples omit a timezone: their exact originals are kept
-under `x-invalid-source-examples`, with hash-bound issues recorded separately.
-Never guess a timezone or weaken a validator to make an example pass.
+## Verified facts and engineering decisions
 
-A version is a folder, not a branch and not a tag. Nothing inside an existing
-version folder is ever moved or renamed.
+Never infer missing behavior. The restored V3 information is verified and
+approved by our development team. New Swagger declarations are an additional
+source and do not invalidate that information. Record the verification
+method honestly. `confirmed: false` on a code row means no independent runtime
+confirmation; the code and label must still match the source exactly.
 
-## Persian README line starts
+If behavior is unclear or information is missing, ask the user directly before
+documenting it. Wait for a confirmed answer; do not infer a resolution, create
+a public question register or put internal review notes in official documentation.
+Only verified, confirmed information belongs in the specification and READMEs.
+Preserve the approved V3 retry, polling and sendability values. For V4, do not
+copy these policies without confirmation; missing V4 values remain null. Source notes record
+provenance, not unresolved questions or instructions for a development team.
+Record verification method, environment and date accurately. Never record credentials or customer data.
+Do not issue sending, billing, campaign or data-changing requests without
+authorization and a defined test environment.
+
+Known invalid Swagger examples must not be included in the specifications. Do not guess timestamps, weaken validation or
+mark unresolved questions as resolved to make checks pass.
+
+## Wire contract requirements
+
+- Preserve every operation, HTTP method, path, parameter, request and response
+  schema, authentication requirement, content type, example and constraint.
+- Preserve required and nullable independently. Report conflicts between prose
+  and schema directly to the user before documenting an interpretation.
+- V3 `TokenList` and V4 `GetToken` list templates; neither issues login tokens.
+  Their request casing, result fields and status enums differ.
+- V3 inbox sender is `Form`, not `From`. Keep the current wire name; an
+  implementation correction requires an explicit contract change.
+- HTTP status is separate from API errors, delivery and campaign enums.
+  `default` is not numeric. HTTP 200 requires checking the success envelope.
+- The API key is a required query parameter on GET or a JSON property on POST.
+  Do not invent a header security scheme for the JSON credential.
+- V3 template states are 1–3, with the approved panel mappings and sendability
+  rules preserved. V4 independently publishes 1–4, including
+  `RejectedPermanently`; its policies require V4-specific evidence.
+
+Our confirmed sandbox bases are V3 `/api/V3SandBox` and V4 `/uapi/v4SandBox`,
+as confirmed by the user. Do not replace them with obsolete addresses. V4 `SendMultiple` is
+production-only in our published contract. Do not promise other sandbox
+behavior that the user has not confirmed.
+
+A version is a folder. Do not move or rename files inside an existing version.
+Our V3 code directory contains three enum tables and one HTTP inventory.
+V4 contains six enum tables and one HTTP inventory. V3 tables must preserve
+the approved team reference, including documented non-current rows marked
+`exists: false`. V4 code labels and source hashes must match its own evidence.
+
+## Persian README formatting
 
 Every physical README line containing Persian text must have a Persian first
 word after Markdown/HTML formatting is removed. This includes table rows,
-wrapped prose, diagrams and code comments. English identifiers, URLs, paths
-and numbers cannot precede the first Persian word on such a line. Keep pure
-code/path lines free of Persian trailing comments or put the comments on their
-own Persian-leading lines. Check every README, including the English file.
-`python3 scripts/validate_readmes.py` enforces this rule; the baseline
-`scripts/validate.py` also runs it. Do not weaken the check to pass a document.
+wrapped prose, diagrams and code comments, in both READMEs. Latin identifiers,
+paths, URLs and numbers cannot come first. Keep code lines free of Persian
+trailing comments. Never weaken the README check in `scripts/validate.py` to pass prose.
 
-## Three behaviours any generated client must encode
+Use our internal product and engineering perspective in all repository
+documentation. Both READMEs must cover the same material and section order.
+Preserve the brand spelling `پیام رسان`, with a real space, and the linked
+`payam-resan.com` footer. Introduce the Persian brand as `پنل پیامکی پیام رسان`.
 
-These published details matter to generated clients. Treat them as Swagger
-claims; this reconciliation did not independently test service behavior:
-
-**HTTP 200 alone does not imply success.** V3 Swagger publishes `200`, `429`,
-and `default`. Read `Success` when the usual response envelope is present;
-other HTTP errors can have a different shape. These are published claims,
-not live-service tests from this reconciliation.
-
-**In V3, `ErrorCode` means something only on failure.** Until `Success` is
-`false`, reading it is meaningless.
-
-**In V3, the key travels inside the request** — a query parameter on `GET`, a
-body field on `POST`, never a header. This is why the spec declares no
-`securityScheme`: OpenAPI cannot express a credential that sits in a JSON body.
-The key is an explicit required query parameter or body property instead.
-Published required and nullable declarations must remain distinct, even when
-the provider’s prose disagrees. `GetToken` exists in V4 and lists templates;
-V3 calls this operation `TokenList`. Neither generates a login token.
-
-## V3 spellings your code has to match
-
-The sender field in V3 `GetInbox` is named **`Form`, not `From`**. It is
-documented exactly that way so generated code matches the real response. Do not
-correct it.
-
-V3 Swagger publishes three template states. Prior panel observations separated
-two kinds of rejection, both recorded as API code `3`; that historical evidence
-is retained in `specs/v3/codes/template-status.yaml` and has not been retested.
-V4 independently publishes four states, including `RejectedPermanently`.
-
-## Why the V3 code tables live outside the spec
-
-The `ErrorCode` and `StatusCode` values are needed in two places: as an `enum`
-in the response schema, and as a "what does this number mean" table that the
-documentation, the examples and the MCP server render. Neither is enough on its
-own, and keeping the Persian text inside the `description` of an enum makes it
-practically unusable.
-
-So the V3 numbers stay in the spec, the text lives in `specs/v3/codes/`, and
-`scripts/validate.py` fails if the two drift apart.
-
-What the tables carry beyond the text:
-
-- `retry` on each error code — `never`, `backoff` or `limit-reset`. A client
-  that ignores this will hammer a code that can never succeed until the account
-  hits error `20`.
-- `disposition` on each status code — `pending`, `final`, `not-sent` or
-  `not-found`. This is what tells a polling loop when to stop.
-- `sendable` on each template state.
-
-Rows also carry their provenance: `in_api`, `in_legacy_docs`, `confirmed`. A
-row that is not `confirmed` is a gap in the service, not in this repository, and
-it is a warning rather than an error.
-
-## If you are changing something here
-
-Never guess. If you do not know what an error code means, write `null` and say
-why in `note`. A guessed description in a reference file is worse than a missing
-one, because it propagates into the documentation, the language examples and the
-MCP server, and nobody reviews it again downstream.
-
-This repository describes an external service. Nothing here is ever "fixed" —
-what is recorded is exactly how the service behaves, misspellings included.
-
-Two checks must be green, and the way to pass them is to satisfy them, never to
-silence them:
+## Required checks
 
 ```bash
 python3 scripts/validate.py
-docker run --rm -v "$PWD:/spec" redocly/cli lint specs/v3/openapi.yaml specs/v4/openapi.yaml
+docker run --rm -v "$PWD:/spec" -w /spec redocly/cli lint specs/v3/openapi.yaml specs/v4/openapi.yaml
 ```
 
-Redocly has exactly two rules disabled: `security-defined`, because the key is
-a body field on `POST`; and the existing `operation-4xx-response` exception.
-Both current Swagger documents now publish HTTP 429 responses.
-Treat the V4 status codes as documented claims, not independently verified
-runtime behavior.
+Podman may replace Docker. The validator checks code-table consistency,
+references, operation metadata and Persian README formatting. Preserve the
+original V3 content and verify new operations against Swagger. Warnings remain
+explicit; do not convert missing evidence into confirmation. `--strict`
+intentionally fails on warnings.
 
-A change to `openapi.yaml` reaches three consumers. Name the method or the field
-that changed in the commit message, so those repositories know what to
-regenerate.
+Our existing Redocly exceptions are `security-defined` and
+`operation-4xx-response`. Do not disable further rules to hide contract defects.
 
-## Where to go next
+## Git and downstream changes
 
-- Human documentation: <https://docs.payam-resan.com>
-- Working code in twenty languages: <https://github.com/Mojeshahr>
+Do not commit or push without explicit user approval. Use the approved
+repository author identity; never add assistant attribution or co-author trailers.
+Use `type(scope): subject` messages without a body. Name changed methods or
+fields when updating OpenAPI so consumers know what to regenerate.
+Group independent changes into separate commits when requested.
+
+Human documentation: https://docs.payam-resan.com
+Language examples: https://github.com/Mojeshahr

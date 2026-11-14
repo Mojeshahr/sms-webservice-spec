@@ -1,122 +1,93 @@
 # Contributing
 
-Maintainer notes for this repository: the rules that keep it consistent with the
-other repositories in this organisation and with the documentation site.
+Our product and engineering teams maintain this repository as the authoritative
+API contract for the Payam Resan SMS web service. Changes propagate to our
+documentation, language examples, client generators and MCP server.
 
-If you came here to use this repository rather than change it, read `AGENTS.md`
-instead.
+## Evidence before changes
 
-## Rule one: never guess
+Our development team's approved V3 reference and its verified observations
+are authoritative. Preserve all descriptions, constraints, error handling,
+retry and polling rules, code rows and examples. Swagger is incomplete; an
+omission there does not justify deleting approved content. The
+reference is maintained directly under `specs/v3/`.
 
-If you do not know what an error code means, what a field holds or how a method
-behaves, write `null` and say why in `note`. A guessed description in a
-reference file is worse than a missing one, because it propagates into the
-documentation, the language examples and the MCP server, and nobody reviews it
-again downstream.
+Use each version's own Swagger for additions and V4 details. Do not infer
+functionality. As authorized by our product owner, use approved V3 policies as
+references for V4 only after checking the corresponding functionality and
+meaning independently in V4. Record that policy source separately from runtime
+verification. Preserve version-specific differences.
 
-The V3 tables under `specs/v3/codes/` carry `in_api` and `in_legacy_docs` so
-the origin of every row stays visible. A row with neither is a row from nowhere,
-and it should be removed.
+Keep runtime testing distinct from published-contract verification.
+`confirmed: false` means a code has not been independently tested; it does
+not invalidate an exact extraction from our Swagger. V3 retains the original
+confirmed flags and policy values supplied by our team. V4-only policies remain
+null when neither V4 evidence nor an applicable approved V3 policy supplies them.
 
-The V4 OpenAPI file follows the published Swagger for operation and response
-shapes. Keep claims from that document distinguishable from behavior confirmed
-against the live service; do not copy V3 behavior into V4 to fill a gap.
+Ask the user directly about missing details and schema/prose disagreements
+before documenting them. Wait for a confirmed answer; do not infer behavior.
+Official documentation contains verified facts, not unresolved questions,
+internal review remarks or instructions asking a development team to fix things.
+Verification needs a recorded source, date and scope. Do not request or store
+secrets. Tests that send messages, incur costs or change data need explicit
+authorization and defined test data.
 
-## Rule two: do not correct the service's mistakes
+## Preserve the current wire contract
 
-The sender field in V3 `GetInbox` is spelled `Form`. That spelling lives in the
-service. Correct it here and the generated code stops matching the real
-response, and somebody loses hours finding out why.
+V3 uses `TokenList`; V4 uses `GetToken`. Both list templates, but their
+request and response structures differ. Preserve exact names, casing, required
+fields and nullability. V3 inbox sender `Form` remains the wire name.
 
-Record the mistake verbatim and warn about it in the neighbouring
-`description`.
+We can fix our service and its documentation together. Do not silently rename
+a field in this reference while the implementation still uses the old name.
+Any breaking change needs an explicit compatibility and release decision.
 
-## Rule three: a version is a folder
+A version is a folder under `specs/`. Do not move or rename existing version
+files. Add only released versions. Preserve the verified V3 content; do not
+classify it as obsolete or unsupported just because Swagger omits it.
 
-A new version means a new `specs/v<n>/`. No file inside an existing version
-folder is moved, renamed or rearranged; older versions of the service still
-have customers.
+## Validate changes
 
-No folder is created for a version the service has not released, not even an
-empty one.
-
-## Rule four: satisfy the validator, never silence it
+Edit the specifications and code tables directly under `specs/`.
+Use approved team information and each version's Swagger together. Preserve
+the existing verified content; do not replace it with incomplete metadata.
 
 ```bash
 python3 scripts/validate.py
 docker run --rm -v "$PWD":/spec -w /spec redocly/cli lint specs/v3/openapi.yaml specs/v4/openapi.yaml
 ```
 
-An error means the spec and the tables have drifted apart, and one of them has
-to be corrected.
+Podman may replace Docker. Never weaken validators to pass a contract defect.
+Examples in the specification must match their schemas. V4 timestamp strings
+are timezone-free Tehran local time (UTC+03:30). Use `date-time-local` with its
+pattern for these fields; preserve their values without appending an offset.
 
-A warning means there is a gap in the service itself. Do not quiet a warning by
-filling a table with a guess, and do not remove its condition from
-`validate.py`. A warning goes away when somebody from the service team supplies
-the real answer.
+## Documentation conventions
 
-## Rule five: after every change to the spec
+Write from our internal product and technical perspective. Both
+[Persian](README.md) and [English](README.en.md) READMEs cover the same material
+in the same section order. Explain verified behavior directly. Ask the user
+about anything unclear before adding it to either README or the specification.
 
-A change in `openapi.yaml` reaches three consumers: the documentation site, the
-per-language examples, and the MCP server. Name the method or the field that
-changed in the commit message, so those repositories know what to regenerate.
+Every physical README line containing Persian text must have a Persian first
+word after Markdown/HTML formatting is removed, including tables, code
+comments, wrapped prose and diagrams. Apply this to the English README too.
+Keep code lines free of Persian trailing comments. Do not weaken the check.
 
-## Two languages, two files
+Spell the brand `پیام رسان` with a real space. Introduce it in Persian as
+`پنل پیامکی پیام رسان`. Preserve a linked `payam-resan.com` footer in both
+READMEs. Method and field identifiers retain their exact wire spellings.
 
-The repository carries two READMEs and both stay in step:
+## Review and Git
 
-| File | Language | Direction |
-|---|---|---|
-| `README.md` | Persian | right to left |
-| `README.en.md` | English | left to right |
+A specification change must identify affected operations, fields, examples and
+downstream consumers, and include its verification results. Ask the user about
+open questions in the conversation; do not put them in official documentation.
+Use Issues to track implementation defects, contract decisions and future
+maintenance. Do not create external issues or messages without authorization.
 
-The English file is named exactly `README.en.md`. GitHub renders only
-`README.md` on its own, so both files open with a language switch line so that
-either one leads to the other:
-
-```
-<b>فارسی</b> · <a href="README.en.md">English</a>
-```
-
-**The English text is not a literal translation of the Persian.** Same material,
-written for a reader who does not know Persian and most likely arrived from
-outside Iran. The structure and the section order stay identical, which is what
-makes keeping them in step cheap.
-
-## Persian text
-
-Every README line containing Persian text must start with a Persian word after
-Markdown/HTML formatting, including wrapped lines, table rows, code comments
-and diagrams. A Latin identifier, URL, path or number cannot be the first word.
-Check both READMEs with `python3 scripts/validate_readmes.py`; the baseline
-validator also runs this check. Keep code lines purely Latin when necessary
-and put Persian explanations on separate Persian-leading lines.
-
-Follow the wording, spelling and punctuation already in the repository. When you
-add a passage or rewrite one, match the surrounding text instead of bringing
-your own conventions to it. This covers the README, the comments in the YAML
-files, and every value shown to a reader.
-
-**The brand name takes a real space, not a ZWNJ:** `پیام رسان`. The joined form
-is the common noun for social messaging apps and collides with the brand.
-
-Where the brand is first introduced, use the full phrase
-**پنل پیامکی پیام رسان**.
-
-Every README carries `payam-resan.com` in the footer, written out and linked,
-not merely a link sitting on the brand name.
-
-## Style
-
-- The prose is Persian. Field names and method names are English, spelled
-  exactly as the service spells them.
-- The description of a method says **when to reach for it**, rather than listing
-  its parameters. The schema already lists the parameters.
-- Where a method has a better alternative, say so. In V3, `Send` puts the key
-  in the URL, so `SendBulk` is the one for production. V4 also offers POST
-  alternatives for the template-send GET methods, which put the key in the URL.
-
-## Git
-
-Semantic messages, `type(scope): subject`, with no explanatory body and no
-mention of any tool or assistant. Do not commit without explicit approval.
+Do not commit or push without explicit approval. Use the approved repository
+identity, no assistant attribution and no co-author trailers.
+Commit messages use `type(scope): subject` without a body and name changed
+methods or fields when the specification changes. Group independent operations
+separately so each change remains reviewable.
