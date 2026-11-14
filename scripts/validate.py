@@ -8,11 +8,10 @@
   ۲. هر مسیری که operationId، summary، description یا tag ندارد
   ۳. هر ارجاع شکسته یا مدل بی‌استفاده
 
-enum در spec شامل کدهایی است که `in_api` یا `confirmed` باشند: یا سرویس
-اعلامشان می‌کند، یا ما مستقلاً وجودشان را تأیید کرده‌ایم.
+مرجع نسخه ۳ شامل قرارداد تأییدشده تیم سرویس و افزوده‌های Swagger است.
+اطلاعات تأییدشده صرفاً به دلیل نبودن در Swagger حذف نمی‌شوند.
 
-کدی که `confirmed` نیست یک شکاف در خود سرویس است، نه در این مخزن. شکاف
-خطا نیست، هشدار است، و با `--gaps` فهرست کاملش را می‌گیرید.
+فیلد confirmed نبود تأیید مستقل رفتار را نشان می‌دهد. نبود تأیید رفتار هشدار است و با --gaps گزارش می‌شود.
 
     python3 scripts/validate.py            بررسی و گزارش
     python3 scripts/validate.py --gaps     فقط فهرست شکاف‌ها، برای پیگیری
@@ -22,7 +21,9 @@ enum در spec شامل کدهایی است که `in_api` یا `confirmed` با�
 import sys
 import pathlib
 
-from validate_readmes import check_readmes
+import html
+import re
+import unicodedata
 
 try:
     import yaml
@@ -30,6 +31,35 @@ except ImportError:
     sys.exit("PyYAML لازم است:  pip install pyyaml")
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
+
+
+def visible_line(line):
+    line = html.unescape(line)
+    # An image's alt text is its accessible label, not its HTML attributes.
+    line = re.sub(r'<img\b[^>]*\balt="([^"]*)"[^>]*>', r"\1", line)
+    line = re.sub(r"<[^>]+>", "", line)
+    line = re.sub(r"!?\[([^\]]*)\]\([^)]*\)", r"\1", line)
+    return line
+
+
+def persian_letter(char):
+    return unicodedata.category(char).startswith("L") and "ARABIC" in unicodedata.name(char, "")
+
+
+def check_readmes():
+    errors = []
+    files = sorted(p for p in ROOT.rglob("*") if p.is_file() and p.name.lower().startswith("readme") and p.suffix.lower() == ".md" and ".git" not in p.parts)
+    for path in files:
+        for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+            text = visible_line(line)
+            if not any(persian_letter(c) for c in text):
+                continue
+            first = next((c for c in text if c.isalnum()), "")
+            if not persian_letter(first):
+                errors.append(f"{path.relative_to(ROOT)}:{number}: Persian line must start with a Persian word: {line}")
+    return files, errors
+
+
 
 # جدول کدها، و جایی در اسکیما که enum متناظرش می‌نشیند.
 TABLES = [
@@ -112,8 +142,7 @@ def check_codes(label, version_dir, schemas):
         table = load(table_path)
         rows = table.get("codes") or []
         in_spec = set(enum)
-        # enum باید دقیقاً کدهای موجود را داشته باشد. جدولی که هنوز ستون
-        # exists ندارد، «موجود» را از in_api یا confirmed می‌گیرد.
+        # هر کد باید در قرارداد منتشرشده پشتوانه داشته باشد.
         expected = {r["code"] for r in rows if row_exists(r)}
 
         for code in sorted(in_spec - expected):
@@ -134,18 +163,10 @@ def check_codes(label, version_dir, schemas):
             elif not row.get("confirmed"):
                 if table.get("sources", {}).get("verification") == "published-swagger-only":
                     reason = "فقط Swagger بررسی شده؛ تأیید مستقل سرویس انجام نشده است"
-                elif not row.get("in_legacy_docs"):
-                    reason = "سرویس اعلامش می‌کند ولی شرح رسمی ندارد"
-                elif not row.get("in_api"):
-                    reason = "مستند شده ولی سرویس اعلامش نمی‌کند"
                 else:
-                    reason = "تأیید نشده"
+                    reason = "شاهد تأیید مستقل ثبت نشده است"
                 gaps.append((label, what, code, reason))
                 warnings.append(f"{label}: {what} {code} تأیید نشده، {reason}")
-
-            # کدی که در فهرست پیشین بود و دیگر در سرویس وجود ندارد.
-            if row.get("exists") is False and row.get("in_legacy_docs"):
-                warnings.append(f"{label}: {what} {code} دیگر در سرویس وجود ندارد")
 
 
 def check_operations(label, spec):
